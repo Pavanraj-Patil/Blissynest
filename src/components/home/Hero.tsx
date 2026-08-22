@@ -4,16 +4,34 @@ import { heroImage } from "@/lib/mock-data";
 
 export function Hero() {
   return (
-    <section className="mx-auto max-w-[1440px] px-4 md:px-8 pt-10 md:pt-14">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-        <div className="lg:pt-6">
+    <section className="relative h-[460px] sm:h-[500px] md:h-[560px] lg:h-[620px] w-full overflow-hidden">
+      <Image
+        src={heroImage}
+        alt="An open Blissynest gift box with a candle, mug, card, and blanket, surrounded by dried flowers"
+        fill
+        priority
+        className="object-cover object-[68%_center]"
+        sizes="100vw"
+      />
+
+      {/* Scrim: opaque cream on the left for text legibility, fading out to reveal the photo on the right */}
+      <div
+        className="absolute inset-0
+          bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_78%,transparent_100%)]
+          sm:bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_62%,transparent_92%)]
+          md:bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_48%,transparent_75%)]
+          lg:bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_38%,transparent_62%)]"
+      />
+
+      <div className="relative h-full mx-auto max-w-[1440px] px-4 md:px-8 flex items-center">
+        <div className="max-w-[16rem] sm:max-w-sm lg:max-w-lg">
           <p className="text-gold text-sm mb-4 tracking-widest">❧❧❧❧</p>
-          <h1 className="font-serif text-[2.6rem] sm:text-5xl lg:text-[3.4rem] leading-[1.08] text-charcoal">
+          <h1 className="font-serif text-[2.3rem] sm:text-5xl lg:text-[3.4rem] leading-[1.08] text-charcoal">
             For every feeling
             <br />
             worth celebrating.
           </h1>
-          <p className="mt-5 text-ink-muted text-base sm:text-lg max-w-md leading-relaxed">
+          <p className="mt-5 text-charcoal-light text-base sm:text-lg leading-relaxed">
             Thoughtfully curated gifts for the people who make life
             beautiful.
           </p>
@@ -24,19 +42,6 @@ export function Hero() {
             <Button href="/collections" variant="outline">
               Explore Collections
             </Button>
-          </div>
-        </div>
-
-        <div className="relative">
-          <div className="relative aspect-[10/7] w-full overflow-hidden rounded-[2rem] shadow-xl">
-            <Image
-              src={heroImage}
-              alt="An open Blissynest gift box with a candle, mug, card, and blanket"
-              fill
-              priority
-              className="object-cover"
-              sizes="(min-width: 1024px) 50vw, 100vw"
-            />
           </div>
         </div>
       </div>

@@ -183,4 +183,4 @@ export const navLinks: SimpleLink[] = [
   { label: "Personalised", href: "/personalised" },
 ];
 
-export const heroImage = ph(800, 560, "e3d3bd", "2a2621", "Blissynest Gift Box");
+export const heroImage = ph(1920, 700, "e3d3bd", "2a2621", "Blissynest Gift Box");
