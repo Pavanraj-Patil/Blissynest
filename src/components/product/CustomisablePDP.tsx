@@ -187,7 +187,7 @@ export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
               <QuantityStepper value={quantity} onChange={setQuantity} />
             </div>
 
-            <div className="mt-6 hidden lg:flex gap-3 lg:sticky lg:bottom-4 lg:z-10 lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-cream/95 lg:backdrop-blur lg:p-4 lg:shadow-lg">
+            <div className="mt-6 hidden lg:flex gap-3 lg:sticky lg:top-[calc(100vh-6rem)] lg:z-10 lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-cream/95 lg:backdrop-blur lg:p-4 lg:shadow-lg">
               <button className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors">
                 <ShoppingBag size={15} />
                 Add to Cart
