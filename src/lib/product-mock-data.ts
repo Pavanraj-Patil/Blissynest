@@ -25,7 +25,6 @@ type BaseProduct = {
   images: string[];
   breadcrumbCategory: string;
   benefits: { icon: string; label: string }[];
-  perfectFor?: string[];
   productDetails: ProductDetailsAccordion;
   relatedSlugs?: string[];
 };
@@ -34,7 +33,6 @@ export type HamperProduct = BaseProduct & {
   pdpType: "hamper";
   whatsInside: { icon: string; name: string; subtitle: string; qty: string }[];
   personalNote?: { label: string; price: number };
-  whyYoullLove: string[];
 };
 
 export type CustomisableProduct = BaseProduct & {
@@ -55,7 +53,6 @@ export type CustomisableProduct = BaseProduct & {
 export type StandaloneProduct = BaseProduct & {
   pdpType: "standalone";
   highlights: string[];
-  whyYoullLoveText: string;
   variants?: { label: string; options: string[] }[];
 };
 
@@ -127,13 +124,6 @@ const flagshipProducts: ProductDetail[] = [
       },
     ],
     personalNote: { label: "Add a handwritten note", price: 199 },
-    perfectFor: ["Birthday", "Self Care", "Thank You", "Just Because", "Milestone"],
-    whyYoullLove: [
-      "Handpicked self-care essentials",
-      "Calming, relaxing & mood lifting",
-      "Beautifully packaged & ready to gift",
-      "Makes every birthday extra special",
-    ],
     productDetails: {
       description:
         "A thoughtfully curated box of self-care essentials, perfect for celebrating another trip around the sun. Every item is chosen to help them slow down and feel cared for.",
@@ -232,13 +222,10 @@ const flagshipProducts: ProductDetail[] = [
       "40+ hour burn time",
       "Made with essential-oil fragrance",
     ],
-    whyYoullLoveText:
-      "This isn't just a candle — it's an invitation to slow down. Made with premium soy wax and a soft, layered scent, it fills a room without overwhelming it. Whether it's a quiet night in or a thoughtful gift for someone who deserves a pause, this candle was made for exactly that moment.",
     variants: [
       { label: "Scent", options: ["Lavender", "Vanilla", "Sandalwood"] },
       { label: "Size", options: ["150g", "250g"] },
     ],
-    perfectFor: ["Birthday", "Thank You", "Just Because", "Housewarming", "Self Care"],
     productDetails: {
       description:
         "A calming soy candle hand-poured in small batches, made to fill a room with warmth without ever feeling heavy. Every detail — from the fragrance to the finish — is designed for slow evenings and thoughtful gifting.",
@@ -295,8 +282,6 @@ function fallbackFromShopProduct(product: ShopProduct): StandaloneProduct {
       "Ready to gift",
       "Loved by many",
     ],
-    whyYoullLoveText: `${product.name} is a small, considered gesture — the kind of gift that says you paid attention. Beautifully packaged and ready to hand over, it fits any moment worth marking.`,
-    perfectFor: product.occasions,
     productDetails: {
       description: `${product.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
@@ -330,8 +315,6 @@ function fallbackFromBestseller(name: string): StandaloneProduct | null {
       "Ready to gift",
       "Loved by many",
     ],
-    whyYoullLoveText: `${match.name} is a small, considered gesture — the kind of gift that says you paid attention. Beautifully packaged and ready to hand over, it fits any moment worth marking.`,
-    perfectFor: ["Birthday", "Thank You", "Just Because"],
     productDetails: {
       description: `${match.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",

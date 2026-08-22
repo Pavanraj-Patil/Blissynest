@@ -9,8 +9,6 @@ import { FeatureIconRow } from "./FeatureIconRow";
 import { WhatsInsideList } from "./WhatsInsideList";
 import { DeliveryCheck } from "./DeliveryCheck";
 import { AccordionItem } from "./Accordion";
-import { PerfectForTags } from "./PerfectForTags";
-import { WhyYoullLoveIt } from "./WhyYoullLoveIt";
 import { ShareProduct } from "./ShareProduct";
 import { RelatedProducts } from "./RelatedProducts";
 import type { HamperProduct } from "@/lib/product-mock-data";
@@ -101,27 +99,20 @@ export function HamperPDP({ product }: { product: HamperProduct }) {
         </div>
       </div>
 
-      <div className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-14">
-        <div>
-          <AccordionItem title="Product Details" defaultOpen>
-            <p>{product.productDetails.description}</p>
+      <div className="mt-14 max-w-2xl">
+        <AccordionItem title="Product Details" defaultOpen>
+          <p>{product.productDetails.description}</p>
+        </AccordionItem>
+        <AccordionItem title="Delivery & Returns">
+          <p>{product.productDetails.delivery}</p>
+        </AccordionItem>
+        {product.productDetails.care && (
+          <AccordionItem title="Care Instructions">
+            <p>{product.productDetails.care}</p>
           </AccordionItem>
-          <AccordionItem title="Delivery & Returns">
-            <p>{product.productDetails.delivery}</p>
-          </AccordionItem>
-          {product.productDetails.care && (
-            <AccordionItem title="Care Instructions">
-              <p>{product.productDetails.care}</p>
-            </AccordionItem>
-          )}
-          <div className="pt-5">
-            <ShareProduct productName={product.name} />
-          </div>
-        </div>
-
-        <div className="space-y-8">
-          {product.perfectFor && <PerfectForTags tags={product.perfectFor} />}
-          <WhyYoullLoveIt items={product.whyYoullLove} />
+        )}
+        <div className="pt-5">
+          <ShareProduct productName={product.name} />
         </div>
       </div>
 

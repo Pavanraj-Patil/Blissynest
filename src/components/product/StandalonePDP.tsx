@@ -8,7 +8,6 @@ import { QuantityStepper } from "./QuantityStepper";
 import { VariantPills } from "./VariantPills";
 import { DeliveryCheck } from "./DeliveryCheck";
 import { AccordionItem } from "./Accordion";
-import { PerfectForTags } from "./PerfectForTags";
 import { ShareProduct } from "./ShareProduct";
 import { RelatedProducts } from "./RelatedProducts";
 import type { StandaloneProduct } from "@/lib/product-mock-data";
@@ -82,29 +81,18 @@ export function StandalonePDP({ product }: { product: StandaloneProduct }) {
         </div>
       </div>
 
-      <div className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-14">
-        <div>
-          <h2 className="text-sm font-semibold text-charcoal mb-4">
-            Product Highlights
-          </h2>
-          <ul className="space-y-2.5">
-            {product.highlights.map((h) => (
-              <li key={h} className="flex items-start gap-2.5 text-sm text-charcoal-light">
-                <Sparkles size={15} className="text-gold shrink-0 mt-0.5" />
-                {h}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-sm font-semibold text-charcoal mb-4">
-            Why You&rsquo;ll Love It
-          </h2>
-          <p className="text-sm text-charcoal-light leading-relaxed">
-            {product.whyYoullLoveText}
-          </p>
-        </div>
+      <div className="mt-14 max-w-2xl">
+        <h2 className="text-sm font-semibold text-charcoal mb-4">
+          Product Highlights
+        </h2>
+        <ul className="space-y-2.5">
+          {product.highlights.map((h) => (
+            <li key={h} className="flex items-start gap-2.5 text-sm text-charcoal-light">
+              <Sparkles size={15} className="text-gold shrink-0 mt-0.5" />
+              {h}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="mt-14 max-w-2xl">
@@ -138,12 +126,6 @@ export function StandalonePDP({ product }: { product: StandaloneProduct }) {
           <ShareProduct productName={product.name} />
         </div>
       </div>
-
-      {product.perfectFor && (
-        <div className="mt-14">
-          <PerfectForTags tags={product.perfectFor} />
-        </div>
-      )}
 
       <div className="mt-14">
         <RelatedProducts products={related} />

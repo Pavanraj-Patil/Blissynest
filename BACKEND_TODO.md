@@ -70,12 +70,12 @@ One dynamic route (`src/app/product/[slug]/page.tsx`) renders one of three layou
 templates based on `pdpType`, all defined in `src/lib/product-mock-data.ts`:
 
 - **`HamperPDP`** — gift boxes/hampers. "What's Inside" item list, an optional
-  paid add-on ("Add a handwritten note"), a "Why They'll Love It" checklist.
+  paid add-on ("Add a handwritten note").
 - **`CustomisablePDP`** — personalisable products. Text-line inputs with a
   **live preview** (font + color + text update in real time), plus a
   scent/variant selector.
-- **`StandalonePDP`** — regular single products. Variant pills (scent/size),
-  product highlights, and an editorial "Why You'll Love It" paragraph.
+- **`StandalonePDP`** — regular single products. Variant pills (scent/size)
+  and product highlights.
 
 Only **3 products have hand-written, reference-matched PDP content**:
 `birthday-self-care-box` (hamper), `personalised-scented-candle`
