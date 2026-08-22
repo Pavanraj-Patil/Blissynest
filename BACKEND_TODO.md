@@ -38,18 +38,20 @@ entry under the right section, one row per feature.
 | Area | Current state | Needed for production |
 |---|---|---|
 | Gifting Assistant (who/occasion/budget selects + "Find My Gift") | Stub — selects have static option lists, button does nothing | Recommendation logic (rules engine or real query) that returns a filtered product set; button should navigate to a results page with those filters applied |
-| Category cards ("Who are you making smile?") | Mostly stub — only `/shop/her` has a real page so far; `/shop/him`, `/shop/parents`, `/shop/couples`, `/shop/friends`, `/shop/colleagues` still 404 | Build out the remaining audience shop pages using the same template as `/shop/her` |
+| Category cards ("Who are you making smile?") | All six now link to real pages — `/shop/[her\|him\|parents\|couples\|friends\|colleagues]`, one dynamic route (`src/app/shop/[audience]/page.tsx`) driven by `src/lib/shop-mock-data.ts` | None — just needs a real catalog behind it (see below) |
 | Occasion cards ("Made for the moment") | Stub — `href="#"`, no occasion landing pages | Build occasion landing/filter pages |
 | Collection cards ("The Blissynest Edit") | Stub — `href="#"`, no collection pages | Build curated collection pages |
 | Bestseller products ("Loved by many") | Mocked — static array in `src/lib/mock-data.ts`, wishlist heart has no effect, links go nowhere | Real product API/DB; product detail pages; working wishlist toggle |
 | Corporate banner links | Stub — `/corporate`, `/corporate/quote` don't exist | Build corporate gifting page + quote request form/flow |
 | All product/placeholder images | Mocked — `placehold.co` placeholders | Real product photography |
 
-## Shop / Collection page (`/shop/her`)
+## Shop / Collection pages (`/shop/[audience]` — her, him, parents, couples, friends, colleagues)
+
+One dynamic route (`src/app/shop/[audience]/page.tsx`) serves all six audiences; invalid slugs 404 via `notFound()`.
 
 | Area | Current state | Needed for production |
 |---|---|---|
-| Product catalog | Mocked — generated dataset in `src/lib/shop-mock-data.ts` (~60 products for the "her" audience only), deterministic (not random) so SSR/CSR match | Real product catalog from a DB/CMS, paginated server-side, one dataset shared across all audience pages instead of a single hardcoded array |
+| Product catalog | Mocked — generated per-audience in `src/lib/shop-mock-data.ts` (56 products × 6 audiences = 336 total), deterministic (not random) so SSR/CSR match. Product copy is hand-written per audience; ratings/reviews/occasion+recipient tags are procedurally derived from a per-audience index, not real signal | Real product catalog from a DB/CMS, paginated server-side, one dataset shared across all audience pages instead of hardcoded arrays |
 | Category filter (pill row + sidebar checkboxes) | **Functional** — filters the mocked dataset client-side | Same UX, but filtering should happen server-side (or via a proper client-side query layer) once the catalog is real and large |
 | Price range filter | **Functional** — dual-handle slider filters the mocked dataset client-side, top value is open-ended ("5000+" = no cap) | Same, server-side once catalog is real |
 | Occasion / Recipient filters | **Functional** — multi-select checkboxes filter client-side; tag options are hand-picked, not derived from real product data | Filter option lists (and their counts) should be derived from the actual catalog, not hardcoded |

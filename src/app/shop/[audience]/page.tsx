@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
+import { notFound } from "next/navigation";
 import { Gift, PackageCheck, Truck, ShieldCheck } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
@@ -15,11 +16,12 @@ import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
 import {
-  shopProducts,
+  shopProductsByAudience,
   shopCategories,
   shopOccasions,
-  shopRecipients,
   audienceShopContent,
+  audienceSlugs,
+  type AudienceSlug,
 } from "@/lib/shop-mock-data";
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
@@ -32,8 +34,24 @@ const featureItems = [
   { icon: ShieldCheck, title: "Happiness Guaranteed", subtitle: "We're here to make it right." },
 ];
 
-export default function GiftsForHerPage() {
-  const content = audienceShopContent.her;
+function isAudienceSlug(value: string): value is AudienceSlug {
+  return (audienceSlugs as string[]).includes(value);
+}
+
+export default function AudienceShopPage({
+  params,
+}: {
+  params: Promise<{ audience: string }>;
+}) {
+  const { audience: audienceParam } = use(params);
+
+  if (!isAudienceSlug(audienceParam)) {
+    notFound();
+  }
+  const audience = audienceParam;
+
+  const content = audienceShopContent[audience];
+  const shopProducts = shopProductsByAudience[audience];
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [priceMin, setPriceMin] = useState(PRICE_BOUNDS.min);
@@ -51,16 +69,16 @@ export default function GiftsForHerPage() {
         label,
         count: shopProducts.filter((p) => p.occasions.includes(label)).length,
       })),
-    []
+    [shopProducts]
   );
 
   const recipientCounts = useMemo(
     () =>
-      shopRecipients.map((label) => ({
+      content.recipients.map((label) => ({
         label,
         count: shopProducts.filter((p) => p.recipients.includes(label)).length,
       })),
-    []
+    [shopProducts, content.recipients]
   );
 
   const filteredProducts = useMemo(() => {
@@ -84,7 +102,7 @@ export default function GiftsForHerPage() {
       }
       return true;
     });
-  }, [selectedCategories, priceMin, priceMax, selectedOccasions, selectedRecipients]);
+  }, [shopProducts, selectedCategories, priceMin, priceMax, selectedOccasions, selectedRecipients]);
 
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
