@@ -74,8 +74,7 @@ templates based on `pdpType`, all defined in `src/lib/product-mock-data.ts`:
 - **`CustomisablePDP`** — personalisable products. Text-line inputs with a
   **live preview** (font + color + text update in real time), plus a
   scent/variant selector.
-- **`StandalonePDP`** — regular single products. Variant pills (scent/size)
-  and product highlights.
+- **`StandalonePDP`** — regular single products. Variant pills (scent/size).
 
 Only **3 products have hand-written, reference-matched PDP content**:
 `birthday-self-care-box` (hamper), `personalised-scented-candle`
@@ -84,7 +83,18 @@ in the app (all 336 shop products + the 5 homepage bestsellers) links to a
 **generated fallback PDP** — `getProductBySlug()` in `product-mock-data.ts`
 builds a reasonable `StandaloneProduct` on the fly from that product's
 existing name/price/rating/category, with generic (not hand-tuned) copy for
-the description, highlights, and "why you'll love it" text.
+the description and "why you'll love it" text.
+
+**Layout**: on desktop, the gallery and the Add to Cart/Buy Now button both
+use `position: sticky` (gallery pins to the top, the button pins to the
+bottom) so they stay in view while the surrounding product info scrolls —
+both release naturally once the info column's own content ends. On mobile,
+a separate `MobileStickyCTA` bar pins to the bottom of the screen and is
+positioned as the last element inside a wrapper that ends right before
+"You may also like", so it releases there via plain CSS sticky (no JS/
+IntersectionObserver needed). A compact `ShareIconButton` sits next to the
+product name (desktop and mobile) and opens a small popover instead of a
+full "Share this product" row.
 
 | Area | Current state | Needed for production |
 |---|---|---|
@@ -97,5 +107,5 @@ the description, highlights, and "why you'll love it" text.
 | Share (WhatsApp / Facebook / Email) | **Genuinely functional** — these open real share URLs (`wa.me`, Facebook sharer, `mailto:`) using the current page URL, no backend needed | None |
 | Share → Copy Link | **Functional** — uses the real Clipboard API | None |
 | "You may also like" | **Functional** — 3 flagship products have hand-picked `relatedSlugs`; everything else falls back to same-category products from the shop catalog | Real recommendation engine (co-purchase data, etc.) |
-| Reviews (rating + count) | Mocked — procedurally generated numbers, no actual review content/system | Real reviews system |
+| Customer Reviews section | Mocked — 3 flagship products have hand-written review cards (`reviewsList`); every other product gets 3 deterministically-generated generic reviews (`generateGenericReviews`) plus a rating-breakdown bar chart derived from a fixed heuristic table keyed to the average rating, not real per-star counts | Real reviews system (submission, moderation, real per-star aggregation) |
 | Product images | Mocked — 1-5 `placehold.co` placeholders per product depending on type | Real product photography |

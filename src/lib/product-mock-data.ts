@@ -15,6 +15,14 @@ export type ProductDetailsAccordion = {
   delivery: string;
 };
 
+export type ProductReview = {
+  name: string;
+  rating: number;
+  date: string;
+  comment: string;
+  verified: boolean;
+};
+
 type BaseProduct = {
   slug: string;
   name: string;
@@ -27,6 +35,7 @@ type BaseProduct = {
   benefits: { icon: string; label: string }[];
   productDetails: ProductDetailsAccordion;
   relatedSlugs?: string[];
+  reviewsList?: ProductReview[];
 };
 
 export type HamperProduct = BaseProduct & {
@@ -52,7 +61,6 @@ export type CustomisableProduct = BaseProduct & {
 
 export type StandaloneProduct = BaseProduct & {
   pdpType: "standalone";
-  highlights: string[];
   variants?: { label: string; options: string[] }[];
 };
 
@@ -135,6 +143,40 @@ const flagshipProducts: ProductDetail[] = [
         "Ships within 24-48 hours. Delivered in premium, ready-to-gift packaging across India.",
     },
     relatedSlugs: ["her-self-care-2", "her-self-care-3", "her-self-care-5", "her-self-care-6"],
+    reviewsList: [
+      {
+        name: "Ananya K.",
+        rating: 5,
+        date: "2 weeks ago",
+        comment:
+          "Ordered this for my sister's birthday and she loved every single item. The candle smells amazing and the packaging alone made it feel so special.",
+        verified: true,
+      },
+      {
+        name: "Rohan M.",
+        rating: 5,
+        date: "1 month ago",
+        comment:
+          "Really thoughtful box — nothing felt like filler. The handwritten card was a lovely touch and it arrived exactly on time.",
+        verified: true,
+      },
+      {
+        name: "Priya S.",
+        rating: 4,
+        date: "1 month ago",
+        comment:
+          "Beautiful presentation and good quality items. Wish the bath bomb was a bit bigger, but overall a great gift box.",
+        verified: true,
+      },
+      {
+        name: "Vikram T.",
+        rating: 5,
+        date: "2 months ago",
+        comment:
+          "This is my second time ordering — consistent quality and always beautifully packed. Highly recommend for birthdays.",
+        verified: false,
+      },
+    ],
   },
   {
     pdpType: "customisable",
@@ -195,6 +237,32 @@ const flagshipProducts: ProductDetail[] = [
       "her-personalised-5",
       "her-personalised-7",
     ],
+    reviewsList: [
+      {
+        name: "Sneha R.",
+        rating: 5,
+        date: "3 weeks ago",
+        comment:
+          "The personalisation came out perfectly, exactly as I typed it. Burns evenly and smells wonderful. Will be ordering more for the holidays.",
+        verified: true,
+      },
+      {
+        name: "Arjun P.",
+        rating: 5,
+        date: "1 month ago",
+        comment:
+          "Got this made for my parents' anniversary with a custom message. The font options made it feel really personal — they were touched.",
+        verified: true,
+      },
+      {
+        name: "Kavya N.",
+        rating: 4,
+        date: "6 weeks ago",
+        comment:
+          "Lovely candle and the preview tool made it easy to get the text right. Delivery took a day longer than expected but worth the wait.",
+        verified: true,
+      },
+    ],
   },
   {
     pdpType: "standalone",
@@ -216,12 +284,6 @@ const flagshipProducts: ProductDetail[] = [
       { icon: "Clock", label: "40+ Hour Burn" },
       { icon: "Sparkles", label: "Essential-Oil Fragrance" },
     ],
-    highlights: [
-      "Hand-poured in small batches",
-      "Premium soy wax for a clean burn",
-      "40+ hour burn time",
-      "Made with essential-oil fragrance",
-    ],
     variants: [
       { label: "Scent", options: ["Lavender", "Vanilla", "Sandalwood"] },
       { label: "Size", options: ["150g", "250g"] },
@@ -241,6 +303,32 @@ const flagshipProducts: ProductDetail[] = [
       "her-home-living-3",
       "her-home-living-5",
       "her-home-living-7",
+    ],
+    reviewsList: [
+      {
+        name: "Rahul D.",
+        rating: 5,
+        date: "2 weeks ago",
+        comment:
+          "Such a calming scent, not overpowering at all. Burns cleanly and the jar looks lovely on my desk even after the candle's done.",
+        verified: true,
+      },
+      {
+        name: "Ananya K.",
+        rating: 4,
+        date: "1 month ago",
+        comment:
+          "Good burn time and lovely fragrance. Gifted the smaller size to a friend and she messaged me immediately asking where it was from.",
+        verified: true,
+      },
+      {
+        name: "Priya S.",
+        rating: 5,
+        date: "2 months ago",
+        comment:
+          "Bought the lavender scent for myself — genuinely helps me unwind in the evenings. Already ordering the sandalwood one next.",
+        verified: false,
+      },
     ],
   },
 ];
@@ -276,12 +364,6 @@ function fallbackFromShopProduct(product: ShopProduct): StandaloneProduct {
       { icon: "Truck", label: "Delivered with Care" },
       { icon: "ShieldCheck", label: "Happiness Guaranteed" },
     ],
-    highlights: [
-      "Thoughtfully selected",
-      "Beautifully packaged",
-      "Ready to gift",
-      "Loved by many",
-    ],
     productDetails: {
       description: `${product.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
@@ -308,12 +390,6 @@ function fallbackFromBestseller(name: string): StandaloneProduct | null {
       { icon: "PackageCheck", label: "Premium Packaging" },
       { icon: "Truck", label: "Delivered with Care" },
       { icon: "ShieldCheck", label: "Happiness Guaranteed" },
-    ],
-    highlights: [
-      "Thoughtfully selected",
-      "Beautifully packaged",
-      "Ready to gift",
-      "Loved by many",
     ],
     productDetails: {
       description: `${match.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
@@ -369,4 +445,71 @@ export function getRelatedProducts(
     reviews: p.reviews,
     image: p.image,
   }));
+}
+
+const genericReviewerNames = [
+  "Priya S.",
+  "Rohan M.",
+  "Ananya K.",
+  "Vikram T.",
+  "Sneha R.",
+  "Arjun P.",
+  "Kavya N.",
+  "Rahul D.",
+];
+
+const genericReviewComments = [
+  "Beautifully packaged and arrived right on time. Exactly what I was hoping for.",
+  "Great quality for the price — the recipient was really happy with it.",
+  "Simple, thoughtful and beautifully presented. Would order again.",
+  "Loved the packaging and the little details. Made gifting so easy.",
+  "Exactly as pictured. Delivery was quick and the presentation was lovely.",
+  "A lovely, considered gift — didn't feel generic at all.",
+];
+
+const genericReviewDates = [
+  "1 week ago",
+  "2 weeks ago",
+  "3 weeks ago",
+  "1 month ago",
+  "6 weeks ago",
+  "2 months ago",
+];
+
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) % 1000;
+  }
+  return hash;
+}
+
+function generateGenericReviews(product: ProductDetail): ProductReview[] {
+  const seed = hashString(product.slug);
+  return Array.from({ length: 3 }).map((_, i) => {
+    const idx = seed + i;
+    return {
+      name: genericReviewerNames[idx % genericReviewerNames.length],
+      rating: Math.max(3, product.rating - (i === 2 ? 1 : 0)),
+      date: genericReviewDates[idx % genericReviewDates.length],
+      comment: genericReviewComments[idx % genericReviewComments.length],
+      verified: i !== 2,
+    };
+  });
+}
+
+export function getProductReviews(product: ProductDetail): ProductReview[] {
+  return product.reviewsList ?? generateGenericReviews(product);
+}
+
+const ratingBreakdowns: Record<number, number[]> = {
+  5: [78, 15, 5, 1, 1],
+  4: [45, 35, 12, 5, 3],
+  3: [20, 30, 30, 12, 8],
+};
+
+export function getRatingBreakdown(rating: number): { stars: number; pct: number }[] {
+  const rounded = Math.min(5, Math.max(3, Math.round(rating)));
+  const pcts = ratingBreakdowns[rounded] ?? ratingBreakdowns[4];
+  return [5, 4, 3, 2, 1].map((stars, i) => ({ stars, pct: pcts[i] }));
 }
