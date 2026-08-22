@@ -8,14 +8,15 @@ export function LovedByMany() {
       <SectionHeader title="Loved by many" eyebrow="Bestsellers" linkLabel="View all" />
       <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
         {bestsellers.map((p) => (
-          <ProductCard
-            key={p.name}
-            name={p.name}
-            price={p.price}
-            rating={p.rating}
-            reviews={p.reviews}
-            image={p.image}
-          />
+          <div key={p.name} className="shrink-0 w-[190px] sm:w-auto">
+            <ProductCard
+              name={p.name}
+              price={p.price}
+              rating={p.rating}
+              reviews={p.reviews}
+              image={p.image}
+            />
+          </div>
         ))}
       </div>
     </section>

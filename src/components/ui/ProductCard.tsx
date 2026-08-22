@@ -97,7 +97,7 @@ export function ProductCard({
   }
 
   return (
-    <div className="group shrink-0 w-[190px] sm:w-auto">
+    <div className="group w-full">
       <div className="relative block aspect-square overflow-hidden rounded-2xl bg-cream-dark">
         <Link href="#" className="absolute inset-0">
           <Image
