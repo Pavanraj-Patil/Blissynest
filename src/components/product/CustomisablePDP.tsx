@@ -201,45 +201,45 @@ export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
             <div className="mt-6">
               <DeliveryCheck />
             </div>
-          </div>
-        </div>
 
-        {product.specs && (
-          <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-2xl border border-charcoal/10 px-6 py-6">
-            {product.specs.map((spec) => {
-              const Icon = getIcon(spec.icon);
-              return (
-                <div key={spec.label} className="flex items-center gap-2.5">
-                  <Icon size={18} strokeWidth={1.5} className="text-terracotta shrink-0" />
-                  <span>
-                    <span className="block text-xs text-ink-muted">{spec.label}</span>
-                    <span className="block text-sm font-medium text-charcoal">
-                      {spec.value}
-                    </span>
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
+            {product.specs && (
+              <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl border border-charcoal/10 px-5 py-5">
+                {product.specs.map((spec) => {
+                  const Icon = getIcon(spec.icon);
+                  return (
+                    <div key={spec.label} className="flex items-center gap-2.5">
+                      <Icon size={18} strokeWidth={1.5} className="text-terracotta shrink-0" />
+                      <span>
+                        <span className="block text-xs text-ink-muted">{spec.label}</span>
+                        <span className="block text-sm font-medium text-charcoal">
+                          {spec.value}
+                        </span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
-        <div className="mt-10 max-w-2xl">
-          <AccordionItem title="Product Details" defaultOpen>
-            <p>{product.productDetails.description}</p>
-          </AccordionItem>
-          {product.productDetails.howToUse && (
-            <AccordionItem title="How to Use">
-              <p>{product.productDetails.howToUse}</p>
-            </AccordionItem>
-          )}
-          {product.productDetails.care && (
-            <AccordionItem title="Care Instructions">
-              <p>{product.productDetails.care}</p>
-            </AccordionItem>
-          )}
-          <AccordionItem title="Delivery & Returns">
-            <p>{product.productDetails.delivery}</p>
-          </AccordionItem>
+            <div className="mt-6">
+              <AccordionItem title="Product Details" defaultOpen>
+                <p>{product.productDetails.description}</p>
+              </AccordionItem>
+              {product.productDetails.howToUse && (
+                <AccordionItem title="How to Use">
+                  <p>{product.productDetails.howToUse}</p>
+                </AccordionItem>
+              )}
+              {product.productDetails.care && (
+                <AccordionItem title="Care Instructions">
+                  <p>{product.productDetails.care}</p>
+                </AccordionItem>
+              )}
+              <AccordionItem title="Delivery & Returns">
+                <p>{product.productDetails.delivery}</p>
+              </AccordionItem>
+            </div>
+          </div>
         </div>
 
         <div className="mt-14">

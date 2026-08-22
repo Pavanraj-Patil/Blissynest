@@ -89,36 +89,36 @@ export function StandalonePDP({ product }: { product: StandaloneProduct }) {
             <div className="mt-6">
               <DeliveryCheck />
             </div>
-          </div>
-        </div>
 
-        <div className="mt-14 max-w-2xl">
-          <AccordionItem title="Description" defaultOpen>
-            <p>{product.productDetails.description}</p>
-          </AccordionItem>
-          {product.productDetails.materials && (
-            <AccordionItem title="Ingredients / Materials">
-              <p>{product.productDetails.materials}</p>
-            </AccordionItem>
-          )}
-          {product.productDetails.dimensions && (
-            <AccordionItem title="Dimensions & Weight">
-              <p>{product.productDetails.dimensions}</p>
-            </AccordionItem>
-          )}
-          {product.productDetails.howToUse && (
-            <AccordionItem title="How to Use">
-              <p>{product.productDetails.howToUse}</p>
-            </AccordionItem>
-          )}
-          {product.productDetails.care && (
-            <AccordionItem title="Care Instructions">
-              <p>{product.productDetails.care}</p>
-            </AccordionItem>
-          )}
-          <AccordionItem title="Delivery & Returns">
-            <p>{product.productDetails.delivery}</p>
-          </AccordionItem>
+            <div className="mt-6">
+              <AccordionItem title="Description" defaultOpen>
+                <p>{product.productDetails.description}</p>
+              </AccordionItem>
+              {product.productDetails.materials && (
+                <AccordionItem title="Ingredients / Materials">
+                  <p>{product.productDetails.materials}</p>
+                </AccordionItem>
+              )}
+              {product.productDetails.dimensions && (
+                <AccordionItem title="Dimensions & Weight">
+                  <p>{product.productDetails.dimensions}</p>
+                </AccordionItem>
+              )}
+              {product.productDetails.howToUse && (
+                <AccordionItem title="How to Use">
+                  <p>{product.productDetails.howToUse}</p>
+                </AccordionItem>
+              )}
+              {product.productDetails.care && (
+                <AccordionItem title="Care Instructions">
+                  <p>{product.productDetails.care}</p>
+                </AccordionItem>
+              )}
+              <AccordionItem title="Delivery & Returns">
+                <p>{product.productDetails.delivery}</p>
+              </AccordionItem>
+            </div>
+          </div>
         </div>
 
         <div className="mt-14">

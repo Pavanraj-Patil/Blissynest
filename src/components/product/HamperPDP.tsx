@@ -107,21 +107,21 @@ export function HamperPDP({ product }: { product: HamperProduct }) {
             <div className="mt-6">
               <DeliveryCheck />
             </div>
-          </div>
-        </div>
 
-        <div className="mt-14 max-w-2xl">
-          <AccordionItem title="Product Details" defaultOpen>
-            <p>{product.productDetails.description}</p>
-          </AccordionItem>
-          <AccordionItem title="Delivery & Returns">
-            <p>{product.productDetails.delivery}</p>
-          </AccordionItem>
-          {product.productDetails.care && (
-            <AccordionItem title="Care Instructions">
-              <p>{product.productDetails.care}</p>
-            </AccordionItem>
-          )}
+            <div className="mt-6">
+              <AccordionItem title="Product Details" defaultOpen>
+                <p>{product.productDetails.description}</p>
+              </AccordionItem>
+              <AccordionItem title="Delivery & Returns">
+                <p>{product.productDetails.delivery}</p>
+              </AccordionItem>
+              {product.productDetails.care && (
+                <AccordionItem title="Care Instructions">
+                  <p>{product.productDetails.care}</p>
+                </AccordionItem>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="mt-14">
