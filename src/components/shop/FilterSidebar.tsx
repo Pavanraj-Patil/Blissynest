@@ -5,13 +5,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { PriceRangeSlider } from "./PriceRangeSlider";
 
 type CountedOption = { label: string; count: number };
-type CountedCategory = { slug: string; label: string; count: number };
 
 type FilterSidebarProps = {
-  categories: CountedCategory[];
-  selectedCategories: string[];
-  onToggleCategory: (slug: string) => void;
-
   priceBounds: { min: number; max: number; step: number };
   priceMin: number;
   priceMax: number;
@@ -131,9 +126,6 @@ function ShowMoreList<T extends { label: string; count: number }>({
 }
 
 export function FilterSidebar({
-  categories,
-  selectedCategories,
-  onToggleCategory,
   priceBounds,
   priceMin,
   priceMax,
@@ -147,8 +139,6 @@ export function FilterSidebar({
   onClearAll,
   compact = false,
 }: FilterSidebarProps) {
-  const allCount = categories.reduce((sum, c) => sum + c.count, 0);
-
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
@@ -161,29 +151,6 @@ export function FilterSidebar({
           Clear all
         </button>
       </div>
-
-      <Section title="Categories">
-        <ShowMoreList
-          items={[
-            { label: "All", count: allCount },
-            ...categories.map((c) => ({ label: c.label, count: c.count })),
-          ]}
-          visibleCount={5}
-          selected={
-            selectedCategories.length === 0 ? ["All"] : selectedCategories.map(
-              (slug) => categories.find((c) => c.slug === slug)?.label ?? slug
-            )
-          }
-          onToggle={(label) => {
-            if (label === "All") {
-              onToggleCategory("__all__");
-              return;
-            }
-            const cat = categories.find((c) => c.label === label);
-            if (cat) onToggleCategory(cat.slug);
-          }}
-        />
-      </Section>
 
       <Section title="Price Range" collapsible={false}>
         <PriceRangeSlider

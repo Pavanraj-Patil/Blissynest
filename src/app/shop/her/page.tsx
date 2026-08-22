@@ -45,15 +45,6 @@ export default function GiftsForHerPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const categoryCounts = useMemo(
-    () =>
-      shopCategories.map((cat) => ({
-        ...cat,
-        count: shopProducts.filter((p) => p.category === cat.slug).length,
-      })),
-    []
-  );
-
   const occasionCounts = useMemo(
     () =>
       shopOccasions.map((label) => ({
@@ -165,9 +156,6 @@ export default function GiftsForHerPage() {
   }
 
   const sidebarProps = {
-    categories: categoryCounts,
-    selectedCategories,
-    onToggleCategory: toggleCategory,
     priceBounds: PRICE_BOUNDS,
     priceMin,
     priceMax,
