@@ -41,7 +41,7 @@ entry under the right section, one row per feature.
 | Category cards ("Who are you making smile?") | All six now link to real pages — `/shop/[her\|him\|parents\|couples\|friends\|colleagues]`, one dynamic route (`src/app/shop/[audience]/page.tsx`) driven by `src/lib/shop-mock-data.ts` | None — just needs a real catalog behind it (see below) |
 | Occasion cards ("Made for the moment") | Stub — `href="#"`, no occasion landing pages | Build occasion landing/filter pages |
 | Collection cards ("The Blissynest Edit") | Stub — `href="#"`, no collection pages | Build curated collection pages |
-| Bestseller products ("Loved by many") | Mocked — static array in `src/lib/mock-data.ts`, wishlist heart has no effect, links go nowhere | Real product API/DB; product detail pages; working wishlist toggle |
+| Bestseller products ("Loved by many") | Mocked — static array in `src/lib/mock-data.ts`, wishlist heart has no effect. Links now go to real (generated-fallback) product pages | Real product API/DB; working wishlist toggle |
 | Corporate banner links | Stub — `/corporate`, `/corporate/quote` don't exist | Build corporate gifting page + quote request form/flow |
 | All product/placeholder images | Mocked — `placehold.co` placeholders | Real product photography |
 
@@ -59,7 +59,43 @@ One dynamic route (`src/app/shop/[audience]/page.tsx`) serves all six audiences;
 | Result count ("N products") | Mocked — reflects the real (small) mock dataset size, not the "257" shown in the reference design | Will be accurate once catalog is real |
 | Pagination | **Functional** — paginates the mocked dataset client-side (12/page) | Same UX, but should be server-side pagination once the catalog is large/real |
 | Grid / List view toggle | **Functional** — pure UI state, no persistence | Optionally persist the user's preference (localStorage or account setting) |
-| Wishlist heart on product cards | Stub — toggles local visual state only (if implemented that way), not persisted | Real wishlist persistence |
-| Product card links | Stub — no product detail page exists yet | Build product detail page (`/product/[slug]`) |
+| Wishlist heart on product cards | Stub — toggles local visual state only (via `useState` in `ProductCard`), not persisted | Real wishlist persistence |
+| Product card links | **Functional** — every card now links to a real `/product/[slug]` page | None |
 | Mobile filter drawer "Apply Filters (N)" | Functional as a close/confirm action (filtering is already live as you check boxes) | No change needed — this is a UI pattern choice, not a backend gap |
 | Breadcrumb | Static — matches the current static route | Should reflect real category/route data once dynamic |
+
+## Product detail pages (`/product/[slug]`)
+
+One dynamic route (`src/app/product/[slug]/page.tsx`) renders one of three layout
+templates based on `pdpType`, all defined in `src/lib/product-mock-data.ts`:
+
+- **`HamperPDP`** — gift boxes/hampers. "What's Inside" item list, an optional
+  paid add-on ("Add a handwritten note"), a "Why They'll Love It" checklist.
+- **`CustomisablePDP`** — personalisable products. Text-line inputs with a
+  **live preview** (font + color + text update in real time), plus a
+  scent/variant selector.
+- **`StandalonePDP`** — regular single products. Variant pills (scent/size),
+  product highlights, and an editorial "Why You'll Love It" paragraph.
+
+Only **3 products have hand-written, reference-matched PDP content**:
+`birthday-self-care-box` (hamper), `personalised-scented-candle`
+(customisable), `scented-soy-candle` (standalone). Every other product card
+in the app (all 336 shop products + the 5 homepage bestsellers) links to a
+**generated fallback PDP** — `getProductBySlug()` in `product-mock-data.ts`
+builds a reasonable `StandaloneProduct` on the fly from that product's
+existing name/price/rating/category, with generic (not hand-tuned) copy for
+the description, highlights, and "why you'll love it" text.
+
+| Area | Current state | Needed for production |
+|---|---|---|
+| Product content (name, price, images, description, etc.) | Mocked — 3 hand-written flagship products; everything else auto-generated with generic copy | Real product content from a CMS/DB, written per-SKU |
+| Personalisation (text lines, font, color, live preview) | **Functional** client-side state, nothing is saved or sent anywhere | On "Add to Cart", the chosen personalisation needs to be captured as order line-item metadata and passed through to fulfillment |
+| Variant selection (scent/size) | **Functional** UI state | Should affect price/stock/SKU once there's a real catalog with per-variant pricing and inventory |
+| Quantity stepper | **Functional** UI state | Should respect real stock levels |
+| Add to Cart / Buy Now | Stub — buttons render, no click handler, no cart | Real cart + checkout flow |
+| Delivery pincode check | **Functional but fake** — accepts any 6-digit number and returns a deterministic date offset, not a real serviceability check | Real courier/serviceability API |
+| Share (WhatsApp / Facebook / Email) | **Genuinely functional** — these open real share URLs (`wa.me`, Facebook sharer, `mailto:`) using the current page URL, no backend needed | None |
+| Share → Copy Link | **Functional** — uses the real Clipboard API | None |
+| "You may also like" | **Functional** — 3 flagship products have hand-picked `relatedSlugs`; everything else falls back to same-category products from the shop catalog | Real recommendation engine (co-purchase data, etc.) |
+| Reviews (rating + count) | Mocked — procedurally generated numbers, no actual review content/system | Real reviews system |
+| Product images | Mocked — 1-5 `placehold.co` placeholders per product depending on type | Real product photography |

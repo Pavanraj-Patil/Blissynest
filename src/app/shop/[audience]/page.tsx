@@ -2,7 +2,6 @@
 
 import { use, useMemo, useState } from "react";
 import { notFound } from "next/navigation";
-import { Gift, PackageCheck, Truck, ShieldCheck } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -13,6 +12,7 @@ import { MobileFilterDrawer } from "@/components/shop/MobileFilterDrawer";
 import { ShopToolbar, type SortOption } from "@/components/shop/ShopToolbar";
 import { Pagination } from "@/components/shop/Pagination";
 import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
+import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
 import {
@@ -26,13 +26,6 @@ import {
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
 const ITEMS_PER_PAGE = 12;
-
-const featureItems = [
-  { icon: Gift, title: "Thoughtfully Curated", subtitle: "Every product earns its place." },
-  { icon: PackageCheck, title: "Premium Packaging", subtitle: "Beautiful inside and out." },
-  { icon: Truck, title: "Delivered with Care", subtitle: "Reliable delivery, across India." },
-  { icon: ShieldCheck, title: "Happiness Guaranteed", subtitle: "We're here to make it right." },
-];
 
 function isAudienceSlug(value: string): value is AudienceSlug {
   return (audienceSlugs as string[]).includes(value);
@@ -255,6 +248,7 @@ export default function AudienceShopPage({
                       rating={p.rating}
                       reviews={p.reviews}
                       image={p.image}
+                      href={`/product/${p.id}`}
                       layout={view}
                       priority={i < 4}
                     />
@@ -278,19 +272,7 @@ export default function AudienceShopPage({
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-14">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 border-t border-charcoal/10 pt-10">
-            {featureItems.map((f) => (
-              <div key={f.title} className="flex items-start gap-3">
-                <f.icon size={24} strokeWidth={1.5} className="text-terracotta shrink-0" />
-                <div>
-                  <h3 className="text-sm font-semibold text-charcoal">{f.title}</h3>
-                  <p className="text-xs text-ink-muted mt-1 leading-relaxed">
-                    {f.subtitle}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StandardFeatureStrip />
         </div>
       </main>
       <ShopFooter />

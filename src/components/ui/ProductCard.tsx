@@ -12,6 +12,7 @@ type ProductCardProps = {
   rating: number;
   reviews: number;
   image: string;
+  href?: string;
   layout?: "grid" | "list";
   priority?: boolean;
 };
@@ -22,6 +23,7 @@ export function ProductCard({
   rating,
   reviews,
   image,
+  href = "#",
   layout = "grid",
   priority = false,
 }: ProductCardProps) {
@@ -68,7 +70,7 @@ export function ProductCard({
     return (
       <div className="group flex items-center gap-4 rounded-2xl border border-charcoal/10 bg-white p-3 sm:p-4">
         <Link
-          href="#"
+          href={href}
           className="relative block h-24 w-24 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-cream-dark"
         >
           <Image
@@ -81,7 +83,7 @@ export function ProductCard({
         </Link>
         <div className="min-w-0 flex-1">
           <Link
-            href="#"
+            href={href}
             className="text-sm sm:text-base font-medium text-charcoal hover:text-terracotta-dark transition-colors"
           >
             {name}
@@ -99,7 +101,7 @@ export function ProductCard({
   return (
     <div className="group w-full">
       <div className="relative block aspect-square overflow-hidden rounded-2xl bg-cream-dark">
-        <Link href="#" className="absolute inset-0">
+        <Link href={href} className="absolute inset-0">
           <Image
             src={image}
             alt={name}
@@ -113,7 +115,7 @@ export function ProductCard({
       </div>
       <div className="mt-3">
         <Link
-          href="#"
+          href={href}
           className="text-sm font-medium text-charcoal hover:text-terracotta-dark transition-colors"
         >
           {name}

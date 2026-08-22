@@ -1,6 +1,7 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { bestsellers } from "@/lib/mock-data";
+import { slugify } from "@/lib/product-mock-data";
 
 export function LovedByMany() {
   return (
@@ -15,6 +16,7 @@ export function LovedByMany() {
               rating={p.rating}
               reviews={p.reviews}
               image={p.image}
+              href={`/product/${slugify(p.name)}`}
             />
           </div>
         ))}
