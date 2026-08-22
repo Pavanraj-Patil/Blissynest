@@ -27,7 +27,7 @@ const fields = [
 export function GiftingAssistant() {
   return (
     <div className="mx-auto max-w-[1440px] px-4 md:px-8">
-      <div className="relative z-10 -mt-16 md:-mt-20 mx-auto max-w-5xl rounded-3xl bg-white shadow-2xl shadow-charcoal/10 px-6 py-10 md:px-12 md:py-12">
+      <div className="relative z-10 -mt-6 sm:-mt-8 md:-mt-14 lg:-mt-20 mx-auto max-w-5xl rounded-3xl bg-white shadow-2xl shadow-charcoal/10 px-6 py-10 md:px-12 md:py-12">
         <div className="text-center mb-9">
           <h2 className="font-serif text-xl md:text-2xl text-charcoal">
             <span className="text-terracotta">✦</span> Not sure what to gift?{" "}
