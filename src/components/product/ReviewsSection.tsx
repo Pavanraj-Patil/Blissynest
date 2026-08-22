@@ -1,9 +1,7 @@
 import { Star, BadgeCheck } from "lucide-react";
-import { getRatingBreakdown, type ProductReview } from "@/lib/product-mock-data";
+import type { ProductReview } from "@/lib/product-mock-data";
 
 type ReviewsSectionProps = {
-  rating: number;
-  reviewCount: number;
   reviews: ProductReview[];
 };
 
@@ -23,46 +21,12 @@ function Stars({ value, size = 14 }: { value: number; size?: number }) {
   );
 }
 
-export function ReviewsSection({ rating, reviewCount, reviews }: ReviewsSectionProps) {
-  const breakdown = getRatingBreakdown(rating);
-
+export function ReviewsSection({ reviews }: ReviewsSectionProps) {
   return (
     <div>
       <h2 className="font-serif text-2xl text-charcoal mb-6">Customer Reviews</h2>
 
-      <div className="flex flex-col sm:flex-row gap-8 sm:gap-14 pb-8 border-b border-charcoal/10">
-        <div className="flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2 shrink-0">
-          <span className="text-4xl font-semibold text-charcoal">
-            {rating.toFixed(1)}
-          </span>
-          <div>
-            <Stars value={Math.round(rating)} size={16} />
-            <p className="text-xs text-ink-muted mt-1">
-              Based on {reviewCount} ratings
-            </p>
-          </div>
-        </div>
-
-        <div className="flex-1 max-w-sm space-y-1.5">
-          {breakdown.map((row) => (
-            <div key={row.stars} className="flex items-center gap-2.5">
-              <span className="w-3 text-xs text-charcoal-light">{row.stars}</span>
-              <Star size={11} className="fill-gold text-gold shrink-0" />
-              <div className="flex-1 h-1.5 rounded-full bg-charcoal/10 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-gold"
-                  style={{ width: `${row.pct}%` }}
-                />
-              </div>
-              <span className="w-8 text-right text-xs text-ink-muted">
-                {row.pct}%
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6 pt-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
         {reviews.map((review, i) => (
           <div key={i}>
             <div className="flex items-center gap-3">

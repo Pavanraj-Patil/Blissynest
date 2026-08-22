@@ -244,11 +244,7 @@ export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
         </div>
 
         <div className="mt-14">
-          <ReviewsSection
-            rating={product.rating}
-            reviewCount={product.reviews}
-            reviews={reviews}
-          />
+          <ReviewsSection reviews={reviews} />
         </div>
 
         <MobileStickyCTA />

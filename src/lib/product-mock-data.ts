@@ -501,15 +501,3 @@ function generateGenericReviews(product: ProductDetail): ProductReview[] {
 export function getProductReviews(product: ProductDetail): ProductReview[] {
   return product.reviewsList ?? generateGenericReviews(product);
 }
-
-const ratingBreakdowns: Record<number, number[]> = {
-  5: [78, 15, 5, 1, 1],
-  4: [45, 35, 12, 5, 3],
-  3: [20, 30, 30, 12, 8],
-};
-
-export function getRatingBreakdown(rating: number): { stars: number; pct: number }[] {
-  const rounded = Math.min(5, Math.max(3, Math.round(rating)));
-  const pcts = ratingBreakdowns[rounded] ?? ratingBreakdowns[4];
-  return [5, 4, 3, 2, 1].map((stars, i) => ({ stars, pct: pcts[i] }));
-}

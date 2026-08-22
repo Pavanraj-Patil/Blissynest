@@ -126,11 +126,7 @@ export function StandalonePDP({ product }: { product: StandaloneProduct }) {
         </div>
 
         <div className="mt-14">
-          <ReviewsSection
-            rating={product.rating}
-            reviewCount={product.reviews}
-            reviews={reviews}
-          />
+          <ReviewsSection reviews={reviews} />
         </div>
 
         <MobileStickyCTA />
