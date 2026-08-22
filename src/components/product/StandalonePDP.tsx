@@ -25,6 +25,7 @@ export function StandalonePDP({ product }: { product: StandaloneProduct }) {
   );
   const related = getRelatedProducts(product);
   const reviews = getProductReviews(product);
+  const hasVariants = (product.variants?.length ?? 0) > 0;
 
   return (
     <div>
@@ -57,33 +58,24 @@ export function StandalonePDP({ product }: { product: StandaloneProduct }) {
               </p>
             )}
 
-            <div className="mt-6 space-y-6">
-              {(product.variants ?? []).map((v) => (
-                <VariantPills
-                  key={v.label}
-                  label={v.label}
-                  options={v.options}
-                  selected={selectedVariants[v.label]}
-                  onSelect={(option) =>
-                    setSelectedVariants((prev) => ({ ...prev, [v.label]: option }))
-                  }
-                />
-              ))}
-            </div>
+            {hasVariants && (
+              <div className="mt-6 space-y-6">
+                {product.variants!.map((v) => (
+                  <VariantPills
+                    key={v.label}
+                    label={v.label}
+                    options={v.options}
+                    selected={selectedVariants[v.label]}
+                    onSelect={(option) =>
+                      setSelectedVariants((prev) => ({ ...prev, [v.label]: option }))
+                    }
+                  />
+                ))}
+              </div>
+            )}
 
             <div className="mt-6">
               <QuantityStepper value={quantity} onChange={setQuantity} />
-            </div>
-
-            <div className="mt-6 hidden lg:flex gap-3 lg:sticky lg:top-[calc(100vh-6rem)] lg:z-10 lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-cream/95 lg:backdrop-blur lg:p-4 lg:shadow-lg">
-              <button className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors">
-                <ShoppingBag size={15} />
-                Add to Cart
-              </button>
-              <button className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors">
-                <Zap size={15} />
-                Buy Now
-              </button>
             </div>
 
             <div className="mt-6">
@@ -118,6 +110,18 @@ export function StandalonePDP({ product }: { product: StandaloneProduct }) {
                 <p>{product.productDetails.delivery}</p>
               </AccordionItem>
             </div>
+
+            <div className="mt-6 hidden lg:flex gap-3 lg:sticky lg:top-[calc(100vh-6rem)] lg:z-10 lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-cream/95 lg:backdrop-blur lg:p-4 lg:shadow-lg">
+              <button className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors">
+                <ShoppingBag size={15} />
+                Add to Cart
+              </button>
+              <button className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors">
+                <Zap size={15} />
+                Buy Now
+              </button>
+            </div>
+            <div aria-hidden className="hidden lg:block lg:h-24" />
           </div>
         </div>
 

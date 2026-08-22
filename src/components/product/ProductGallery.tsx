@@ -69,9 +69,6 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
             >
               <ChevronRight size={18} />
             </button>
-            <span className="absolute bottom-3 right-3 rounded-full bg-charcoal/70 px-2.5 py-1 text-[11px] font-medium text-cream sm:hidden">
-              {active + 1}/{images.length}
-            </span>
           </>
         )}
 
