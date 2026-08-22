@@ -3,7 +3,7 @@ import { communityPhotos } from "@/lib/mock-data";
 
 export function CommunityStrip() {
   return (
-    <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-8 md:py-12">
+    <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-6 md:py-8">
       <div className="text-center mb-8">
         <h2 className="font-serif text-2xl md:text-3xl text-charcoal">
           From our community
