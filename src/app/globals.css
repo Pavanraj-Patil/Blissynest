@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #f8f3ec;
+  --color-cream-dark: #f0e8da;
+  --color-cream-darker: #e9dfcd;
+
+  --color-olive: #4a5738;
+  --color-olive-dark: #3a4529;
+  --color-olive-light: #64754a;
+
+  --color-terracotta: #c1693d;
+  --color-terracotta-dark: #a85830;
+  --color-terracotta-light: #e3a37e;
+
+  --color-charcoal: #2a2621;
+  --color-charcoal-light: #524b41;
+
+  --color-gold: #b08d57;
+  --color-gold-light: #cfb587;
+
+  --color-ink-muted: #7a7267;
+
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-cream-dark: var(--color-cream-dark);
+  --color-cream-darker: var(--color-cream-darker);
+
+  --color-olive: var(--color-olive);
+  --color-olive-dark: var(--color-olive-dark);
+  --color-olive-light: var(--color-olive-light);
+
+  --color-terracotta: var(--color-terracotta);
+  --color-terracotta-dark: var(--color-terracotta-dark);
+  --color-terracotta-light: var(--color-terracotta-light);
+
+  --color-charcoal: var(--color-charcoal);
+  --color-charcoal-light: var(--color-charcoal-light);
+
+  --color-gold: var(--color-gold);
+  --color-gold-light: var(--color-gold-light);
+
+  --color-ink-muted: var(--color-ink-muted);
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-charcoal);
+}
+
+.eyebrow {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
