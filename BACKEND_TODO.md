@@ -198,13 +198,13 @@ deliberately different layouts/interactions so they don't repeat the same
 pattern twice on one page. The testimonial is now `TestimonialCarousel.tsx`
 — a small client component that auto-rotates through all 4 testimonials
 every 5s (paused on hover) with clickable dot navigation, replacing the
-single static quote. Stats moved out of the cramped sidebar column into
-their own full-width `CorporateStats.tsx` band between "Why choose us" and
-the collections carousel.
+single static quote. The standalone stats band (Happy Companies/Gifts
+Delivered/etc.) was tried and then removed per feedback — not present on
+the page anymore.
 
 | Area | Current state | Needed for production |
 |---|---|---|
-| Hero, trust points, "Gifts for every corporate need", "How does it work?", "Why choose us" checklist, testimonials, stats, curated collection tiles, trusted-by badges | Static content from `corporate-data.ts` | Real copy, real stats, real testimonials/client logos (with permission), real photography |
+| Hero, trust points, "Gifts for every corporate need", "How does it work?", "Why choose us" checklist, testimonials, curated collection tiles, trusted-by badges | Static content from `corporate-data.ts` | Real copy, real testimonials/client logos (with permission), real photography |
 | Testimonial carousel auto-rotation | **Functional** — 5s interval, pauses on hover, dot navigation | None — purely presentational, no backend needed |
 | `/corporate/quote` enquiry form (name/email/phone/company/team size/interest/message) | **Functional as UI** — client-side validation (`required` fields), `?interest=` and `?intent=` deep-links work, submit shows a real success state | Stub — submit doesn't send anywhere, just flips local component state. Needs a real endpoint (email/CRM lead capture) |
 | "Know More" button (why-choose-us banner) | Links to `/corporate/quote` | Could instead go to a dedicated "About corporate gifting" page once one exists |

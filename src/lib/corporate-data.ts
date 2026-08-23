@@ -12,7 +12,6 @@ import {
   PackageOpen,
   MessageSquare,
   PhoneCall,
-  CheckCircle2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -129,15 +128,6 @@ export const testimonials: Testimonial[] = [
     title: "Client Success Director",
     company: "Fieldstone Partners",
   },
-];
-
-export type Stat = { value: string; label: string; icon: LucideIcon };
-
-export const stats: Stat[] = [
-  { value: "500+", label: "Happy Companies", icon: Users },
-  { value: "50,000+", label: "Gifts Delivered", icon: Gift },
-  { value: "98%", label: "On-time Delivery", icon: Truck },
-  { value: "4.8/5", label: "Client Satisfaction", icon: CheckCircle2 },
 ];
 
 export type TrustedCompany = { name: string; initials: string };

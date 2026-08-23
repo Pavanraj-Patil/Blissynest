@@ -6,7 +6,6 @@ import { CorporateHero } from "@/components/corporate/CorporateHero";
 import { CorporateNeeds } from "@/components/corporate/CorporateNeeds";
 import { HowItWorks } from "@/components/corporate/HowItWorks";
 import { WhyChooseUs } from "@/components/corporate/WhyChooseUs";
-import { CorporateStats } from "@/components/corporate/CorporateStats";
 import { CuratedCollections } from "@/components/corporate/CuratedCollections";
 import { TrustedByStrip } from "@/components/corporate/TrustedByStrip";
 import { CorporateFinalCta } from "@/components/corporate/CorporateFinalCta";
@@ -30,7 +29,6 @@ export default function CorporatePage() {
         <CorporateNeeds />
         <HowItWorks />
         <WhyChooseUs />
-        <CorporateStats />
         <CuratedCollections />
         <TrustedByStrip />
         <CorporateFinalCta />
