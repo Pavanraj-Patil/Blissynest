@@ -1,34 +1,128 @@
 import Link from "next/link";
-import { corporateNeeds } from "@/lib/corporate-data";
+import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/cn";
+import { corporateNeeds, type CorporateNeed } from "@/lib/corporate-data";
+
+type Tone = {
+  bg: string;
+  text: string;
+  subtext: string;
+  border?: string;
+};
+
+const tones: Tone[] = [
+  { bg: "bg-olive-dark", text: "text-cream", subtext: "text-cream/70" }, // employee — featured
+  { bg: "bg-terracotta-light/35", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // client
+  { bg: "bg-gold-light/40", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // festive
+  { bg: "bg-cream-darker", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // milestone
+  { bg: "bg-terracotta", text: "text-cream", subtext: "text-cream/75" }, // welcome
+  { bg: "bg-olive/15", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // event
+  { bg: "bg-charcoal", text: "text-cream", subtext: "text-cream/65" }, // custom
+];
+
+const areaNames = ["a", "b", "c", "d", "e", "f", "g"];
+
+function NeedCard({
+  need,
+  tone,
+  featured = false,
+  gridArea,
+}: {
+  need: CorporateNeed;
+  tone: Tone;
+  featured?: boolean;
+  gridArea?: string;
+}) {
+  return (
+    <Link
+      href={`/corporate/quote?interest=${need.slug}`}
+      style={gridArea ? { gridArea } : undefined}
+      className={cn(
+        "group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border p-5 transition-transform duration-200 hover:-translate-y-0.5",
+        tone.bg,
+        tone.border ?? "border-transparent",
+        featured ? "p-7 md:p-8" : ""
+      )}
+    >
+      <need.icon
+        size={featured ? 30 : 22}
+        strokeWidth={1.25}
+        className={cn(tone.text, "shrink-0 opacity-80")}
+      />
+
+      <div className="mt-6 shrink-0">
+        <h3
+          className={cn(
+            "font-serif leading-tight",
+            tone.text,
+            featured ? "text-2xl md:text-[1.75rem]" : "text-base"
+          )}
+        >
+          {need.title}
+        </h3>
+        <p
+          className={cn(
+            "mt-1.5 leading-snug",
+            tone.subtext,
+            featured ? "text-sm max-w-[16rem]" : "text-xs"
+          )}
+        >
+          {need.subtitle}
+        </p>
+
+        <span
+          className={cn(
+            "mt-4 inline-flex items-center gap-1.5 text-xs font-medium transition-opacity",
+            tone.text,
+            featured
+              ? "opacity-100"
+              : "opacity-0 group-hover:opacity-100"
+          )}
+        >
+          Explore
+          <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+        </span>
+      </div>
+    </Link>
+  );
+}
 
 export function CorporateNeeds() {
   return (
     <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-10 md:py-14">
       <div className="text-center mb-10">
+        <p className="eyebrow text-terracotta-dark mb-2">Corporate Catalogue</p>
         <h2 className="font-serif text-2xl md:text-3xl text-charcoal">
           Gifts for every corporate need
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 md:gap-5">
-        {corporateNeeds.map((need) => (
-          <Link
+      {/* Desktop: asymmetric bento grid */}
+      <div
+        className="hidden lg:grid gap-4"
+        style={{
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateRows: "repeat(3, 160px)",
+          gridTemplateAreas: `"a a b c" "a a d e" "f f g g"`,
+        }}
+      >
+        {corporateNeeds.map((need, i) => (
+          <NeedCard
             key={need.slug}
-            href={`/corporate/quote?interest=${need.slug}`}
-            className="group flex flex-col items-center gap-3 rounded-2xl border border-charcoal/10 bg-white px-4 py-6 text-center hover:border-olive/40 hover:shadow-sm transition-all"
-          >
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-cream-dark text-terracotta group-hover:bg-olive/10 group-hover:text-olive transition-colors">
-              <need.icon size={20} strokeWidth={1.5} />
-            </span>
-            <div>
-              <h3 className="text-sm font-semibold text-charcoal leading-tight">
-                {need.title}
-              </h3>
-              <p className="text-xs text-ink-muted mt-1 leading-tight">
-                {need.subtitle}
-              </p>
-            </div>
-          </Link>
+            need={need}
+            tone={tones[i]}
+            featured={i === 0}
+            gridArea={areaNames[i]}
+          />
+        ))}
+      </div>
+
+      {/* Mobile / tablet: even grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 lg:hidden">
+        {corporateNeeds.map((need, i) => (
+          <div key={need.slug} className="min-h-[172px]">
+            <NeedCard need={need} tone={tones[i]} />
+          </div>
         ))}
       </div>
     </section>
