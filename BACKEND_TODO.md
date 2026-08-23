@@ -28,8 +28,8 @@ entry under the right section, one row per feature.
 | Account icon (header) | Stub — no auth | Auth (sign in/up, sessions), account/orders pages |
 | Wishlist icon (header) | Stub — no wishlist state | Wishlist persisted per-user (DB or localStorage at minimum) |
 | Cart icon + badge (header) | Stub — badge hardcoded to `0`, no cart | Real cart: add/remove/update qty, persisted (DB for logged-in, localStorage for guest), checkout flow |
-| Nav dropdowns (Shop, Collections, Occasions, Personalised) | **Functional** — each is a real hover mega-menu (`NavDropdown` in `src/components/layout/NavDropdown.tsx`, pure CSS `group-hover`, no JS state) linking to real pages: Shop/Personalised list the 6 audiences (`/shop/[audience]`, Personalised appends `?category=personalised`, which `/shop/[audience]` now reads via `useSearchParams` to preset that category filter on load), Collections lists the 5 edits (`/collections/[collection]`), Occasions lists all 7 (`/occasions/[occasion]`). The bare `/shop`, `/collections`, `/personalised` landing pages (no audience/collection segment) still don't exist — only the dropdown's own top-level link target is a stub | Build general `/shop`, `/collections`, `/personalised` hub pages (can mostly reuse the audience-page components/filters against the full combined catalog) |
-| Corporate nav item | Stub — `/corporate` doesn't exist yet | Out of scope for now, to be built later (separate lead-gen/quote-form page, not a product listing) |
+| Nav dropdowns (Shop, Collections, Occasions, Personalised) | **Functional** — each is a real hover mega-menu (`NavDropdown` in `src/components/layout/NavDropdown.tsx`, pure CSS `group-hover`, no JS state) linking to real pages: Shop/Personalised list the 6 audiences (`/shop/[audience]`, Personalised appends `?category=personalised`, which `/shop/[audience]` now reads via `useSearchParams` to preset that category filter on load), Collections lists the 5 edits (`/collections/[collection]`), Occasions lists all 7 (`/occasions/[occasion]`). `/shop` itself is now a real "All Gifts" hub (see below); `/collections` and `/personalised` (no sub-segment) are still stubs — only the dropdown's own top-level link target is a stub for those two | Build general `/collections`, `/personalised` hub pages (can mostly reuse the audience-page components/filters against the full combined catalog, same pattern as `/shop`) |
+| Corporate nav item | **Functional** — `/corporate` and `/corporate/quote` are real pages (see the Corporate gifting pages section below) | None |
 | Newsletter signup (footer) | Stub — form has no submit handler | Email capture endpoint (e.g. Mailchimp/Klaviyo API) |
 | Footer links (About, Bliss Journal, Track Order, Shipping, Returns, FAQs, Contact) | Stub — `href="#"` or non-existent routes | Build out each page |
 | Social icons (footer) | Stub — `href="#"` | Real social URLs |
@@ -46,9 +46,13 @@ entry under the right section, one row per feature.
 | Corporate banner links | **Functional** — `/corporate` and `/corporate/quote` are real pages now (see below) | None |
 | All product/placeholder images | Mocked — `placehold.co` placeholders | Real product photography |
 
-## Shop / Collection pages (`/shop/[audience]` — her, him, parents, couples, friends, colleagues)
+## Shop / Collection pages (`/shop`, `/shop/[audience]` — her, him, parents, couples, friends, colleagues)
 
 One dynamic route (`src/app/shop/[audience]/page.tsx`) serves all six audiences; invalid slugs 404 via `notFound()`.
+`/shop` itself (`src/app/shop/page.tsx`) is a separate, near-identical page — an "All Gifts" hub over the
+full combined catalog (`allShopProducts`, all 336 products) with the same category/price/occasion/recipient
+filters, sort, and pagination. It was added because the PDP and audience-page breadcrumbs both link to
+`/shop` and that route previously 404'd — there was no bare hub page, only `/shop/[audience]`.
 
 | Area | Current state | Needed for production |
 |---|---|---|
