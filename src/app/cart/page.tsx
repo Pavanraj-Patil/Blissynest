@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, ArrowRight, Trash2, ShieldCheck, Truck, Gift } from "lucide-react";
@@ -41,7 +40,6 @@ function EmptyCart() {
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal } = useCart();
-  const [showCheckoutNotice, setShowCheckoutNotice] = useState(false);
 
   const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
 
@@ -166,21 +164,13 @@ export default function CartPage() {
                     </span>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowCheckoutNotice(true)}
+                  <Link
+                    href="/checkout"
                     className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-olive text-cream px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
                   >
                     Proceed to Checkout
                     <ArrowRight size={14} />
-                  </button>
-
-                  {showCheckoutNotice && (
-                    <p className="mt-3 text-xs text-ink-muted text-center leading-relaxed">
-                      Checkout isn&rsquo;t available in this demo — but your
-                      cart is saved right here for whenever it is.
-                    </p>
-                  )}
+                  </Link>
 
                   <div className="mt-5 flex items-center gap-2 text-xs text-ink-muted">
                     <ShieldCheck size={14} className="text-olive shrink-0" />

@@ -328,17 +328,52 @@ non-generic empty state (icon + on-brand copy + "Continue Shopping" CTA to
 Wishlist cards have their own "Add to Cart" button (adds and flashes
 "Added ✓" briefly, same pattern as the PDP buttons). Cart line items use the
 existing `QuantityStepper`; removing the last unit removes the line
-entirely. "Proceed to Checkout" is intentionally not a fake payment flow —
-clicking it reveals an honest inline note ("Checkout isn't available in
-this demo...") rather than simulating a transaction.
+entirely. "Proceed to Checkout" now goes to a real `/checkout` flow (see
+below) instead of showing an inline "not available" notice.
 
 | Area | Current state | Needed for production |
 |---|---|---|
 | Cart / Wishlist state | **Functional** — `localStorage`-backed, shared across every page via context, survives reload | Move to server-side persistence per logged-in user once there's auth; localStorage remains reasonable for guest carts |
 | Cart quantity / remove | **Functional** | None |
 | Cart free-shipping progress banner | **Functional but fake threshold** — hardcoded ₹999 to match the header's free-shipping banner copy | Should come from a real shipping/promotions config |
-| "Proceed to Checkout" | Stub, honestly labeled — shows an inline notice instead of a fake payment form | Real checkout: address, payment, order confirmation |
 | Empty states | **Functional** — creative copy + "Continue Shopping" CTA, not a bare "nothing here" message | None |
+
+## Checkout (`src/app/checkout/page.tsx`, `src/components/checkout/`, `src/lib/checkout-data.ts`)
+
+A real 4-step accordion checkout (Address → Payment → Review → Complete),
+matching the reference design closely. Deliberately does **not** collect
+any payment credentials — the Payment step is a method *selector* only
+(Card / UPI / Net Banking / COD as radio options), with an explicit inline
+note that no payment details are collected in this demo. This is a hard
+line, not a scope shortcut: building fake card-number/CVV input fields —
+even non-functional ones — would look like a real payment form, which
+this project avoids on principle.
+
+Addresses are local component state (not persisted to `localStorage` like
+cart/wishlist — a full address book felt like more permanence than a
+single checkout session needs), seeded with one example address. Add/Edit
+use the same form component; the last remaining address can't be deleted.
+The gift toggle (with note + "hide prices on packing slip") lives in the
+Address step per the reference layout. Coupon codes are a small mocked
+table (`WELCOME10` = 10% off, `FLAT200` = ₹200 off orders above ₹1,500) —
+`calculateDiscount()` in `checkout-data.ts` is the single source of truth
+for the math, applied against the real cart subtotal from `useCart()`.
+
+"Place Order" generates a mock order number, calls `clearCart()`, and
+swaps the whole page to `OrderConfirmation` — a real order number, the
+actual total charged, the delivery address, and a +5-day estimated
+delivery date, not just a "thanks" message. Landing on `/checkout` with an
+empty cart (and no order just placed) shows an honest "nothing to check
+out yet" state instead of a broken empty flow.
+
+| Area | Current state | Needed for production |
+|---|---|---|
+| Address book (add/edit/delete/select) | **Functional**, local component state only | Persist per-user server-side once there's auth |
+| Payment method selection | **Functional as a preference selector** | Real payment gateway integration (Razorpay/Stripe/etc.) — this is the one step that's genuinely just a placeholder by design |
+| Coupon codes | **Functional but mocked** — 2 hardcoded codes, client-side validation | Real promotions engine tied to a backend |
+| Gift note / hide prices on packing slip | **Functional** UI state | Needs to reach fulfillment as real order metadata once there's a backend |
+| Order placement | **Functional as a mock** — generates an order number, clears the cart, shows a real confirmation screen | Real order creation, persisted order history, actual payment capture |
+| Order confirmation | **Functional** — real order number/total/address/delivery estimate, not a generic success message | Send a real confirmation email, persist to an orders table |
 
 ## Search (`src/lib/search-data.ts`, `SearchOverlay`, `/search`)
 
