@@ -15,13 +15,27 @@ import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { allShopProducts, audienceSlugs } from "@/lib/shop-mock-data";
+import { allShopProducts, type ShopProductWithAudience } from "@/lib/shop-mock-data";
 import {
   occasionContent,
+  occasionPills,
+  getOccasionPillIcon,
   isOccasionSlug,
-  audiencePillLabels,
-  audiencePillIcons,
+  type OccasionPillFilter,
 } from "@/lib/occasion-data";
+
+function pillKey(type: "audience" | "category", value: string) {
+  return `${type}:${value}`;
+}
+
+function productMatchesPill(
+  product: ShopProductWithAudience,
+  pill: OccasionPillFilter
+) {
+  return pill.type === "audience"
+    ? product.audience === pill.value
+    : product.category === pill.value;
+}
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
 const ITEMS_PER_PAGE = 12;
@@ -39,7 +53,9 @@ export default function OccasionPage({
   const occasion = occasionParam;
   const content = occasionContent[occasion];
 
-  const [selectedAudiences, setSelectedAudiences] = useState<string[]>([]);
+  const pills = occasionPills[occasion];
+
+  const [selectedPillKey, setSelectedPillKey] = useState<string | null>(null);
   const [priceMin, setPriceMin] = useState(PRICE_BOUNDS.min);
   const [priceMax, setPriceMax] = useState(PRICE_BOUNDS.max);
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
@@ -53,15 +69,15 @@ export default function OccasionPage({
     [content.label]
   );
 
-  const audiencePills = useMemo(
+  const filterPills = useMemo(
     () =>
-      audienceSlugs.map((audience) => ({
-        slug: audience,
-        label: audiencePillLabels[audience],
-        icon: audiencePillIcons[audience],
-        count: occasionProducts.filter((p) => p.audience === audience).length,
+      pills.map((pill) => ({
+        slug: pillKey(pill.type, pill.value),
+        label: pill.label,
+        icon: getOccasionPillIcon(pill),
+        count: occasionProducts.filter((p) => productMatchesPill(p, pill)).length,
       })),
-    [occasionProducts]
+    [pills, occasionProducts]
   );
 
   const recipientCounts = useMemo(() => {
@@ -74,12 +90,13 @@ export default function OccasionPage({
       .sort((a, b) => b.count - a.count);
   }, [occasionProducts]);
 
+  const selectedPill = pills.find(
+    (pill) => pillKey(pill.type, pill.value) === selectedPillKey
+  );
+
   const filteredProducts = useMemo(() => {
     return occasionProducts.filter((p) => {
-      if (
-        selectedAudiences.length > 0 &&
-        !selectedAudiences.includes(p.audience)
-      ) {
+      if (selectedPill && !productMatchesPill(p, selectedPill)) {
         return false;
       }
       if (p.price < priceMin) return false;
@@ -92,7 +109,7 @@ export default function OccasionPage({
       }
       return true;
     });
-  }, [occasionProducts, selectedAudiences, priceMin, priceMax, selectedRecipients]);
+  }, [occasionProducts, selectedPill, priceMin, priceMax, selectedRecipients]);
 
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
@@ -118,19 +135,13 @@ export default function OccasionPage({
   );
 
   const activeFilterCount =
-    selectedAudiences.length +
+    (selectedPillKey ? 1 : 0) +
     selectedRecipients.length +
     (priceMin > PRICE_BOUNDS.min || priceMax < PRICE_BOUNDS.max ? 1 : 0);
 
-  function toggleAudience(slug: string) {
+  function togglePill(key: string | null) {
     setCurrentPage(1);
-    if (slug === "__all__") {
-      setSelectedAudiences([]);
-      return;
-    }
-    setSelectedAudiences((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]
-    );
+    setSelectedPillKey((prev) => (key === null || prev === key ? null : key));
   }
 
   function toggleRecipient(label: string) {
@@ -147,7 +158,7 @@ export default function OccasionPage({
   }
 
   function clearAll() {
-    setSelectedAudiences([]);
+    setSelectedPillKey(null);
     setPriceMin(PRICE_BOUNDS.min);
     setPriceMax(PRICE_BOUNDS.max);
     setSelectedRecipients([]);
@@ -186,11 +197,9 @@ export default function OccasionPage({
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">
           <CategoryPillRow
-            categories={audiencePills}
-            selected={
-              selectedAudiences.length === 1 ? selectedAudiences[0] : null
-            }
-            onSelect={(slug) => toggleAudience(slug ?? "__all__")}
+            categories={filterPills}
+            selected={selectedPillKey}
+            onSelect={togglePill}
           />
         </div>
 

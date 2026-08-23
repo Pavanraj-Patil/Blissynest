@@ -1,3 +1,5 @@
+import { Gift, Flower2, Heart, Crown, Home, Droplet, Gem, Plus, type LucideIcon } from "lucide-react";
+
 const ph = (w: number, h: number, bg: string, fg: string, text: string) =>
   `https://placehold.co/${w}x${h}/${bg}/${fg}.png?text=${encodeURIComponent(
     text
@@ -17,6 +19,17 @@ export const shopCategories: ShopCategory[] = [
   { slug: "jewellery", label: "Jewellery" },
   { slug: "add-ons", label: "Add-ons" },
 ];
+
+export const categoryIcons: Record<string, LucideIcon> = {
+  all: Gift,
+  "self-care": Flower2,
+  personalised: Heart,
+  "luxury-edit": Crown,
+  "home-living": Home,
+  beauty: Droplet,
+  jewellery: Gem,
+  "add-ons": Plus,
+};
 
 export const shopOccasions = [
   "Birthday",

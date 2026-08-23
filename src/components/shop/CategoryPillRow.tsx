@@ -1,16 +1,6 @@
-import { Gift, Flower2, Heart, Crown, Home, Droplet, Gem, Plus, type LucideIcon } from "lucide-react";
+import { Gift, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
-
-const categoryIcons: Record<string, LucideIcon> = {
-  all: Gift,
-  "self-care": Flower2,
-  personalised: Heart,
-  "luxury-edit": Crown,
-  "home-living": Home,
-  beauty: Droplet,
-  jewellery: Gem,
-  "add-ons": Plus,
-};
+import { categoryIcons } from "@/lib/shop-mock-data";
 
 type PillItem = { slug: string; label: string; icon?: LucideIcon };
 

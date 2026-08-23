@@ -12,7 +12,7 @@ import {
   Briefcase,
   type LucideIcon,
 } from "lucide-react";
-import type { AudienceSlug } from "@/lib/shop-mock-data";
+import { categoryIcons, type AudienceSlug } from "@/lib/shop-mock-data";
 import { slugify } from "@/lib/slugify";
 
 export type OccasionSlug =
@@ -119,6 +119,92 @@ export const audiencePillIcons: Record<AudienceSlug, LucideIcon> = {
   friends: Users,
   colleagues: Briefcase,
 };
+
+export type OccasionPillFilter = {
+  type: "audience" | "category";
+  value: string;
+  label: string;
+};
+
+/**
+ * Which quick-filter pills make sense per occasion, and why they differ:
+ * - Birthday & Just Because apply broadly across relationships, so they keep
+ *   most/all audiences.
+ * - Anniversary & Wedding are inherently couple-centric — Friends/Colleagues
+ *   pills are dropped (their products still show under "All" if tagged, just
+ *   not offered as a dedicated quick filter).
+ * - Housewarming is about the *space*, not the relationship, so it swaps to
+ *   product-type categories (Home & Living, Self Care, Personalised) instead
+ *   of audiences.
+ * - Thank You & Festivals skew toward Friends/Colleagues/Family, matching how
+ *   those occasions are actually gifted.
+ * Every pill maps to a real, existing product field (audience or category) —
+ * nothing here is a fabricated bucket with fake counts.
+ */
+export const occasionPills: Record<OccasionSlug, OccasionPillFilter[]> = {
+  birthday: [
+    { type: "audience", value: "her", label: "For Her" },
+    { type: "audience", value: "him", label: "For Him" },
+    { type: "audience", value: "friends", label: "For Friends" },
+    { type: "audience", value: "parents", label: "For Parents" },
+    { type: "audience", value: "colleagues", label: "For Colleagues" },
+    { type: "category", value: "luxury-edit", label: "Luxury Edit" },
+  ],
+  anniversary: [
+    { type: "audience", value: "couples", label: "For Couples" },
+    { type: "audience", value: "her", label: "For Her" },
+    { type: "audience", value: "him", label: "For Him" },
+    { type: "audience", value: "parents", label: "For Parents" },
+    { type: "category", value: "luxury-edit", label: "Luxury Edit" },
+    { type: "category", value: "add-ons", label: "Add-ons" },
+  ],
+  wedding: [
+    { type: "audience", value: "couples", label: "For Couples" },
+    { type: "audience", value: "her", label: "For Her" },
+    { type: "audience", value: "him", label: "For Him" },
+    { type: "audience", value: "friends", label: "For Friends" },
+    { type: "category", value: "luxury-edit", label: "Luxury Edit" },
+    { type: "category", value: "add-ons", label: "Add-ons" },
+  ],
+  housewarming: [
+    { type: "category", value: "home-living", label: "Home & Living" },
+    { type: "category", value: "self-care", label: "Self Care" },
+    { type: "category", value: "personalised", label: "Personalised" },
+    { type: "audience", value: "couples", label: "For Couples" },
+    { type: "audience", value: "friends", label: "For Friends" },
+    { type: "category", value: "add-ons", label: "Add-ons" },
+  ],
+  "thank-you": [
+    { type: "audience", value: "friends", label: "For Friends" },
+    { type: "audience", value: "colleagues", label: "For Colleagues" },
+    { type: "audience", value: "her", label: "For Her" },
+    { type: "audience", value: "him", label: "For Him" },
+    { type: "category", value: "personalised", label: "Personalised" },
+    { type: "category", value: "add-ons", label: "Add-ons" },
+  ],
+  "just-because": [
+    { type: "audience", value: "her", label: "For Her" },
+    { type: "audience", value: "him", label: "For Him" },
+    { type: "audience", value: "parents", label: "For Parents" },
+    { type: "audience", value: "couples", label: "For Couples" },
+    { type: "audience", value: "friends", label: "For Friends" },
+    { type: "audience", value: "colleagues", label: "For Colleagues" },
+  ],
+  festivals: [
+    { type: "audience", value: "parents", label: "For Parents" },
+    { type: "audience", value: "friends", label: "For Friends" },
+    { type: "audience", value: "colleagues", label: "For Colleagues" },
+    { type: "audience", value: "her", label: "For Her" },
+    { type: "audience", value: "him", label: "For Him" },
+    { type: "category", value: "add-ons", label: "Add-ons" },
+  ],
+};
+
+export function getOccasionPillIcon(pill: OccasionPillFilter): LucideIcon {
+  return pill.type === "audience"
+    ? audiencePillIcons[pill.value as AudienceSlug]
+    : (categoryIcons[pill.value] ?? categoryIcons["add-ons"]);
+}
 
 // Kept in sync with slugify(label) used by MadeForTheMoment's occasion cards.
 export const occasionLabelBySlug: Record<OccasionSlug, string> = Object.fromEntries(
