@@ -28,7 +28,7 @@ entry under the right section, one row per feature.
 | Account icon (header) | Stub — no auth | Auth (sign in/up, sessions), account/orders pages |
 | Wishlist icon (header) | Stub — no wishlist state | Wishlist persisted per-user (DB or localStorage at minimum) |
 | Cart icon + badge (header) | Stub — badge hardcoded to `0`, no cart | Real cart: add/remove/update qty, persisted (DB for logged-in, localStorage for guest), checkout flow |
-| Nav dropdowns (Shop, Collections, Occasions, Personalised) | **Functional** — each is a real hover mega-menu (`NavDropdown` in `src/components/layout/NavDropdown.tsx`, pure CSS `group-hover`, no JS state) linking to real pages: Shop/Personalised list the 6 audiences (`/shop/[audience]`, Personalised appends `?category=personalised`, which `/shop/[audience]` now reads via `useSearchParams` to preset that category filter on load), Collections lists the 5 edits (`/collections/[collection]`), Occasions lists all 7 (`/occasions/[occasion]`). `/shop` itself is now a real "All Gifts" hub (see below); `/collections` and `/personalised` (no sub-segment) are still stubs — only the dropdown's own top-level link target is a stub for those two | Build general `/collections`, `/personalised` hub pages (can mostly reuse the audience-page components/filters against the full combined catalog, same pattern as `/shop`) |
+| Nav dropdowns (Shop, Collections, Occasions, Personalised) | **Functional** — each is a real hover mega-menu (`NavDropdown` in `src/components/layout/NavDropdown.tsx`, pure CSS `group-hover`, no JS state) linking to real pages: Shop/Personalised list the 6 audiences (`/shop/[audience]`, Personalised appends `?category=personalised`, which `/shop/[audience]` now reads via `useSearchParams` to preset that category filter on load), Collections lists the 5 edits (`/collections/[collection]`), Occasions lists all 7 (`/occasions/[occasion]`). `/shop` and `/collections` (no sub-segment) are now real hub pages too (see below); only `/personalised` is still a stub | Build a general `/personalised` hub page (can mostly reuse the audience-page components/filters against the full combined catalog, same pattern as `/shop`) |
 | Corporate nav item | **Functional** — `/corporate` and `/corporate/quote` are real pages (see the Corporate gifting pages section below) | None |
 | Newsletter signup (footer) | Stub — form has no submit handler | Email capture endpoint (e.g. Mailchimp/Klaviyo API) |
 | Footer links (About, Bliss Journal, Track Order, Shipping, Returns, FAQs, Contact) | Stub — `href="#"` or non-existent routes | Build out each page |
@@ -38,13 +38,30 @@ entry under the right section, one row per feature.
 
 | Area | Current state | Needed for production |
 |---|---|---|
-| Gifting Assistant (who/occasion/budget selects + "Find My Gift") | Stub — selects have static option lists, button does nothing | Recommendation logic (rules engine or real query) that returns a filtered product set; button should navigate to a results page with those filters applied |
+| Gifting Assistant (who/occasion/budget selects + "Find My Gift") | **Functional** — selects are controlled, the button navigates to `/gifting-assistant?who=&occasion=&budget=`, a real results page that filters `allShopProducts` by audience/occasion/price-range client-side (same filters editable inline there, live-updating, no separate submit step) | Real recommendation logic (rules engine, purchase-history-aware ranking, etc.) instead of a straightforward attribute match against the mock catalog |
 | Category cards ("Who are you making smile?") | All six now link to real pages — `/shop/[her\|him\|parents\|couples\|friends\|colleagues]`, one dynamic route (`src/app/shop/[audience]/page.tsx`) driven by `src/lib/shop-mock-data.ts` | None — just needs a real catalog behind it (see below) |
 | Occasion cards ("Made for the moment") | **Functional** — all seven link to real pages, `/occasions/[birthday\|anniversary\|wedding\|housewarming\|thank-you\|just-because\|festivals]` | None |
 | Collection cards ("The Blissynest Edit") | **Functional** — all five link to real pages, `/collections/[self-care\|cozy\|minimalist\|celebration\|luxury]` | None |
 | Bestseller products ("Loved by many") | Mocked — static array in `src/lib/mock-data.ts`, wishlist heart has no effect. Links now go to real (generated-fallback) product pages | Real product API/DB; working wishlist toggle |
 | Corporate banner links | **Functional** — `/corporate` and `/corporate/quote` are real pages now (see below) | None |
 | All product/placeholder images | Mocked — `placehold.co` placeholders | Real product photography |
+
+## Gifting Assistant results page (`/gifting-assistant`)
+
+The homepage widget's "Find My Gift" button used to do nothing, and the
+hero's "Find the Perfect Gift" button linked to `/gifting-assistant`, which
+didn't exist — both fixed by building the page. `src/lib/gifting-assistant-data.ts`
+is the single source of truth for the who/occasion/budget option lists and
+their mappings (`whoToAudience`, `budgetToRange`), shared between the
+homepage widget (`GiftingAssistant.tsx`, now a controlled form that
+navigates to `/gifting-assistant?who=&occasion=&budget=`) and the results
+page itself, so the two can't drift out of sync.
+
+The results page filters `allShopProducts` by audience/occasion/price-range
+— **functional**, all client-side against the mock catalog, no separate
+"submit" step (changing any of the three selects re-filters immediately,
+same as every other filter UI on this site). Sort, grid/list toggle, and
+pagination are the same mechanics as the shop pages.
 
 ## Shop / Collection pages (`/shop`, `/shop/[audience]` — her, him, parents, couples, friends, colleagues)
 
@@ -117,7 +134,14 @@ for the audience pages' Categories section.
 | Sort / Pagination / Grid-List toggle | **Functional**, identical to shop pages | Same notes as shop pages above |
 | Result count | Accurate (real count of the filtered mock catalog) | None |
 
-## Collection pages (`/collections/[collection]` — self-care, cozy, minimalist, celebration, luxury)
+## Collection pages (`/collections`, `/collections/[collection]` — self-care, cozy, minimalist, celebration, luxury)
+
+`/collections` (`src/app/collections/page.tsx`) is a simple static hub — the
+5 `CollectionCard`s (reused from the homepage's "Blissynest Edit" section)
+in a scrollable row, each linking to its `/collections/[collection]` page.
+Added because the header dropdown, product breadcrumbs, and the homepage's
+own "Explore Collections" hero button all link to bare `/collections`, and
+that route 404'd — only the dynamic `[collection]` route existed.
 
 One dynamic route (`src/app/collections/[collection]/page.tsx`) serves all
 five, invalid slugs 404 via `notFound()`. Unlike the shop/occasion pages,
