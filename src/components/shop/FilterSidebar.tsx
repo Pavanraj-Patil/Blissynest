@@ -24,7 +24,7 @@ type FilterSidebarProps = {
   compact?: boolean;
 };
 
-function Section({
+export function Section({
   title,
   children,
   collapsible = true,
@@ -57,7 +57,7 @@ function Section({
   );
 }
 
-function CheckboxRow({
+export function CheckboxRow({
   label,
   count,
   checked,
@@ -86,7 +86,7 @@ function CheckboxRow({
   );
 }
 
-function ShowMoreList<T extends { label: string; count: number }>({
+export function ShowMoreList<T extends { label: string; count: number }>({
   items,
   visibleCount,
   selected,

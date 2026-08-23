@@ -13,6 +13,7 @@ export function BlissynestEdit() {
             title={c.title}
             subtitle={c.subtitle}
             image={c.image}
+            href={`/collections/${c.slug}`}
             dark={c.title === "The Luxury Edit"}
           />
         ))}

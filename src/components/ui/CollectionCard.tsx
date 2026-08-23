@@ -5,6 +5,7 @@ type CollectionCardProps = {
   title: string;
   subtitle: string;
   image: string;
+  href: string;
   dark?: boolean;
 };
 
@@ -12,11 +13,12 @@ export function CollectionCard({
   title,
   subtitle,
   image,
+  href,
   dark,
 }: CollectionCardProps) {
   return (
     <Link
-      href="#"
+      href={href}
       className="group relative block shrink-0 w-[170px] sm:w-auto aspect-[4/5] overflow-hidden rounded-2xl"
     >
       <Image

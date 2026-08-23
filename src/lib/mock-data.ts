@@ -61,30 +61,35 @@ export const occasions = [
 
 export const editCollections = [
   {
+    slug: "self-care",
     title: "The Self-Care Edit",
     subtitle: "Take care, always",
     bg: "e6d2c2",
     fg: "2a2621",
   },
   {
+    slug: "cozy",
     title: "The Cozy Edit",
     subtitle: "Warmth in every detail",
     bg: "d6c4a8",
     fg: "2a2621",
   },
   {
+    slug: "minimalist",
     title: "The Minimalist Edit",
     subtitle: "Simple, elegant, thoughtful",
     bg: "e9e2d3",
     fg: "2a2621",
   },
   {
+    slug: "celebration",
     title: "The Celebration Edit",
     subtitle: "For moments to remember",
     bg: "ead9c9",
     fg: "a85830",
   },
   {
+    slug: "luxury",
     title: "The Luxury Edit",
     subtitle: "For when only the best will do",
     bg: "241f1a",

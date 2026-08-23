@@ -1,6 +1,15 @@
 import { allShopProducts, type ShopProduct } from "@/lib/shop-mock-data";
+import {
+  collectionContent,
+  collectionSlugs,
+  type CollectionProduct,
+} from "@/lib/collection-mock-data";
 import { bestsellers } from "@/lib/mock-data";
 import { slugify } from "@/lib/slugify";
+
+const allCollectionProducts: CollectionProduct[] = collectionSlugs.flatMap(
+  (slug) => collectionContent[slug].products
+);
 
 const ph = (w: number, h: number, bg: string, fg: string, text: string) =>
   `https://placehold.co/${w}x${h}/${bg}/${fg}.png?text=${encodeURIComponent(
@@ -366,6 +375,34 @@ function fallbackFromShopProduct(product: ShopProduct): StandaloneProduct {
   };
 }
 
+function fallbackFromCollectionProduct(product: CollectionProduct): StandaloneProduct {
+  return {
+    pdpType: "standalone",
+    slug: product.id,
+    name: product.name,
+    tagline: "Thoughtfully chosen, beautifully packaged.",
+    rating: product.rating,
+    reviews: product.reviews,
+    price: product.price,
+    breadcrumbCategory: product.category
+      .split("-")
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(" "),
+    images: [product.image],
+    benefits: [
+      { icon: "Gift", label: "Thoughtfully Curated" },
+      { icon: "PackageCheck", label: "Premium Packaging" },
+      { icon: "Truck", label: "Delivered with Care" },
+      { icon: "ShieldCheck", label: "Happiness Guaranteed" },
+    ],
+    productDetails: {
+      description: `${product.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
+      delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
+      care: genericCare.join(" · "),
+    },
+  };
+}
+
 function fallbackFromBestseller(name: string): StandaloneProduct | null {
   const match = bestsellers.find((b) => slugify(b.name) === name);
   if (!match) return null;
@@ -400,6 +437,9 @@ export function getProductBySlug(slug: string): ProductDetail | null {
   const shopProduct = allShopProducts.find((p) => p.id === slug);
   if (shopProduct) return fallbackFromShopProduct(shopProduct);
 
+  const collectionProduct = allCollectionProducts.find((p) => p.id === slug);
+  if (collectionProduct) return fallbackFromCollectionProduct(collectionProduct);
+
   const bestseller = fallbackFromBestseller(slug);
   if (bestseller) return bestseller;
 
@@ -424,11 +464,37 @@ export function getRelatedProducts(
       }));
   }
 
-  const categorySlug = allShopProducts.find((p) => p.id === product.slug)?.category;
-  const pool = categorySlug
-    ? allShopProducts.filter((p) => p.category === categorySlug && p.id !== product.slug)
-    : allShopProducts.filter((p) => p.name !== product.name);
+  const shopMatch = allShopProducts.find((p) => p.id === product.slug);
+  if (shopMatch) {
+    const pool = allShopProducts.filter(
+      (p) => p.category === shopMatch.category && p.id !== product.slug
+    );
+    return pool.slice(0, count).map((p) => ({
+      slug: p.id,
+      name: p.name,
+      price: p.price,
+      rating: p.rating,
+      reviews: p.reviews,
+      image: p.image,
+    }));
+  }
 
+  const collectionMatch = allCollectionProducts.find((p) => p.id === product.slug);
+  if (collectionMatch) {
+    const pool = allCollectionProducts.filter(
+      (p) => p.category === collectionMatch.category && p.id !== product.slug
+    );
+    return pool.slice(0, count).map((p) => ({
+      slug: p.id,
+      name: p.name,
+      price: p.price,
+      rating: p.rating,
+      reviews: p.reviews,
+      image: p.image,
+    }));
+  }
+
+  const pool = allShopProducts.filter((p) => p.name !== product.name);
   return pool.slice(0, count).map((p) => ({
     slug: p.id,
     name: p.name,

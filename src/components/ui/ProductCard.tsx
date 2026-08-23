@@ -15,6 +15,7 @@ type ProductCardProps = {
   href?: string;
   layout?: "grid" | "list";
   priority?: boolean;
+  badge?: string;
 };
 
 export function ProductCard({
@@ -26,6 +27,7 @@ export function ProductCard({
   href = "#",
   layout = "grid",
   priority = false,
+  badge,
 }: ProductCardProps) {
   const [wishlisted, setWishlisted] = useState(false);
 
@@ -112,6 +114,11 @@ export function ProductCard({
           />
         </Link>
         <div className="absolute top-3 right-3">{wishlistButton}</div>
+        {badge && (
+          <span className="absolute bottom-3 left-3 rounded-full bg-charcoal/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-cream">
+            {badge}
+          </span>
+        )}
       </div>
       <div className="mt-3">
         <Link

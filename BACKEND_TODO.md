@@ -40,7 +40,7 @@ entry under the right section, one row per feature.
 | Gifting Assistant (who/occasion/budget selects + "Find My Gift") | Stub — selects have static option lists, button does nothing | Recommendation logic (rules engine or real query) that returns a filtered product set; button should navigate to a results page with those filters applied |
 | Category cards ("Who are you making smile?") | All six now link to real pages — `/shop/[her\|him\|parents\|couples\|friends\|colleagues]`, one dynamic route (`src/app/shop/[audience]/page.tsx`) driven by `src/lib/shop-mock-data.ts` | None — just needs a real catalog behind it (see below) |
 | Occasion cards ("Made for the moment") | **Functional** — all seven link to real pages, `/occasions/[birthday\|anniversary\|wedding\|housewarming\|thank-you\|just-because\|festivals]` | None |
-| Collection cards ("The Blissynest Edit") | Stub — `href="#"`, no collection pages | Build curated collection pages |
+| Collection cards ("The Blissynest Edit") | **Functional** — all five link to real pages, `/collections/[self-care\|cozy\|minimalist\|celebration\|luxury]` | None |
 | Bestseller products ("Loved by many") | Mocked — static array in `src/lib/mock-data.ts`, wishlist heart has no effect. Links now go to real (generated-fallback) product pages | Real product API/DB; working wishlist toggle |
 | Corporate banner links | Stub — `/corporate`, `/corporate/quote` don't exist | Build corporate gifting page + quote request form/flow |
 | All product/placeholder images | Mocked — `placehold.co` placeholders | Real product photography |
@@ -112,6 +112,56 @@ for the audience pages' Categories section.
 | Sort / Pagination / Grid-List toggle | **Functional**, identical to shop pages | Same notes as shop pages above |
 | Result count | Accurate (real count of the filtered mock catalog) | None |
 
+## Collection pages (`/collections/[collection]` — self-care, cozy, minimalist, celebration, luxury)
+
+One dynamic route (`src/app/collections/[collection]/page.tsx`) serves all
+five, invalid slugs 404 via `notFound()`. Unlike the shop/occasion pages,
+each collection has its **own separate catalog** (`src/lib/collection-mock-data.ts`,
+~20-25 hand-written products per edit across 4 themed categories each) rather
+than reusing `allShopProducts` — a "Blissynest Edit" is an editorial curation,
+not a filtered slice of the existing audience catalog, so it gets its own
+product set and its own category taxonomy (e.g. Self-Care's Candles/Bath &
+Body/Wellness/Home Fragrance vs. Luxury's Fine Jewellery/Premium Hampers/Silk
+& Accessories/Watches & Leather).
+
+Sidebar layout is deliberately different from the shop/occasion pages'
+pill-row + sidebar hybrid — it matches the FNP-style collection page from the
+reference screenshot instead: a single-select **Category** list inside the
+sidebar (not a pill row), Price, an optional per-collection **attribute**
+filter (Scent for Self-Care, Material for Cozy/Minimalist/Luxury, Theme for
+Celebration — multi-select, only shown when a collection defines one), and
+**Occasion** (multi-select, counts derived from the collection's own product
+tags). `CollectionFilterSidebar` and `CollectionMobileFilterDrawer` are new,
+dedicated components (not the shop pages' `FilterSidebar`) since the
+Category-as-radio-list interaction is genuinely different from the shop
+pages' Category-as-pill-row; they reuse `Section`/`CheckboxRow`/`ShowMoreList`
+(now exported from `FilterSidebar.tsx`) and `PriceRangeSlider` rather than
+duplicating that chrome.
+
+`CollectionBanner` is a new component matching the reference's photo banner
+(solid-color text panel + photo side-by-side on desktop, photo with a text
+scrim overlay on mobile) — different from `ShopBanner`'s dashed-ticket style
+used on shop/occasion pages, since the reference for this section looks
+different. `CollectionTrustStrip` (Handpicked / Quality First / Sustainable /
+Beautifully Packaged) is generic marketing copy shown on all five collections,
+not data-driven per collection. `ProductCard` gained an optional `badge` prop
+(Bestseller/New) to match the reference's product badges.
+
+Product detail pages for collection products resolve through the same
+generated-fallback path as shop products (`getProductBySlug` in
+`product-mock-data.ts` now also checks the flattened collection catalog), and
+"You may also like" pulls other products from the same collection + category
+rather than a random cross-catalog pool.
+
+| Area | Current state | Needed for production |
+|---|---|---|
+| Product catalog | Mocked — ~110 hand-written products total across 5 collections, deterministic (not random) generation for rating/reviews/occasion tags | Real curated-collection data from a CMS/DB; a real "collection" concept (product IDs curated into a named set) rather than a hardcoded per-collection array |
+| Category filter (single-select sidebar list) | **Functional** — filters the mocked per-collection catalog client-side | Server-side once catalog is real |
+| Price / Attribute (Scent/Material/Theme) / Occasion filters | **Functional**, same mechanics as shop pages | Server-side once catalog is real |
+| Sort / Pagination / Grid-List toggle | **Functional**, identical to shop pages | Same notes as shop pages above |
+| Product badges (Bestseller/New) | Mocked — hand-assigned per seed product, not derived from real sales/launch data | Real "bestseller" should come from sales data; "new" from a launch date field |
+| Result count | Accurate (real count of the filtered mock catalog) | None |
+
 ## Product detail pages (`/product/[slug]`)
 
 One dynamic route (`src/app/product/[slug]/page.tsx`) renders one of three layout
@@ -127,7 +177,8 @@ templates based on `pdpType`, all defined in `src/lib/product-mock-data.ts`:
 Only **3 products have hand-written, reference-matched PDP content**:
 `birthday-self-care-box` (hamper), `personalised-scented-candle`
 (customisable), `scented-soy-candle` (standalone). Every other product card
-in the app (all 336 shop products + the 5 homepage bestsellers) links to a
+in the app (all 336 shop products + ~110 collection products + the 5
+homepage bestsellers) links to a
 **generated fallback PDP** — `getProductBySlug()` in `product-mock-data.ts`
 builds a reasonable `StandaloneProduct` on the fly from that product's
 existing name/price/rating/category, with generic (not hand-tuned) copy for
