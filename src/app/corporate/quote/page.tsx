@@ -2,12 +2,22 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Mail, Phone, MessageSquare, PhoneCall, Palette, Truck } from "lucide-react";
+import {
+  CheckCircle2,
+  Download,
+  Mail,
+  Phone,
+  MessageSquare,
+  PhoneCall,
+  Palette,
+  Truck,
+} from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { corporateNeeds } from "@/lib/corporate-data";
+import { downloadCatalogue } from "@/lib/corporate-catalogue";
 
 const teamSizes = ["1–10", "11–50", "51–200", "201–500", "500+"];
 
@@ -25,9 +35,18 @@ function QuoteForm() {
   const matchedInterest = corporateNeeds.find((n) => n.slug === interestParam);
 
   const [submitted, setSubmitted] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    if (submitter?.value === "download") {
+      const interest = new FormData(e.currentTarget).get("interest");
+      downloadCatalogue(typeof interest === "string" ? interest : "");
+      setDownloaded(true);
+    }
+
     setSubmitted(true);
   }
 
@@ -69,8 +88,9 @@ function QuoteForm() {
                     Thank you — we&rsquo;ve got it!
                   </h2>
                   <p className="mt-2 text-sm text-ink-muted max-w-xs">
-                    Our gifting expert will reach out within one business day
-                    to discuss your requirements.
+                    {downloaded
+                      ? "Your catalogue download should start automatically. Our gifting expert will also reach out within one business day to discuss your requirements."
+                      : "Our gifting expert will reach out within one business day to discuss your requirements."}
                   </p>
                 </div>
               ) : (
@@ -139,6 +159,7 @@ function QuoteForm() {
                         What are you looking for?
                       </span>
                       <select
+                        name="interest"
                         defaultValue={matchedInterest?.slug ?? ""}
                         className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
                       >
@@ -165,12 +186,28 @@ function QuoteForm() {
                     />
                   </label>
 
-                  <button
-                    type="submit"
-                    className="w-full inline-flex items-center justify-center rounded-xl bg-olive text-cream px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
-                  >
-                    {isConsultation ? "Book Consultation" : "Submit Request"}
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="submit"
+                      name="action"
+                      value="submit"
+                      className="flex-1 inline-flex items-center justify-center rounded-xl bg-olive text-cream px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
+                    >
+                      {isConsultation ? "Book Consultation" : "Submit Request"}
+                    </button>
+                    <button
+                      type="submit"
+                      name="action"
+                      value="download"
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-charcoal/20 text-charcoal px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-cream-dark transition-colors"
+                    >
+                      <Download size={14} />
+                      Download Catalogue
+                    </button>
+                  </div>
+                  <p className="text-xs text-ink-muted">
+                    Downloading the catalogue also submits your request above.
+                  </p>
                 </form>
               )}
             </div>

@@ -166,3 +166,15 @@ export const curatedCollections: CuratedCollection[] = [
   { slug: "client-appreciation", title: "Client Appreciation", image: ph(360, 300, ...curatedBg[5], "Client Gifts") },
   { slug: "custom", title: "Create Your Own Hamper", image: "", isCustom: true },
 ];
+
+// Which curated collections best represent each corporate-need category,
+// used to tailor the downloadable catalogue to the category the visitor picked.
+export const needToCollectionSlugs: Record<string, string[]> = {
+  employee: ["welcome-kits", "work-anniversary"],
+  client: ["client-appreciation", "holiday"],
+  festive: ["diwali", "holiday"],
+  milestone: ["work-anniversary", "client-appreciation"],
+  welcome: ["welcome-kits"],
+  event: ["holiday", "womens-day"],
+  custom: [],
+};
