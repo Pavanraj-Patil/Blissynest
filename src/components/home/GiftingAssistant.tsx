@@ -7,9 +7,9 @@ import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { whoOptions, occasionOptions, budgetOptions } from "@/lib/gifting-assistant-data";
 
 const fields = [
-  { key: "who", label: "Who are you gifting?", icon: User, options: whoOptions },
-  { key: "occasion", label: "What's the occasion?", icon: CalendarHeart, options: occasionOptions },
-  { key: "budget", label: "Your budget?", icon: Gift, options: budgetOptions },
+  { key: "who", label: "Who are you gifting?", placeholder: "Who", icon: User, options: whoOptions },
+  { key: "occasion", label: "What's the occasion?", placeholder: "Occasion", icon: CalendarHeart, options: occasionOptions },
+  { key: "budget", label: "Your budget?", placeholder: "Budget", icon: Gift, options: budgetOptions },
 ] as const;
 
 type FieldKey = (typeof fields)[number]["key"];
@@ -33,9 +33,41 @@ export function GiftingAssistant() {
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 md:px-8">
-      <div className="relative z-10 -mt-6 sm:-mt-8 md:-mt-14 lg:-mt-20 mx-auto max-w-5xl rounded-3xl bg-white shadow-2xl shadow-charcoal/10 px-6 py-10 md:px-12 md:py-12">
+      {/* Compact horizontal banner below the hero on phones/tablets */}
+      <div className="md:hidden relative z-10 -mt-5 rounded-2xl bg-white shadow-xl shadow-charcoal/10 px-4 py-3.5">
+        <p className="text-xs font-serif text-charcoal text-center mb-2.5">
+          <span className="text-terracotta">✦</span> Not sure what to gift?
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none min-w-0 flex-1">
+            {fields.map((field) => (
+              <SelectDropdown
+                key={field.key}
+                compact
+                placeholder={field.placeholder}
+                icon={field.icon}
+                options={field.options}
+                value={selections[field.key]}
+                onChange={(v) => setSelections((prev) => ({ ...prev, [field.key]: v }))}
+                triggerClassName="bg-cream/60 shrink-0"
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={handleFindGift}
+            aria-label="Find my gift"
+            className="flex items-center justify-center h-9 w-9 rounded-full bg-olive text-cream shrink-0 hover:bg-olive-dark transition-colors"
+          >
+            <ArrowRight size={15} />
+          </button>
+        </div>
+      </div>
+
+      {/* Full card on larger screens */}
+      <div className="hidden md:block relative z-10 md:-mt-14 lg:-mt-20 mx-auto max-w-5xl rounded-3xl bg-white shadow-2xl shadow-charcoal/10 px-12 py-12">
         <div className="text-center mb-9">
-          <h2 className="font-serif text-xl md:text-2xl text-charcoal">
+          <h2 className="font-serif text-2xl text-charcoal">
             <span className="text-terracotta">✦</span> Not sure what to gift?{" "}
             <span className="text-terracotta">✦</span>
           </h2>
@@ -44,7 +76,7 @@ export function GiftingAssistant() {
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-end gap-5 md:gap-4">
+        <div className="flex items-end gap-4">
           {fields.map((field) => (
             <SelectDropdown
               key={field.key}
@@ -59,7 +91,7 @@ export function GiftingAssistant() {
           <button
             type="button"
             onClick={handleFindGift}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors shrink-0 md:w-auto w-full"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors shrink-0"
           >
             Find My Gift
             <ArrowRight size={15} />

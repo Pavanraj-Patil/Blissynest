@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/home/Hero";
 import { GiftingAssistant } from "@/components/home/GiftingAssistant";
+import { SeasonalBanner } from "@/components/home/SeasonalBanner";
 import { WhoAreYouGifting } from "@/components/home/WhoAreYouGifting";
 import { MadeForTheMoment } from "@/components/home/MadeForTheMoment";
 import { BlissynestEdit } from "@/components/home/BlissynestEdit";
@@ -19,6 +20,7 @@ export default function Home() {
       <main>
         <Hero />
         <GiftingAssistant />
+        <SeasonalBanner />
         <WhoAreYouGifting />
         <MadeForTheMoment />
         <BlissynestEdit />

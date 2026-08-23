@@ -44,7 +44,6 @@ const columns = [
       { label: "Gifts for Him", href: "/shop/him" },
       { label: "Gifts for Couples", href: "/shop/couples" },
       { label: "Gifts for Parents", href: "/shop/parents" },
-      { label: "Gift Cards", href: "/gift-cards" },
     ],
   },
   {
@@ -63,7 +62,6 @@ const columns = [
       { label: "About Us", href: "/about" },
       { label: "The Bliss Journal", href: "/journal" },
       { label: "Corporate Gifting", href: "/corporate" },
-      { label: "Sustainability", href: "/sustainability" },
     ],
   },
 ];
@@ -155,7 +153,7 @@ export function ShopFooter() {
         </div>
 
         <p className="text-xs text-ink-muted mt-10 pt-6 border-t border-charcoal/10">
-          © 2024 BlissNest. All rights reserved.
+          © 2026 BlissyNest. All rights reserved.
         </p>
       </div>
     </footer>

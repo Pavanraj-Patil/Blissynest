@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -6,6 +7,11 @@ import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { CollectionCard } from "@/components/ui/CollectionCard";
 import { editCollections } from "@/lib/mock-data";
+
+export const metadata: Metadata = {
+  title: "Collections | Blissynest",
+  description: "The Blissynest Edit — five curated collections for every kind of gifting moment.",
+};
 
 export default function CollectionsPage() {
   return (

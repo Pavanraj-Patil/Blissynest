@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Gift } from "lucide-react";
 
 export function TopBar() {
@@ -11,20 +12,20 @@ export function TopBar() {
           </span>
         </p>
         <div className="hidden sm:flex items-center gap-1.5 text-cream/75 shrink-0">
-          <a href="/track-order" className="hover:text-cream transition-colors">
+          <Link href="/track-order" className="hover:text-cream transition-colors">
             Track Order
-          </a>
+          </Link>
           <span className="text-cream/30">|</span>
-          <a href="/help" className="hover:text-cream transition-colors">
+          <Link href="/help" className="hover:text-cream transition-colors">
             Help
-          </a>
+          </Link>
           <span className="text-cream/30">|</span>
-          <a
+          <Link
             href="/corporate"
             className="hover:text-cream transition-colors"
           >
             Corporate Gifting
-          </a>
+          </Link>
         </div>
       </div>
     </div>

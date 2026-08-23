@@ -102,7 +102,7 @@ export function Footer() {
         </nav>
 
         <p className="text-xs text-ink-muted text-center lg:text-left mt-6">
-          © 2024 BlissyNest. All rights reserved.
+          © 2026 BlissyNest. All rights reserved.
         </p>
       </div>
     </footer>

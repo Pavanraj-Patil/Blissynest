@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, User, Heart, ShoppingBag } from "lucide-react";
+import { Search, Heart, ShoppingBag } from "lucide-react";
 import { SearchOverlay } from "./SearchOverlay";
+import { AccountMenu } from "./AccountMenu";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
 
@@ -32,9 +33,7 @@ export function HeaderActions() {
         >
           <Search size={19} />
         </button>
-        <button aria-label="Account" className="hidden sm:block hover:text-terracotta-dark transition-colors">
-          <User size={19} />
-        </button>
+        <AccountMenu />
         <Link
           href="/wishlist"
           aria-label="Wishlist"

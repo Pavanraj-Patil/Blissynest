@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -9,6 +10,11 @@ import { WhyChooseUs } from "@/components/corporate/WhyChooseUs";
 import { CuratedCollections } from "@/components/corporate/CuratedCollections";
 import { TrustedByStrip } from "@/components/corporate/TrustedByStrip";
 import { CorporateFinalCta } from "@/components/corporate/CorporateFinalCta";
+
+export const metadata: Metadata = {
+  title: "Corporate Gifting | Blissynest",
+  description: "Bulk and branded gifting for teams, clients, and every corporate occasion.",
+};
 
 export default function CorporatePage() {
   return (

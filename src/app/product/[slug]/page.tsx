@@ -1,33 +1,26 @@
-"use client";
-
-import { use } from "react";
-import { notFound } from "next/navigation";
-import { ProductPageShell } from "@/components/product/ProductPageShell";
-import { HamperPDP } from "@/components/product/HamperPDP";
-import { CustomisablePDP } from "@/components/product/CustomisablePDP";
-import { StandalonePDP } from "@/components/product/StandalonePDP";
+import type { Metadata } from "next";
 import { getProductBySlug } from "@/lib/product-mock-data";
+import { ProductPageClient } from "./ProductPageClient";
 
-export default function ProductPage({
-  params,
-}: {
+type Props = {
   params: Promise<{ slug: string }>;
-}) {
-  const { slug } = use(params);
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   const product = getProductBySlug(slug);
 
   if (!product) {
-    notFound();
+    return { title: "Product Not Found | Blissynest" };
   }
 
-  return (
-    <ProductPageShell
-      breadcrumbCategory={product.breadcrumbCategory}
-      productName={product.name}
-    >
-      {product.pdpType === "hamper" && <HamperPDP product={product} />}
-      {product.pdpType === "customisable" && <CustomisablePDP product={product} />}
-      {product.pdpType === "standalone" && <StandalonePDP product={product} />}
-    </ProductPageShell>
-  );
+  return {
+    title: `${product.name} | Blissynest`,
+    description:
+      product.tagline ?? `${product.name} — thoughtfully curated gifts from Blissynest.`,
+  };
+}
+
+export default function ProductPage({ params }: Props) {
+  return <ProductPageClient params={params} />;
 }

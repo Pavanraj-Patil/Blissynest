@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Cake, Heart, Gem, Home, Mail, Sparkles, Flame } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
@@ -9,6 +10,11 @@ import { OccasionCard } from "@/components/ui/OccasionCard";
 import { occasions } from "@/lib/mock-data";
 
 const icons = [Cake, Heart, Gem, Home, Mail, Sparkles, Flame];
+
+export const metadata: Metadata = {
+  title: "Occasions | Blissynest",
+  description: "From birthdays to just because — find gifts curated for every moment worth celebrating.",
+};
 
 export default function OccasionsPage() {
   return (

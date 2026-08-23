@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { NavDropdown, type NavDropdownItem } from "./NavDropdown";
 import { HeaderActions } from "./HeaderActions";
+import { MobileNav } from "./MobileNav";
 import {
   audienceSlugs,
   audienceShopContent,
@@ -36,14 +38,19 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-charcoal/10">
       <div className="mx-auto max-w-[1440px] px-4 md:px-8 h-20 md:h-24 flex items-center justify-between gap-6">
-        <Link href="/" className="shrink-0">
-          <span className="block font-serif text-2xl md:text-[28px] leading-none text-charcoal">
-            blissynest
-          </span>
-          <span className="block eyebrow text-[9px] tracking-[0.22em] text-terracotta-dark mt-1">
-            Gifts that feel like home
-          </span>
-        </Link>
+        <div className="flex items-center gap-3 md:gap-4">
+          <MobileNav />
+          <Link href="/" className="shrink-0">
+            <Image
+              src="/blissynest-logo.png"
+              alt="Blissynest"
+              width={210}
+              height={42}
+              priority
+              className="block h-8 w-auto sm:h-9 md:h-11"
+            />
+          </Link>
+        </div>
 
         <nav className="hidden lg:flex items-center gap-8 text-[13px] font-medium tracking-wide text-charcoal">
           <NavDropdown label="Shop" href="/shop" items={shopItems} columns={2} />
