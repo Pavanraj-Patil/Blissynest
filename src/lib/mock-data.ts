@@ -1,3 +1,5 @@
+import { slugify } from "@/lib/slugify";
+
 export type SimpleLink = {
   label: string;
   href: string;
@@ -51,7 +53,11 @@ export const occasions = [
   { label: "Thank You", bg: "e7c9b9", fg: "a85830" },
   { label: "Just Because", bg: "e2dccb", fg: "4a5738" },
   { label: "Festivals", bg: "6b4a2a", fg: "f0e8da" },
-].map((o) => ({ ...o, image: ph(240, 340, o.bg, o.fg, o.label) }));
+].map((o) => ({
+  ...o,
+  image: ph(240, 340, o.bg, o.fg, o.label),
+  slug: slugify(o.label),
+}));
 
 export const editCollections = [
   {

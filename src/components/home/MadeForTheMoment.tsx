@@ -16,6 +16,7 @@ export function MadeForTheMoment() {
             label={occ.label}
             image={occ.image}
             icon={icons[i]}
+            href={`/occasions/${occ.slug}`}
             dark={occ.label === "Festivals"}
           />
         ))}

@@ -545,6 +545,12 @@ export const shopProductsByAudience: Record<AudienceSlug, ShopProduct[]> = {
   colleagues: buildProducts("colleagues"),
 };
 
+export type ShopProductWithAudience = ShopProduct & { audience: AudienceSlug };
+
+export const allShopProducts: ShopProductWithAudience[] = audienceSlugs.flatMap(
+  (audience) => shopProductsByAudience[audience].map((p) => ({ ...p, audience }))
+);
+
 export type AudienceShopContent = {
   title: string;
   subtitle: string;

@@ -28,7 +28,7 @@ entry under the right section, one row per feature.
 | Account icon (header) | Stub — no auth | Auth (sign in/up, sessions), account/orders pages |
 | Wishlist icon (header) | Stub — no wishlist state | Wishlist persisted per-user (DB or localStorage at minimum) |
 | Cart icon + badge (header) | Stub — badge hardcoded to `0`, no cart | Real cart: add/remove/update qty, persisted (DB for logged-in, localStorage for guest), checkout flow |
-| Nav links (Shop, Collections, Occasions, Personalised, Corporate) | Stub — most target routes don't exist yet | Build out each landing page |
+| Nav links (Shop, Collections, Occasions, Personalised, Corporate) | "Occasions" now has real pages behind it (see below); Shop/Collections/Personalised/Corporate still stub — the nav link itself points at `/shop`, `/collections`, etc. which don't exist as landing pages yet, even though `/shop/[audience]` and `/occasions/[occasion]` do | Build a general `/shop` hub (can mostly reuse the audience-page components/filters against the full combined catalog) and a `/collections` page once there's a real "collection" concept in the data. Corporate is a different kind of page (lead-gen/quote form), not a product listing |
 | Newsletter signup (footer) | Stub — form has no submit handler | Email capture endpoint (e.g. Mailchimp/Klaviyo API) |
 | Footer links (About, Bliss Journal, Track Order, Shipping, Returns, FAQs, Contact) | Stub — `href="#"` or non-existent routes | Build out each page |
 | Social icons (footer) | Stub — `href="#"` | Real social URLs |
@@ -39,7 +39,7 @@ entry under the right section, one row per feature.
 |---|---|---|
 | Gifting Assistant (who/occasion/budget selects + "Find My Gift") | Stub — selects have static option lists, button does nothing | Recommendation logic (rules engine or real query) that returns a filtered product set; button should navigate to a results page with those filters applied |
 | Category cards ("Who are you making smile?") | All six now link to real pages — `/shop/[her\|him\|parents\|couples\|friends\|colleagues]`, one dynamic route (`src/app/shop/[audience]/page.tsx`) driven by `src/lib/shop-mock-data.ts` | None — just needs a real catalog behind it (see below) |
-| Occasion cards ("Made for the moment") | Stub — `href="#"`, no occasion landing pages | Build occasion landing/filter pages |
+| Occasion cards ("Made for the moment") | **Functional** — all seven link to real pages, `/occasions/[birthday\|anniversary\|wedding\|housewarming\|thank-you\|just-because\|festivals]` | None |
 | Collection cards ("The Blissynest Edit") | Stub — `href="#"`, no collection pages | Build curated collection pages |
 | Bestseller products ("Loved by many") | Mocked — static array in `src/lib/mock-data.ts`, wishlist heart has no effect. Links now go to real (generated-fallback) product pages | Real product API/DB; working wishlist toggle |
 | Corporate banner links | Stub — `/corporate`, `/corporate/quote` don't exist | Build corporate gifting page + quote request form/flow |
@@ -63,6 +63,40 @@ One dynamic route (`src/app/shop/[audience]/page.tsx`) serves all six audiences;
 | Product card links | **Functional** — every card now links to a real `/product/[slug]` page | None |
 | Mobile filter drawer "Apply Filters (N)" | Functional as a close/confirm action (filtering is already live as you check boxes) | No change needed — this is a UI pattern choice, not a backend gap |
 | Breadcrumb | Static — matches the current static route | Should reflect real category/route data once dynamic |
+
+## Occasion pages (`/occasions/[occasion]` — birthday, anniversary, wedding, housewarming, thank-you, just-because, festivals)
+
+One dynamic route (`src/app/occasions/[occasion]/page.tsx`) serves all seven;
+invalid slugs 404 via `notFound()`. Content (title/subtitle/breadcrumb/icon)
+is hand-written per occasion in `src/lib/occasion-data.ts`.
+
+This page reuses the **existing** shop catalog rather than a separate
+generated one — every shop product already carries an `occasions: string[]`
+tag (added when the audience shop pages were built), so an occasion page is
+just `allShopProducts.filter(p => p.occasions.includes(occasionLabel))`
+across all six audiences combined. No new product data was authored for
+this feature.
+
+The category pill row here filters by **audience** (For Her / For Him / For
+Parents / For Couples / For Friends / For Colleagues) instead of the
+product-type categories used on the audience pages — reusing the same
+`CategoryPillRow` component, now generalized to accept an icon per item
+instead of a hardcoded category→icon map. The sidebar's Recipient filter is
+computed dynamically (every recipient tag that appears among that
+occasion's products, with a real count) rather than a hand-picked list —
+there was no per-occasion recipient list to author, so this derives it from
+whatever's actually in the filtered set. No "Occasion" filter section is
+shown (redundant, since the whole page is already scoped to one), matching
+the same "don't duplicate the fixed dimension in the sidebar" decision made
+for the audience pages' Categories section.
+
+| Area | Current state | Needed for production |
+|---|---|---|
+| Product catalog | **Functional** — real filter over the existing 336-product shop catalog, not a separate mock set | Same real-catalog gap as the shop pages above |
+| Audience pill filter | **Functional** | Server-side once catalog is real |
+| Price / Recipient filters | **Functional**, same mechanics as shop pages | Server-side once catalog is real |
+| Sort / Pagination / Grid-List toggle | **Functional**, identical to shop pages | Same notes as shop pages above |
+| Result count | Accurate (real count of the filtered mock catalog) | None |
 
 ## Product detail pages (`/product/[slug]`)
 
@@ -107,5 +141,5 @@ full "Share this product" row.
 | Share (WhatsApp / Facebook / Email) | **Genuinely functional** — these open real share URLs (`wa.me`, Facebook sharer, `mailto:`) using the current page URL, no backend needed | None |
 | Share → Copy Link | **Functional** — uses the real Clipboard API | None |
 | "You may also like" | **Functional** — 3 flagship products have hand-picked `relatedSlugs`; everything else falls back to same-category products from the shop catalog | Real recommendation engine (co-purchase data, etc.) |
-| Customer Reviews section | Mocked — 3 flagship products have hand-written review cards (`reviewsList`); every other product gets 3 deterministically-generated generic reviews (`generateGenericReviews`) plus a rating-breakdown bar chart derived from a fixed heuristic table keyed to the average rating, not real per-star counts | Real reviews system (submission, moderation, real per-star aggregation) |
+| Customer Reviews section | Mocked — 3 flagship products have hand-written review cards (`reviewsList`); every other product gets 3 deterministically-generated generic reviews (`generateGenericReviews`). No rating summary/breakdown is shown (removed per request) | Real reviews system (submission, moderation) |
 | Product images | Mocked — 1-5 `placehold.co` placeholders per product depending on type | Real product photography |

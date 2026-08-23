@@ -1,7 +1,7 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { bestsellers } from "@/lib/mock-data";
-import { slugify } from "@/lib/product-mock-data";
+import { slugify } from "@/lib/slugify";
 
 export function LovedByMany() {
   return (

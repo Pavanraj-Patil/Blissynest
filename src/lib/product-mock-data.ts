@@ -1,5 +1,6 @@
-import { shopProductsByAudience, type ShopProduct } from "@/lib/shop-mock-data";
+import { allShopProducts, type ShopProduct } from "@/lib/shop-mock-data";
 import { bestsellers } from "@/lib/mock-data";
+import { slugify } from "@/lib/slugify";
 
 const ph = (w: number, h: number, bg: string, fg: string, text: string) =>
   `https://placehold.co/${w}x${h}/${bg}/${fg}.png?text=${encodeURIComponent(
@@ -337,13 +338,6 @@ const productMap = new Map<string, ProductDetail>(
   flagshipProducts.map((p) => [p.slug, p])
 );
 
-export function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
 function fallbackFromShopProduct(product: ShopProduct): StandaloneProduct {
   return {
     pdpType: "standalone",
@@ -398,8 +392,6 @@ function fallbackFromBestseller(name: string): StandaloneProduct | null {
     },
   };
 }
-
-const allShopProducts: ShopProduct[] = Object.values(shopProductsByAudience).flat();
 
 export function getProductBySlug(slug: string): ProductDetail | null {
   const flagship = productMap.get(slug);

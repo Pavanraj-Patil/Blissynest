@@ -1,4 +1,4 @@
-import { Gift } from "lucide-react";
+import { Gift, type LucideIcon } from "lucide-react";
 
 function Sprig({ flip = false }: { flip?: boolean }) {
   return (
@@ -24,9 +24,10 @@ function Sprig({ flip = false }: { flip?: boolean }) {
 type ShopBannerProps = {
   title: string;
   subtitle: string;
+  icon?: LucideIcon;
 };
 
-export function ShopBanner({ title, subtitle }: ShopBannerProps) {
+export function ShopBanner({ title, subtitle, icon: Icon = Gift }: ShopBannerProps) {
   return (
     <div
       className="relative flex items-center justify-center gap-3 sm:gap-6 bg-cream-dark border border-dashed border-gold/50 px-8 py-8 sm:py-10 text-center"
@@ -38,7 +39,7 @@ export function ShopBanner({ title, subtitle }: ShopBannerProps) {
       <Sprig />
       <div className="max-w-xl">
         <h1 className="flex items-center justify-center gap-2 font-serif text-2xl sm:text-3xl text-charcoal">
-          <Gift size={22} className="text-terracotta shrink-0" />
+          <Icon size={22} className="text-terracotta shrink-0" />
           {title}
         </h1>
         <p className="mt-2 text-sm text-ink-muted leading-relaxed">

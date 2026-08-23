@@ -6,6 +6,7 @@ type OccasionCardProps = {
   label: string;
   image: string;
   icon: LucideIcon;
+  href?: string;
   dark?: boolean;
 };
 
@@ -13,11 +14,12 @@ export function OccasionCard({
   label,
   image,
   icon: Icon,
+  href = "#",
   dark,
 }: OccasionCardProps) {
   return (
     <Link
-      href="#"
+      href={href}
       className="group relative block shrink-0 w-[130px] sm:w-auto aspect-[3/4.3] overflow-hidden rounded-2xl"
     >
       <Image

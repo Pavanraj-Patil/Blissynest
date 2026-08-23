@@ -1,16 +1,5 @@
-import {
-  Gift,
-  Flower2,
-  Heart,
-  Crown,
-  Home,
-  Droplet,
-  Gem,
-  Plus,
-  type LucideIcon,
-} from "lucide-react";
+import { Gift, Flower2, Heart, Crown, Home, Droplet, Gem, Plus, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
-import type { ShopCategory } from "@/lib/shop-mock-data";
 
 const categoryIcons: Record<string, LucideIcon> = {
   all: Gift,
@@ -23,23 +12,30 @@ const categoryIcons: Record<string, LucideIcon> = {
   "add-ons": Plus,
 };
 
+type PillItem = { slug: string; label: string; icon?: LucideIcon };
+
 type CategoryPillRowProps = {
-  categories: ShopCategory[];
+  categories: PillItem[];
   selected: string | null;
   onSelect: (slug: string | null) => void;
+  allIcon?: LucideIcon;
 };
 
 export function CategoryPillRow({
   categories,
   selected,
   onSelect,
+  allIcon,
 }: CategoryPillRowProps) {
-  const items = [{ slug: "all", label: "All" }, ...categories];
+  const items: PillItem[] = [
+    { slug: "all", label: "All", icon: allIcon },
+    ...categories,
+  ];
 
   return (
     <div className="flex gap-5 sm:gap-8 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
       {items.map((item) => {
-        const Icon = categoryIcons[item.slug] ?? Gift;
+        const Icon = item.icon ?? categoryIcons[item.slug] ?? Gift;
         const isActive =
           item.slug === "all" ? selected === null : selected === item.slug;
         return (

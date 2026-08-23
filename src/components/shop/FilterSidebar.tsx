@@ -12,9 +12,9 @@ type FilterSidebarProps = {
   priceMax: number;
   onPriceChange: (min: number, max: number) => void;
 
-  occasions: CountedOption[];
-  selectedOccasions: string[];
-  onToggleOccasion: (label: string) => void;
+  occasions?: CountedOption[];
+  selectedOccasions?: string[];
+  onToggleOccasion?: (label: string) => void;
 
   recipients: CountedOption[];
   selectedRecipients: string[];
@@ -163,14 +163,16 @@ export function FilterSidebar({
         />
       </Section>
 
-      <Section title="Occasion" defaultOpen={!compact}>
-        <ShowMoreList
-          items={occasions}
-          visibleCount={4}
-          selected={selectedOccasions}
-          onToggle={onToggleOccasion}
-        />
-      </Section>
+      {occasions && occasions.length > 0 && onToggleOccasion && (
+        <Section title="Occasion" defaultOpen={!compact}>
+          <ShowMoreList
+            items={occasions}
+            visibleCount={4}
+            selected={selectedOccasions ?? []}
+            onToggle={onToggleOccasion}
+          />
+        </Section>
+      )}
 
       <Section title="Recipient" defaultOpen={!compact}>
         <ShowMoreList
