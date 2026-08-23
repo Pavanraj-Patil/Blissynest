@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Menu, X, ChevronDown, User, PackageSearch } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { NavDropdownItem } from "./NavDropdown";
-import { AccountAuthModal } from "./AccountAuthModal";
 import { audienceSlugs, audienceShopContent } from "@/lib/shop-mock-data";
 import { audiencePillIcons, occasionSlugs, occasionContent } from "@/lib/occasion-data";
 import { collectionSlugs, collectionContent } from "@/lib/collection-mock-data";
@@ -54,7 +53,6 @@ const sections: MobileNavSection[] = [
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [authOpen, setAuthOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -113,19 +111,16 @@ export function MobileNav() {
               </div>
 
               <div className="flex shrink-0 border-b border-charcoal/10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    close();
-                    setAuthOpen(true);
-                  }}
-                  className="flex flex-1 items-center gap-2 px-4 py-3.5 text-left text-sm font-medium text-charcoal"
+                <Link
+                  href="/account"
+                  onClick={close}
+                  className="flex flex-1 items-center gap-2 px-4 py-3.5 text-sm font-medium text-charcoal"
                 >
                   <User size={16} className="text-terracotta" />
                   Profile
-                </button>
+                </Link>
                 <Link
-                  href="/account/orders"
+                  href="/account?tab=orders"
                   onClick={close}
                   className="flex flex-1 items-center gap-2 border-l border-charcoal/10 px-4 py-3.5 text-sm font-medium text-charcoal"
                 >
@@ -219,8 +214,6 @@ export function MobileNav() {
           </div>,
           document.body
         )}
-
-      <AccountAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 }
