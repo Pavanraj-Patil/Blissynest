@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Search, User, Heart, ShoppingBag } from "lucide-react";
 import { NavDropdown, type NavDropdownItem } from "./NavDropdown";
+import { HeaderActions } from "./HeaderActions";
 import {
   audienceSlugs,
   audienceShopContent,
@@ -61,23 +61,7 @@ export function Header() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4 md:gap-5 text-charcoal shrink-0">
-          <button aria-label="Search" className="hover:text-terracotta-dark transition-colors">
-            <Search size={19} />
-          </button>
-          <button aria-label="Account" className="hidden sm:block hover:text-terracotta-dark transition-colors">
-            <User size={19} />
-          </button>
-          <button aria-label="Wishlist" className="hidden sm:block hover:text-terracotta-dark transition-colors">
-            <Heart size={19} />
-          </button>
-          <Link href="/cart" aria-label="Cart" className="relative hover:text-terracotta-dark transition-colors">
-            <ShoppingBag size={19} />
-            <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-terracotta text-[9px] font-semibold text-cream">
-              0
-            </span>
-          </Link>
-        </div>
+        <HeaderActions />
       </div>
     </header>
   );

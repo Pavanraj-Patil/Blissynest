@@ -24,10 +24,10 @@ entry under the right section, one row per feature.
 
 | Area | Current state | Needed for production |
 |---|---|---|
-| Search icon (header) | Stub — no search UI, no results | Real search (Algolia/Meilisearch/DB full-text) + search results page |
+| Search icon (header) | **Functional** — opens `SearchOverlay` (a real search UI: live results as you type, quick-link chips when empty, a proper no-results state), backed by `src/lib/search-data.ts` (a deduped index built from `allShopProducts` + all collection products + homepage bestsellers, ~450 items). Enter or "View all results" goes to `/search?q=`, a full results page with sort/grid-list/pagination, same pattern as the other catalog pages | Real search backend (Algolia/Meilisearch/DB full-text) once the catalog is real — client-side substring match is fine at this catalog size but won't scale |
 | Account icon (header) | Stub — no auth | Auth (sign in/up, sessions), account/orders pages |
-| Wishlist icon (header) | Stub — no wishlist state | Wishlist persisted per-user (DB or localStorage at minimum) |
-| Cart icon + badge (header) | Stub — badge hardcoded to `0`, no cart | Real cart: add/remove/update qty, persisted (DB for logged-in, localStorage for guest), checkout flow |
+| Wishlist icon (header) | **Functional** — global `WishlistProvider` (`src/lib/wishlist-context.tsx`), persisted to `localStorage` via `useSyncExternalStore` (hydration-safe: server & first client render both read the same empty-array fallback, so there's no server/client mismatch). Badge shows a real count, hidden when empty; visible on mobile now too (was `hidden sm:block` back when it was a dead stub) | Persist per-user server-side (DB) instead of localStorage once there's auth |
+| Cart icon + badge (header) | **Functional** — global `CartProvider` (`src/lib/cart-context.tsx`), same `useSyncExternalStore` + `localStorage` pattern as the wishlist. Add to Cart / Buy Now on every PDP type actually add the item (Buy Now adds then navigates straight to `/cart`); quantity/removal update live | Persist per-user server-side, real checkout/payment flow |
 | Nav dropdowns (Shop, Collections, Occasions, Personalised) | **Functional** — each is a real hover mega-menu (`NavDropdown` in `src/components/layout/NavDropdown.tsx`, pure CSS `group-hover`, no JS state) linking to real pages: Shop/Personalised list the 6 audiences (`/shop/[audience]`, Personalised appends `?category=personalised`, which `/shop/[audience]` now reads via `useSearchParams` to preset that category filter on load), Collections lists the 5 edits (`/collections/[collection]`), Occasions lists all 7 (`/occasions/[occasion]`). `/shop`, `/collections`, `/occasions`, and `/personalised` (no sub-segment — the nav item's own top-level link target) are now all real hub pages too (see below) | None |
 | Corporate nav item | **Functional** — `/corporate` and `/corporate/quote` are real pages (see the Corporate gifting pages section below) | None |
 | Newsletter signup (footer) | Stub — form has no submit handler | Email capture endpoint (e.g. Mailchimp/Klaviyo API) |
@@ -82,7 +82,7 @@ filters, sort, and pagination. It was added because the PDP and audience-page br
 | Result count ("N products") | Mocked — reflects the real (small) mock dataset size, not the "257" shown in the reference design | Will be accurate once catalog is real |
 | Pagination | **Functional** — paginates the mocked dataset client-side (12/page) | Same UX, but should be server-side pagination once the catalog is large/real |
 | Grid / List view toggle | **Functional** — pure UI state, no persistence | Optionally persist the user's preference (localStorage or account setting) |
-| Wishlist heart on product cards | Stub — toggles local visual state only (via `useState` in `ProductCard`), not persisted | Real wishlist persistence |
+| Wishlist heart on product cards | **Functional** — reads/writes the global `WishlistProvider`, persisted via `localStorage`, shared across every page that renders `ProductCard` (slug is derived from `href`) | Real per-user persistence once there's auth |
 | Product card links | **Functional** — every card now links to a real `/product/[slug]` page | None |
 | Mobile filter drawer "Apply Filters (N)" | Functional as a close/confirm action (filtering is already live as you check boxes) | No change needed — this is a UI pattern choice, not a backend gap |
 | Breadcrumb | Static — matches the current static route | Should reflect real category/route data once dynamic |
@@ -298,10 +298,65 @@ full "Share this product" row.
 | Personalisation (text lines, font, color, live preview) | **Functional** client-side state, nothing is saved or sent anywhere | On "Add to Cart", the chosen personalisation needs to be captured as order line-item metadata and passed through to fulfillment |
 | Variant selection (scent/size) | **Functional** UI state | Should affect price/stock/SKU once there's a real catalog with per-variant pricing and inventory |
 | Quantity stepper | **Functional** UI state | Should respect real stock levels |
-| Add to Cart / Buy Now | Stub — buttons render, no click handler, no cart | Real cart + checkout flow |
+| Add to Cart / Buy Now | **Functional** — both add the item (current quantity, and for hampers, the personal-note add-on price if selected) to the global cart via `useCart()`; Add to Cart shows a brief "Added ✓" confirmation on the button, Buy Now adds then navigates straight to `/cart`. Same wiring on desktop's sticky bar and `MobileStickyCTA` | Real checkout/payment flow once there's one to send the cart to |
+| Wishlist heart on PDP | **Functional** — `PdpWishlistButton` next to the share icon, same global `WishlistProvider` as product cards | Real per-user persistence once there's auth |
 | Delivery pincode check | **Functional but fake** — accepts any 6-digit number and returns a deterministic date offset, not a real serviceability check | Real courier/serviceability API |
 | Share (WhatsApp / Facebook / Email) | **Genuinely functional** — these open real share URLs (`wa.me`, Facebook sharer, `mailto:`) using the current page URL, no backend needed | None |
 | Share → Copy Link | **Functional** — uses the real Clipboard API | None |
 | "You may also like" | **Functional** — 3 flagship products have hand-picked `relatedSlugs`; everything else falls back to same-category products from the shop catalog | Real recommendation engine (co-purchase data, etc.) |
 | Customer Reviews section | Mocked — 3 flagship products have hand-written review cards (`reviewsList`); every other product gets 3 deterministically-generated generic reviews (`generateGenericReviews`). No rating summary/breakdown is shown (removed per request) | Real reviews system (submission, moderation) |
 | Product images | Mocked — 1-5 `placehold.co` placeholders per product depending on type | Real product photography |
+
+## Cart & Wishlist (`src/lib/cart-context.tsx`, `src/lib/wishlist-context.tsx`, `/cart`, `/wishlist`)
+
+Both are real global state, not per-component stubs — a `CartProvider`/`WishlistProvider`
+(wrapped around the whole app via `src/components/providers/AppProviders.tsx` in
+`layout.tsx`) backed by `src/lib/local-store.ts`, a tiny `localStorage`-backed
+external store consumed through React's `useSyncExternalStore`. That hook is
+what makes this hydration-safe without a manual "have we loaded from
+localStorage yet" flag: server render and the first client render both call
+`getServerSnapshot()` (always `[]`), so they can never mismatch; only after
+hydration does React switch to the real `localStorage`-backed snapshot. (An
+earlier version used `useState` + `useEffect` to load from `localStorage`,
+which works but trips the `react-hooks/set-state-in-effect` lint rule —
+`useSyncExternalStore` is the correct tool for "subscribe to an external
+system" and sidesteps that entirely.)
+
+`/cart` and `/wishlist` both have a real filled state and a deliberately
+non-generic empty state (icon + on-brand copy + "Continue Shopping" CTA to
+`/shop`) per explicit request, rather than a bare "no items" message.
+Wishlist cards have their own "Add to Cart" button (adds and flashes
+"Added ✓" briefly, same pattern as the PDP buttons). Cart line items use the
+existing `QuantityStepper`; removing the last unit removes the line
+entirely. "Proceed to Checkout" is intentionally not a fake payment flow —
+clicking it reveals an honest inline note ("Checkout isn't available in
+this demo...") rather than simulating a transaction.
+
+| Area | Current state | Needed for production |
+|---|---|---|
+| Cart / Wishlist state | **Functional** — `localStorage`-backed, shared across every page via context, survives reload | Move to server-side persistence per logged-in user once there's auth; localStorage remains reasonable for guest carts |
+| Cart quantity / remove | **Functional** | None |
+| Cart free-shipping progress banner | **Functional but fake threshold** — hardcoded ₹999 to match the header's free-shipping banner copy | Should come from a real shipping/promotions config |
+| "Proceed to Checkout" | Stub, honestly labeled — shows an inline notice instead of a fake payment form | Real checkout: address, payment, order confirmation |
+| Empty states | **Functional** — creative copy + "Continue Shopping" CTA, not a bare "nothing here" message | None |
+
+## Search (`src/lib/search-data.ts`, `SearchOverlay`, `/search`)
+
+`searchIndex` is a deduped array built from three existing sources —
+`allShopProducts` (336), every collection product (~110), and the 5
+homepage bestsellers — normalized to one shape (`slug`, `name`, `price`,
+`image`, `rating`, `reviews`) and de-duplicated by slug, so the same product
+appearing in more than one source only shows up once. `searchProducts(query,
+limit?)` is a plain case-insensitive substring match against `name` — no
+fuzzy matching, no ranking beyond source order.
+
+The header's search icon opens `SearchOverlay`, a real command-palette-style
+modal: quick-link chips when the query is empty, live results (top 6, with
+image/name/price) as you type, a real "no results" state, and Enter or
+"View all results" navigating to `/search?q=`, a full results page reusing
+the same sort/grid-list/pagination pattern as the other catalog pages.
+
+| Area | Current state | Needed for production |
+|---|---|---|
+| Search index | Mocked — client-side array built from existing mock data at module load | Real search backend (Algolia/Meilisearch/Postgres full-text) once the catalog is real and large enough that a client-side substring scan stops being instant |
+| Search UI (overlay + results page) | **Functional** | Server-side search-as-you-type once there's a real backend; this UI shape carries over as-is |

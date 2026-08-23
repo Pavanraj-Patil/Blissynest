@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, Star } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { useWishlist } from "@/lib/wishlist-context";
 
 type ProductCardProps = {
   name: string;
@@ -29,7 +29,9 @@ export function ProductCard({
   priority = false,
   badge,
 }: ProductCardProps) {
-  const [wishlisted, setWishlisted] = useState(false);
+  const { isWishlisted, toggleItem } = useWishlist();
+  const slug = href.replace(/^\/product\//, "");
+  const wishlisted = isWishlisted(slug);
 
   const stars = (
     <div className="mt-1 flex items-center gap-1">
@@ -55,7 +57,7 @@ export function ProductCard({
       aria-pressed={wishlisted}
       onClick={(e) => {
         e.preventDefault();
-        setWishlisted((v) => !v);
+        toggleItem({ slug, name, price, image, rating, reviews });
       }}
       className={cn(
         "flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition-colors shrink-0",

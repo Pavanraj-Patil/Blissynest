@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ShoppingBag, Zap, Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { ProductGallery } from "./ProductGallery";
 import { RatingStars } from "./RatingStars";
@@ -11,12 +12,14 @@ import { VariantPills } from "./VariantPills";
 import { DeliveryCheck } from "./DeliveryCheck";
 import { AccordionItem } from "./Accordion";
 import { ShareIconButton } from "./ShareIconButton";
+import { PdpWishlistButton } from "./PdpWishlistButton";
 import { ReviewsSection } from "./ReviewsSection";
 import { MobileStickyCTA } from "./MobileStickyCTA";
 import { RelatedProducts } from "./RelatedProducts";
 import { getIcon } from "./icon-map";
 import type { CustomisableProduct } from "@/lib/product-mock-data";
 import { getRelatedProducts, getProductReviews } from "@/lib/product-mock-data";
+import { useCart } from "@/lib/cart-context";
 
 const fontClassMap: Record<string, string> = {
   Serif: "font-serif",
@@ -25,7 +28,10 @@ const fontClassMap: Record<string, string> = {
 };
 
 export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
+  const router = useRouter();
+  const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
   const [textValues, setTextValues] = useState<string[]>(
     product.textLines.map(() => "")
   );
@@ -36,6 +42,23 @@ export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
   const reviews = getProductReviews(product);
 
   const fontClass = fontClassMap[font] ?? "font-serif";
+
+  function handleAddToCart() {
+    addItem(
+      { slug: product.slug, name: product.name, price: product.price, image: product.images[0] },
+      quantity
+    );
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1800);
+  }
+
+  function handleBuyNow() {
+    addItem(
+      { slug: product.slug, name: product.name, price: product.price, image: product.images[0] },
+      quantity
+    );
+    router.push("/cart");
+  }
 
   return (
     <div>
@@ -52,7 +75,17 @@ export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
               <h1 className="font-serif text-2xl sm:text-3xl text-charcoal">
                 {product.name}
               </h1>
-              <ShareIconButton productName={product.name} />
+              <div className="flex items-center gap-1 shrink-0">
+                <PdpWishlistButton
+                  slug={product.slug}
+                  name={product.name}
+                  price={product.price}
+                  image={product.images[0]}
+                  rating={product.rating}
+                  reviews={product.reviews}
+                />
+                <ShareIconButton productName={product.name} />
+              </div>
             </div>
             {product.tagline && (
               <p className="mt-2 text-sm text-ink-muted">{product.tagline}</p>
@@ -230,11 +263,17 @@ export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
             </div>
 
             <div className="mt-6 hidden lg:flex gap-3 lg:sticky lg:bottom-4 lg:z-10 lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-cream/95 lg:backdrop-blur lg:p-4 lg:shadow-lg">
-              <button className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors">
-                <ShoppingBag size={15} />
-                Add to Cart
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors"
+              >
+                {added ? <Check size={15} /> : <ShoppingBag size={15} />}
+                {added ? "Added" : "Add to Cart"}
               </button>
-              <button className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors">
+              <button
+                onClick={handleBuyNow}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors"
+              >
                 <Zap size={15} />
                 Buy Now
               </button>
@@ -247,7 +286,7 @@ export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
           <ReviewsSection reviews={reviews} />
         </div>
 
-        <MobileStickyCTA />
+        <MobileStickyCTA onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} added={added} />
       </div>
 
       <div className="mt-14">
