@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, X, ArrowRight, SearchX } from "lucide-react";
+import { ArrowLeft, Search, X, ArrowRight, SearchX, TrendingUp } from "lucide-react";
 import { searchProducts } from "@/lib/search-data";
 
-const quickLinks = [
-  { label: "Shop", href: "/shop" },
-  { label: "Occasions", href: "/occasions" },
-  { label: "Collections", href: "/collections" },
+const popularSearches = [
+  { label: "Scented Candles", href: "/search?q=candle" },
+  { label: "Personalised Gifts", href: "/personalised" },
+  { label: "Birthday Gifts", href: "/occasions/birthday" },
   { label: "Corporate Gifting", href: "/corporate" },
 ];
 
@@ -63,18 +64,26 @@ export function SearchOverlay({
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50">
+  return createPortal(
+    <div className="fixed inset-0 z-50 bg-white sm:bg-transparent">
       <div
-        className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm"
+        className="hidden sm:block absolute inset-0 bg-charcoal/50 backdrop-blur-sm"
         onClick={handleClose}
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto mt-0 sm:mt-24 max-w-2xl px-0 sm:px-4">
-        <div className="flex h-dvh sm:h-auto sm:max-h-[75vh] flex-col overflow-hidden bg-white sm:rounded-3xl shadow-2xl">
-          <div className="flex items-center gap-3 border-b border-charcoal/10 px-5 py-4">
-            <Search size={19} className="text-charcoal/40 shrink-0" />
+      <div className="relative h-full sm:h-auto sm:mx-auto sm:mt-24 sm:max-w-2xl sm:px-4">
+        <div className="flex h-full sm:h-auto sm:max-h-[75vh] flex-col overflow-hidden bg-white sm:rounded-3xl sm:shadow-2xl">
+          <div className="flex items-center gap-2 sm:gap-3 border-b border-charcoal/10 px-3 sm:px-5 py-3 sm:py-4">
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Back"
+              className="flex h-9 w-9 sm:hidden items-center justify-center rounded-full text-charcoal hover:bg-cream-dark transition-colors shrink-0"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <Search size={19} className="hidden sm:block text-charcoal/40 shrink-0" />
             <input
               ref={inputRef}
               type="text"
@@ -84,13 +93,23 @@ export function SearchOverlay({
                 if (e.key === "Enter") goToResults();
               }}
               placeholder="Search for gifts, occasions, collections..."
-              className="flex-1 bg-transparent text-base text-charcoal placeholder:text-ink-muted focus:outline-none"
+              className="flex-1 min-w-0 bg-transparent text-base text-charcoal placeholder:text-ink-muted focus:outline-none"
             />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal/40 hover:bg-cream-dark hover:text-charcoal transition-colors shrink-0"
+              >
+                <X size={16} />
+              </button>
+            )}
             <button
               type="button"
               onClick={handleClose}
               aria-label="Close search"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal/50 hover:bg-cream-dark hover:text-charcoal transition-colors shrink-0"
+              className="hidden sm:flex h-8 w-8 items-center justify-center rounded-full text-charcoal/50 hover:bg-cream-dark hover:text-charcoal transition-colors shrink-0"
             >
               <X size={18} />
             </button>
@@ -99,9 +118,12 @@ export function SearchOverlay({
           <div className="overflow-y-auto flex-1">
             {!query.trim() && (
               <div className="p-5">
-                <p className="eyebrow text-ink-muted mb-3">Quick Links</p>
+                <p className="eyebrow text-ink-muted mb-3 flex items-center gap-1.5">
+                  <TrendingUp size={13} />
+                  Popular Searches
+                </p>
                 <div className="flex flex-wrap gap-2">
-                  {quickLinks.map((link) => (
+                  {popularSearches.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
@@ -169,6 +191,7 @@ export function SearchOverlay({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

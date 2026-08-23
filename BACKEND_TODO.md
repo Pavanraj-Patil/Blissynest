@@ -350,8 +350,23 @@ appearing in more than one source only shows up once. `searchProducts(query,
 limit?)` is a plain case-insensitive substring match against `name` — no
 fuzzy matching, no ranking beyond source order.
 
-The header's search icon opens `SearchOverlay`, a real command-palette-style
-modal: quick-link chips when the query is empty, live results (top 6, with
+The header's search icon opens `SearchOverlay`, rendered via a React portal
+into `document.body` (not inline where the button lives) — it originally
+rendered inline inside `Header`, and `Header`'s own `backdrop-blur` class
+creates a new CSS containing block for `position: fixed` descendants, so the
+overlay was getting boxed into the header's own ~80px height instead of
+covering the viewport. Portaling to `document.body` sidesteps that
+entirely, which is generally the safer default for any fixed-position
+overlay regardless of where in the tree it's triggered from.
+
+The overlay itself has two distinct layouts: on desktop it's a centered
+card with a backdrop-blurred background (search icon, input, X close) —
+common on desktop search-as-dropdown patterns (Google, Amazon). On mobile
+it's a true full-bleed page takeover (`bg-white`, no backdrop, no rounded
+corners) with a back arrow instead of a close icon, matching how
+Flipkart/Amazon/Myntra do mobile search — not a floating modal card, since
+that reads as an awkward, low-effort dialog on a small screen. Both share
+"Popular Searches" chips when the query is empty, live results (top 6, with
 image/name/price) as you type, a real "no results" state, and Enter or
 "View all results" navigating to `/search?q=`, a full results page reusing
 the same sort/grid-list/pagination pattern as the other catalog pages.
