@@ -16,6 +16,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopFooter } from "@/components/shop/ShopFooter";
+import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { corporateNeeds } from "@/lib/corporate-data";
 import { downloadCatalogue } from "@/lib/corporate-catalogue";
 
@@ -36,14 +37,15 @@ function QuoteForm() {
 
   const [submitted, setSubmitted] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const [teamSize, setTeamSize] = useState("");
+  const [interest, setInterest] = useState(matchedInterest?.slug ?? "");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
     if (submitter?.value === "download") {
-      const interest = new FormData(e.currentTarget).get("interest");
-      downloadCatalogue(typeof interest === "string" ? interest : "");
+      downloadCatalogue(interest);
       setDownloaded(true);
     }
 
@@ -138,41 +140,36 @@ function QuoteForm() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <label className="block">
+                    <div className="block">
                       <span className="text-xs font-medium text-charcoal">Team Size</span>
-                      <select
-                        defaultValue=""
-                        className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
-                      >
-                        <option value="" disabled>
-                          Select team size
-                        </option>
-                        {teamSizes.map((size) => (
-                          <option key={size} value={size}>
-                            {size} employees
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="block">
+                      <div className="mt-1.5">
+                        <SelectDropdown
+                          value={teamSize}
+                          onChange={setTeamSize}
+                          placeholder="Select team size"
+                          options={teamSizes.map((size) => ({
+                            value: size,
+                            label: `${size} employees`,
+                          }))}
+                        />
+                      </div>
+                    </div>
+                    <div className="block">
                       <span className="text-xs font-medium text-charcoal">
                         What are you looking for?
                       </span>
-                      <select
-                        name="interest"
-                        defaultValue={matchedInterest?.slug ?? ""}
-                        className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
-                      >
-                        <option value="" disabled>
-                          Select a category
-                        </option>
-                        {corporateNeeds.map((need) => (
-                          <option key={need.slug} value={need.slug}>
-                            {need.title}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                      <div className="mt-1.5">
+                        <SelectDropdown
+                          value={interest}
+                          onChange={setInterest}
+                          placeholder="Select a category"
+                          options={corporateNeeds.map((need) => ({
+                            value: need.slug,
+                            label: need.title,
+                          }))}
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <label className="block">

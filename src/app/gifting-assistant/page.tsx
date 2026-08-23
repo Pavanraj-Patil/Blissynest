@@ -2,22 +2,14 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { User, CalendarHeart, Gift, ChevronDown, LayoutGrid, List } from "lucide-react";
+import { User, CalendarHeart, Gift, LayoutGrid, List } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
-import { type SortOption } from "@/components/shop/ShopToolbar";
+import { type SortOption, sortLabels } from "@/components/shop/ShopToolbar";
 import { Pagination } from "@/components/shop/Pagination";
 import { cn } from "@/lib/cn";
-
-const sortLabels: Record<SortOption, string> = {
-  "best-selling": "Best Selling",
-  "price-asc": "Price: Low to High",
-  "price-desc": "Price: High to Low",
-  rating: "Customer Rating",
-  newest: "Newest",
-};
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
@@ -155,26 +147,21 @@ function GiftingAssistantContent() {
             <p className="text-sm text-ink-muted">{sortedProducts.length} gifts found</p>
 
             <div className="flex items-center gap-3">
-              <label className="relative">
-                <select
-                  value={sort}
-                  onChange={(e) => {
-                    setSort(e.target.value as SortOption);
-                    setCurrentPage(1);
-                  }}
-                  className="appearance-none rounded-lg border border-charcoal/15 bg-white pl-3 sm:pl-3.5 pr-8 sm:pr-9 py-2.5 text-sm text-charcoal cursor-pointer focus:outline-none max-w-[7.5rem] sm:max-w-none truncate"
-                >
-                  {(Object.keys(sortLabels) as SortOption[]).map((key) => (
-                    <option key={key} value={key}>
-                      {sortLabels[key]}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={14}
-                  className="pointer-events-none absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-charcoal/40"
-                />
-              </label>
+              <SelectDropdown
+                compact
+                showPlaceholderOption={false}
+                value={sort}
+                onChange={(v) => {
+                  setSort(v as SortOption);
+                  setCurrentPage(1);
+                }}
+                options={(Object.keys(sortLabels) as SortOption[]).map((key) => ({
+                  value: key,
+                  label: sortLabels[key],
+                }))}
+                triggerClassName="max-w-[7.5rem] sm:max-w-none"
+                panelClassName="right-0 left-auto"
+              />
 
               <div className="flex items-center rounded-lg border border-charcoal/15 overflow-hidden">
                 <button

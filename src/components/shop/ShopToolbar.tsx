@@ -1,7 +1,8 @@
 "use client";
 
-import { SlidersHorizontal, LayoutGrid, List, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { SelectDropdown } from "@/components/ui/SelectDropdown";
 
 export type SortOption =
   | "best-selling"
@@ -10,7 +11,7 @@ export type SortOption =
   | "rating"
   | "newest";
 
-const sortLabels: Record<SortOption, string> = {
+export const sortLabels: Record<SortOption, string> = {
   "best-selling": "Best Selling",
   "price-asc": "Price: Low to High",
   "price-desc": "Price: High to Low",
@@ -60,23 +61,18 @@ export function ShopToolbar({
       </div>
 
       <div className="flex items-center gap-3">
-        <label className="relative">
-          <select
-            value={sort}
-            onChange={(e) => onSortChange(e.target.value as SortOption)}
-            className="appearance-none rounded-lg border border-charcoal/15 bg-white pl-3 sm:pl-3.5 pr-8 sm:pr-9 py-2.5 text-sm text-charcoal cursor-pointer focus:outline-none max-w-[7.5rem] sm:max-w-none truncate"
-          >
-            {(Object.keys(sortLabels) as SortOption[]).map((key) => (
-              <option key={key} value={key}>
-                {sortLabels[key]}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={14}
-            className="pointer-events-none absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-charcoal/40"
-          />
-        </label>
+        <SelectDropdown
+          compact
+          showPlaceholderOption={false}
+          value={sort}
+          onChange={(v) => onSortChange(v as SortOption)}
+          options={(Object.keys(sortLabels) as SortOption[]).map((key) => ({
+            value: key,
+            label: sortLabels[key],
+          }))}
+          triggerClassName="max-w-[7.5rem] sm:max-w-none"
+          panelClassName="right-0 left-auto"
+        />
 
         <div className="flex items-center rounded-lg border border-charcoal/15 overflow-hidden">
           <button
