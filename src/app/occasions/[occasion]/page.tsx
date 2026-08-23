@@ -19,12 +19,13 @@ import { allShopProducts, type ShopProductWithAudience } from "@/lib/shop-mock-d
 import {
   occasionContent,
   occasionPills,
+  recipientPillGroups,
   getOccasionPillIcon,
   isOccasionSlug,
   type OccasionPillFilter,
 } from "@/lib/occasion-data";
 
-function pillKey(type: "audience" | "category", value: string) {
+function pillKey(type: OccasionPillFilter["type"], value: string) {
   return `${type}:${value}`;
 }
 
@@ -32,9 +33,12 @@ function productMatchesPill(
   product: ShopProductWithAudience,
   pill: OccasionPillFilter
 ) {
-  return pill.type === "audience"
-    ? product.audience === pill.value
-    : product.category === pill.value;
+  if (pill.type === "audience") return product.audience === pill.value;
+  if (pill.type === "recipient") {
+    const tags = recipientPillGroups[pill.value] ?? [];
+    return product.recipients.some((r) => tags.includes(r));
+  }
+  return product.category === pill.value;
 }
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };

@@ -80,11 +80,13 @@ this feature.
 The category pill row here is **curated per occasion** rather than showing
 the same six audiences everywhere — some occasions genuinely aren't "for
 everyone" (a Wedding page showing a "For Colleagues" pill makes no sense).
-Each occasion gets its own 6-pill list defined in `occasionPills` in
+Each occasion gets its own curated pill list defined in `occasionPills` in
 `src/lib/occasion-data.ts`, where every pill is typed `{type: "audience" |
-"category", value, label}` and maps to a **real, already-existing** product
-field — `product.audience` or `product.category` — never a fabricated bucket
-like "For Kids" or "Milestone Birthday" with no backing data. Birthday and
+"category" | "recipient", value, label}` and maps to a **real,
+already-existing** product field — `product.audience`, `product.category`,
+or (for Birthday's "For Kids" pill) a group of existing `product.recipients`
+tags ("Son"/"Daughter", via `recipientPillGroups`) — never a fabricated
+bucket with no backing data. Birthday and
 Just Because stay broad (most/all audiences, since they apply across
 relationships); Anniversary and Wedding drop Friends/Colleagues in favor of
 couple-centric pills; Housewarming swaps entirely to category-type pills

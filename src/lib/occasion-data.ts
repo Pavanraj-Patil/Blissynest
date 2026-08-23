@@ -10,6 +10,7 @@ import {
   HeartHandshake,
   Users,
   Briefcase,
+  Baby,
   type LucideIcon,
 } from "lucide-react";
 import { categoryIcons, type AudienceSlug } from "@/lib/shop-mock-data";
@@ -121,15 +122,30 @@ export const audiencePillIcons: Record<AudienceSlug, LucideIcon> = {
 };
 
 export type OccasionPillFilter = {
-  type: "audience" | "category";
+  type: "audience" | "category" | "recipient";
   value: string;
   label: string;
 };
 
 /**
+ * "recipient"-type pills group one or more existing `product.recipients`
+ * tags under one label — e.g. "For Kids" matches products already tagged
+ * "Son" or "Daughter" (real tags used across the her/him audience catalog),
+ * not a fabricated audience with no backing products.
+ */
+export const recipientPillGroups: Record<string, string[]> = {
+  kids: ["Son", "Daughter"],
+};
+
+export const recipientPillIcons: Record<string, LucideIcon> = {
+  kids: Baby,
+};
+
+/**
  * Which quick-filter pills make sense per occasion, and why they differ:
  * - Birthday & Just Because apply broadly across relationships, so they keep
- *   most/all audiences.
+ *   most/all audiences. Birthday also adds "For Kids" (recipient-type, see
+ *   above) since kids' birthdays are one of the most common real cases.
  * - Anniversary & Wedding are inherently couple-centric — Friends/Colleagues
  *   pills are dropped (their products still show under "All" if tagged, just
  *   not offered as a dedicated quick filter).
@@ -138,13 +154,14 @@ export type OccasionPillFilter = {
  *   of audiences.
  * - Thank You & Festivals skew toward Friends/Colleagues/Family, matching how
  *   those occasions are actually gifted.
- * Every pill maps to a real, existing product field (audience or category) —
- * nothing here is a fabricated bucket with fake counts.
+ * Every pill maps to a real, existing product field (audience, category, or
+ * recipient tag) — nothing here is a fabricated bucket with fake counts.
  */
 export const occasionPills: Record<OccasionSlug, OccasionPillFilter[]> = {
   birthday: [
     { type: "audience", value: "her", label: "For Her" },
     { type: "audience", value: "him", label: "For Him" },
+    { type: "recipient", value: "kids", label: "For Kids" },
     { type: "audience", value: "friends", label: "For Friends" },
     { type: "audience", value: "parents", label: "For Parents" },
     { type: "audience", value: "colleagues", label: "For Colleagues" },
@@ -201,9 +218,9 @@ export const occasionPills: Record<OccasionSlug, OccasionPillFilter[]> = {
 };
 
 export function getOccasionPillIcon(pill: OccasionPillFilter): LucideIcon {
-  return pill.type === "audience"
-    ? audiencePillIcons[pill.value as AudienceSlug]
-    : (categoryIcons[pill.value] ?? categoryIcons["add-ons"]);
+  if (pill.type === "audience") return audiencePillIcons[pill.value as AudienceSlug];
+  if (pill.type === "recipient") return recipientPillIcons[pill.value] ?? Baby;
+  return categoryIcons[pill.value] ?? categoryIcons["add-ons"];
 }
 
 // Kept in sync with slugify(label) used by MadeForTheMoment's occasion cards.
