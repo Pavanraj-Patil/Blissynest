@@ -1,12 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Quote } from "lucide-react";
-import {
-  whyChooseUsChecklist,
-  testimonial,
-  stats,
-  yourBrandImage,
-} from "@/lib/corporate-data";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { TestimonialCarousel } from "./TestimonialCarousel";
+import { whyChooseUsChecklist, yourBrandImage } from "@/lib/corporate-data";
 
 export function WhyChooseUs() {
   return (
@@ -47,37 +43,7 @@ export function WhyChooseUs() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
-          <div className="rounded-3xl bg-cream-dark p-7 md:p-8 flex-1">
-            <Quote size={28} className="text-terracotta/50" />
-            <p className="mt-3 font-serif text-lg text-charcoal leading-snug">
-              {testimonial.quote}
-            </p>
-            <div className="mt-5">
-              <p className="text-sm font-semibold text-charcoal">
-                — {testimonial.name}
-              </p>
-              <p className="text-xs text-ink-muted mt-0.5">{testimonial.title}</p>
-              <p className="mt-2 eyebrow text-terracotta-dark">
-                {testimonial.company}
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-3xl bg-white border border-charcoal/10 p-6 grid grid-cols-2 gap-6">
-            {stats.map((stat) => (
-              <div key={stat.label} className="flex items-center gap-3">
-                <stat.icon size={20} strokeWidth={1.5} className="shrink-0 text-olive" />
-                <div>
-                  <p className="font-serif text-lg text-charcoal leading-none">
-                    {stat.value}
-                  </p>
-                  <p className="text-[11px] text-ink-muted mt-1">{stat.label}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <TestimonialCarousel />
       </div>
     </section>
   );

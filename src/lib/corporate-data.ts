@@ -93,13 +93,43 @@ export const whyChooseUsChecklist: string[] = [
   "Dedicated account manager & end-to-end support",
 ];
 
-export const testimonial = {
-  quote:
-    "Blissynest made our annual gifting effortless and memorable. The quality, packaging and on-time delivery were exceptional!",
-  name: "Priya Mehta",
-  title: "Head – People & Culture",
-  company: "Verdant Systems",
+export type Testimonial = {
+  quote: string;
+  name: string;
+  title: string;
+  company: string;
 };
+
+export const testimonials: Testimonial[] = [
+  {
+    quote:
+      "Blissynest made our annual gifting effortless and memorable. The quality, packaging and on-time delivery were exceptional!",
+    name: "Priya Mehta",
+    title: "Head – People & Culture",
+    company: "Verdant Systems",
+  },
+  {
+    quote:
+      "From the first call to the final delivery, everything felt effortless. Our employees still talk about the Diwali hampers.",
+    name: "Arjun Nair",
+    title: "VP, Human Resources",
+    company: "Northbridge Analytics",
+  },
+  {
+    quote:
+      "We needed 300 branded welcome kits in under two weeks. Blissynest delivered early, and every box was exactly on-brief.",
+    name: "Kavya Reddy",
+    title: "Talent & Culture Lead",
+    company: "Solace Interiors",
+  },
+  {
+    quote:
+      "Personalised, punctual and genuinely thoughtful — exactly what we wanted for this year's client appreciation gifts.",
+    name: "Rohan Kapoor",
+    title: "Client Success Director",
+    company: "Fieldstone Partners",
+  },
+];
 
 export type Stat = { value: string; label: string; icon: LucideIcon };
 
@@ -110,13 +140,15 @@ export const stats: Stat[] = [
   { value: "4.8/5", label: "Client Satisfaction", icon: CheckCircle2 },
 ];
 
-export const trustedByCompanies: string[] = [
-  "Verdant Systems",
-  "Northbridge Analytics",
-  "Solace Interiors",
-  "Marrow & Co.",
-  "Fieldstone Partners",
-  "Everline Media",
+export type TrustedCompany = { name: string; initials: string };
+
+export const trustedByCompanies: TrustedCompany[] = [
+  { name: "Verdant Systems", initials: "VS" },
+  { name: "Northbridge Analytics", initials: "NA" },
+  { name: "Solace Interiors", initials: "SI" },
+  { name: "Marrow & Co.", initials: "MC" },
+  { name: "Fieldstone Partners", initials: "FP" },
+  { name: "Everline Media", initials: "EM" },
 ];
 
 export type CuratedCollection = {

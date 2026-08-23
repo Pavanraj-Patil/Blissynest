@@ -183,14 +183,29 @@ Personalised nav dropdown's `?category=` deep-link into the shop pages.
 "Book a Consultation" links to the same form with `?intent=consultation`,
 which swaps the page's headline/copy/submit-button label.
 
-The "Trusted by teams at" strip and the testimonial (Priya Mehta / Verdant
-Systems) use invented company names, not real brands — consistent with the
-rest of the mock catalog, and deliberately avoids implying a real company's
-endorsement.
+The "Trusted by teams at" badges and all 4 testimonials use invented company
+names, not real brands — consistent with the rest of the mock catalog, and
+deliberately avoids implying a real company's endorsement. "Trusted by"
+uses a colored initials badge per company (no real logo images, since none
+exist) rather than plain text, closer to how FNP/IGP present client trust
+strips.
+
+"Gifts for every corporate need" (an asymmetric bento grid of colored
+category tiles) and "Curated collections for every occasion" (a horizontal
+scrollable carousel of image tiles with prev/next arrows) were originally
+both plain uniform card grids and read as duplicated sections; they're now
+deliberately different layouts/interactions so they don't repeat the same
+pattern twice on one page. The testimonial is now `TestimonialCarousel.tsx`
+— a small client component that auto-rotates through all 4 testimonials
+every 5s (paused on hover) with clickable dot navigation, replacing the
+single static quote. Stats moved out of the cramped sidebar column into
+their own full-width `CorporateStats.tsx` band between "Why choose us" and
+the collections carousel.
 
 | Area | Current state | Needed for production |
 |---|---|---|
-| Hero, trust points, "Gifts for every corporate need", "How does it work?", "Why choose us" checklist, testimonial, stats, curated collection tiles, trusted-by strip | Static content from `corporate-data.ts` | Real copy, real stats, real testimonials/client logos (with permission), real photography |
+| Hero, trust points, "Gifts for every corporate need", "How does it work?", "Why choose us" checklist, testimonials, stats, curated collection tiles, trusted-by badges | Static content from `corporate-data.ts` | Real copy, real stats, real testimonials/client logos (with permission), real photography |
+| Testimonial carousel auto-rotation | **Functional** — 5s interval, pauses on hover, dot navigation | None — purely presentational, no backend needed |
 | `/corporate/quote` enquiry form (name/email/phone/company/team size/interest/message) | **Functional as UI** — client-side validation (`required` fields), `?interest=` and `?intent=` deep-links work, submit shows a real success state | Stub — submit doesn't send anywhere, just flips local component state. Needs a real endpoint (email/CRM lead capture) |
 | "Know More" button (why-choose-us banner) | Links to `/corporate/quote` | Could instead go to a dedicated "About corporate gifting" page once one exists |
 | Corporate footer email/phone (`corporate@blissynest.com`, `1800-123-456`) | Placeholder contact details | Real contact channels |
