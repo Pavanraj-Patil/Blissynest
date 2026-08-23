@@ -1,0 +1,146 @@
+import {
+  Boxes,
+  Palette,
+  Truck,
+  HeadphonesIcon,
+  Users,
+  HeartHandshake,
+  Flame,
+  Trophy,
+  Gift,
+  CalendarDays,
+  PackageOpen,
+  MessageSquare,
+  PhoneCall,
+  CheckCircle2,
+  type LucideIcon,
+} from "lucide-react";
+
+const ph = (w: number, h: number, bg: string, fg: string, text: string) =>
+  `https://placehold.co/${w}x${h}/${bg}/${fg}.png?text=${encodeURIComponent(
+    text
+  )}&font=playfair-display`;
+
+export const corporateHeroImage = ph(900, 760, "e3d3bd", "2a2621", "Corporate Gift Box");
+export const yourBrandImage = ph(700, 560, "3a4529", "cfb587", "Your Brand");
+
+export type TrustPoint = { icon: LucideIcon; title: string; subtitle: string };
+
+export const heroTrustPoints: TrustPoint[] = [
+  { icon: Boxes, title: "Bulk Gifting", subtitle: "Made Simple" },
+  { icon: Palette, title: "Customisation", subtitle: "For Your Brand" },
+  { icon: Truck, title: "Pan India Delivery", subtitle: "On Time, Every Time" },
+  { icon: HeadphonesIcon, title: "Dedicated Support", subtitle: "At Every Step" },
+];
+
+export type CorporateNeed = {
+  slug: string;
+  icon: LucideIcon;
+  title: string;
+  subtitle: string;
+};
+
+export const corporateNeeds: CorporateNeed[] = [
+  { slug: "employee", icon: Users, title: "Employee Gifting", subtitle: "Celebrate your team" },
+  { slug: "client", icon: HeartHandshake, title: "Client Gifting", subtitle: "Build lasting relationships" },
+  { slug: "festive", icon: Flame, title: "Festival Gifting", subtitle: "Celebrate togetherness" },
+  { slug: "milestone", icon: Trophy, title: "Milestone Gifting", subtitle: "Mark every achievement" },
+  { slug: "welcome", icon: Gift, title: "Welcome Kits", subtitle: "Warm welcomes matter" },
+  { slug: "event", icon: CalendarDays, title: "Event Gifting", subtitle: "Make every event special" },
+  { slug: "custom", icon: PackageOpen, title: "Custom Hampers", subtitle: "Curated just for you" },
+];
+
+export type ProcessStep = {
+  number: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+};
+
+export const processSteps: ProcessStep[] = [
+  {
+    number: "01",
+    icon: MessageSquare,
+    title: "Share Your Requirements",
+    description: "Tell us your headcount, budget and occasion — takes two minutes.",
+  },
+  {
+    number: "02",
+    icon: PhoneCall,
+    title: "Consultation Call",
+    description: "Our gifting expert walks you through curated options for your brand.",
+  },
+  {
+    number: "03",
+    icon: Palette,
+    title: "Customise & Approve",
+    description: "Pick your hamper, add your branding, and approve the final look.",
+  },
+  {
+    number: "04",
+    icon: Truck,
+    title: "Pan-India Delivery",
+    description: "We handle packaging and delivery, tracked every step of the way.",
+  },
+];
+
+export const whyChooseUsChecklist: string[] = [
+  "Premium quality, thoughtfully curated products",
+  "Personalisation with your logo, message & packaging",
+  "Flexible solutions for budgets of all sizes",
+  "Reliable pan India & international delivery",
+  "Sustainable & ethical gifting choices",
+  "Dedicated account manager & end-to-end support",
+];
+
+export const testimonial = {
+  quote:
+    "Blissynest made our annual gifting effortless and memorable. The quality, packaging and on-time delivery were exceptional!",
+  name: "Priya Mehta",
+  title: "Head – People & Culture",
+  company: "Verdant Systems",
+};
+
+export type Stat = { value: string; label: string; icon: LucideIcon };
+
+export const stats: Stat[] = [
+  { value: "500+", label: "Happy Companies", icon: Users },
+  { value: "50,000+", label: "Gifts Delivered", icon: Gift },
+  { value: "98%", label: "On-time Delivery", icon: Truck },
+  { value: "4.8/5", label: "Client Satisfaction", icon: CheckCircle2 },
+];
+
+export const trustedByCompanies: string[] = [
+  "Verdant Systems",
+  "Northbridge Analytics",
+  "Solace Interiors",
+  "Marrow & Co.",
+  "Fieldstone Partners",
+  "Everline Media",
+];
+
+export type CuratedCollection = {
+  slug: string;
+  title: string;
+  image: string;
+  isCustom?: boolean;
+};
+
+const curatedBg: [string, string][] = [
+  ["e6d2c2", "2a2621"],
+  ["ead9c9", "a85830"],
+  ["d6c4a8", "2a2621"],
+  ["e9e2d3", "2a2621"],
+  ["e3d3bd", "2a2621"],
+  ["ceb9a3", "2a2621"],
+];
+
+export const curatedCollections: CuratedCollection[] = [
+  { slug: "welcome-kits", title: "New Employee Welcome Kits", image: ph(360, 300, ...curatedBg[0], "Welcome Kit") },
+  { slug: "diwali", title: "Diwali Gifts", image: ph(360, 300, ...curatedBg[1], "Diwali Gifts") },
+  { slug: "work-anniversary", title: "Work Anniversary", image: ph(360, 300, ...curatedBg[2], "Anniversary") },
+  { slug: "womens-day", title: "Women's Day Gifts", image: ph(360, 300, ...curatedBg[3], "Women's Day") },
+  { slug: "holiday", title: "Holiday Gifts", image: ph(360, 300, ...curatedBg[4], "Holiday Gifts") },
+  { slug: "client-appreciation", title: "Client Appreciation", image: ph(360, 300, ...curatedBg[5], "Client Gifts") },
+  { slug: "custom", title: "Create Your Own Hamper", image: "", isCustom: true },
+];

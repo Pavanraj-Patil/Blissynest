@@ -141,11 +141,11 @@ export const bestsellers = [
 ].map((p) => ({ ...p, image: ph(320, 320, p.bg, p.fg, p.name) }));
 
 export const corporateChecklist: SimpleLink[] = [
-  { label: "Employee Gifting", href: "/corporate/employee" },
-  { label: "Client Gifting", href: "/corporate/client" },
-  { label: "Festive Gifting", href: "/corporate/festive" },
-  { label: "Welcome Kits", href: "/corporate/welcome" },
-  { label: "Event Gifting", href: "/corporate/event" },
+  { label: "Employee Gifting", href: "/corporate/quote?interest=employee" },
+  { label: "Client Gifting", href: "/corporate/quote?interest=client" },
+  { label: "Festive Gifting", href: "/corporate/quote?interest=festive" },
+  { label: "Welcome Kits", href: "/corporate/quote?interest=welcome" },
+  { label: "Event Gifting", href: "/corporate/quote?interest=event" },
 ];
 
 export const featureStrip = [

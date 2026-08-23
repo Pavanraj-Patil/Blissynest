@@ -43,7 +43,7 @@ entry under the right section, one row per feature.
 | Occasion cards ("Made for the moment") | **Functional** — all seven link to real pages, `/occasions/[birthday\|anniversary\|wedding\|housewarming\|thank-you\|just-because\|festivals]` | None |
 | Collection cards ("The Blissynest Edit") | **Functional** — all five link to real pages, `/collections/[self-care\|cozy\|minimalist\|celebration\|luxury]` | None |
 | Bestseller products ("Loved by many") | Mocked — static array in `src/lib/mock-data.ts`, wishlist heart has no effect. Links now go to real (generated-fallback) product pages | Real product API/DB; working wishlist toggle |
-| Corporate banner links | Stub — `/corporate`, `/corporate/quote` don't exist | Build corporate gifting page + quote request form/flow |
+| Corporate banner links | **Functional** — `/corporate` and `/corporate/quote` are real pages now (see below) | None |
 | All product/placeholder images | Mocked — `placehold.co` placeholders | Real product photography |
 
 ## Shop / Collection pages (`/shop/[audience]` — her, him, parents, couples, friends, colleagues)
@@ -162,6 +162,38 @@ rather than a random cross-catalog pool.
 | Sort / Pagination / Grid-List toggle | **Functional**, identical to shop pages | Same notes as shop pages above |
 | Product badges (Bestseller/New) | Mocked — hand-assigned per seed product, not derived from real sales/launch data | Real "bestseller" should come from sales data; "new" from a launch date field |
 | Result count | Accurate (real count of the filtered mock catalog) | None |
+
+## Corporate gifting pages (`/corporate`, `/corporate/quote`)
+
+Designed after researching FNP's and IGP's live corporate-gifting pages
+(stats strip, "how it works" step process, category tiles, client trust
+strip, lead-capture form) plus the user-supplied reference screenshot. All
+copy/content lives in `src/lib/corporate-data.ts`; each section is its own
+component under `src/components/corporate/`.
+
+`/corporate` is a marketing/lead-gen landing page, not a product listing —
+there's no real corporate product catalog (a B2B bulk/branded-hamper
+catalog is a different shape of data than the consumer shop catalog and
+wasn't in scope here). Every card that would otherwise need its own
+category page (the 7 "Gifts for every corporate need" tiles and the 6
+"Curated collections for every occasion" tiles) instead deep-links to
+`/corporate/quote?interest=<slug>`, which pre-selects that category in the
+enquiry form's "What are you looking for?" dropdown — same pattern as the
+Personalised nav dropdown's `?category=` deep-link into the shop pages.
+"Book a Consultation" links to the same form with `?intent=consultation`,
+which swaps the page's headline/copy/submit-button label.
+
+The "Trusted by teams at" strip and the testimonial (Priya Mehta / Verdant
+Systems) use invented company names, not real brands — consistent with the
+rest of the mock catalog, and deliberately avoids implying a real company's
+endorsement.
+
+| Area | Current state | Needed for production |
+|---|---|---|
+| Hero, trust points, "Gifts for every corporate need", "How does it work?", "Why choose us" checklist, testimonial, stats, curated collection tiles, trusted-by strip | Static content from `corporate-data.ts` | Real copy, real stats, real testimonials/client logos (with permission), real photography |
+| `/corporate/quote` enquiry form (name/email/phone/company/team size/interest/message) | **Functional as UI** — client-side validation (`required` fields), `?interest=` and `?intent=` deep-links work, submit shows a real success state | Stub — submit doesn't send anywhere, just flips local component state. Needs a real endpoint (email/CRM lead capture) |
+| "Know More" button (why-choose-us banner) | Links to `/corporate/quote` | Could instead go to a dedicated "About corporate gifting" page once one exists |
+| Corporate footer email/phone (`corporate@blissynest.com`, `1800-123-456`) | Placeholder contact details | Real contact channels |
 
 ## Product detail pages (`/product/[slug]`)
 
