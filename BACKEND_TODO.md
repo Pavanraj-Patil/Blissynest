@@ -44,6 +44,7 @@ entry under the right section, one row per feature.
 | Collection cards ("The Blissynest Edit") | **Functional** — all five link to real pages, `/collections/[self-care\|cozy\|minimalist\|celebration\|luxury]` | None |
 | Bestseller products ("Loved by many") | Mocked — static array in `src/lib/mock-data.ts`, wishlist heart has no effect. Links now go to real (generated-fallback) product pages | Real product API/DB; working wishlist toggle |
 | Corporate banner links | **Functional** — `/corporate` and `/corporate/quote` are real pages now (see below) | None |
+| Section header links ("Explore all" / "See all occasions" / "View all") | **Functional** — `SectionHeader` defaults `linkHref` to `"#"` when not passed; all four homepage sections (`WhoAreYouGifting`, `MadeForTheMoment`, `BlissynestEdit`, `LovedByMany`) now pass a real one (`/shop`, `/occasions`, `/collections`, `/shop` respectively). "Loved by many"'s "View all" goes to `/shop` rather than a dedicated bestsellers page — there's no `isBestseller` flag in the mock catalog, and `/shop` already defaults to Best Selling sort | A real bestsellers page/flag once there's real sales data to back it |
 | All product/placeholder images | Mocked — `placehold.co` placeholders | Real product photography |
 
 ## Gifting Assistant results page (`/gifting-assistant`)
