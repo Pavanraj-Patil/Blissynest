@@ -28,7 +28,7 @@ entry under the right section, one row per feature.
 | Account icon (header) | Stub — no auth | Auth (sign in/up, sessions), account/orders pages |
 | Wishlist icon (header) | Stub — no wishlist state | Wishlist persisted per-user (DB or localStorage at minimum) |
 | Cart icon + badge (header) | Stub — badge hardcoded to `0`, no cart | Real cart: add/remove/update qty, persisted (DB for logged-in, localStorage for guest), checkout flow |
-| Nav dropdowns (Shop, Collections, Occasions, Personalised) | **Functional** — each is a real hover mega-menu (`NavDropdown` in `src/components/layout/NavDropdown.tsx`, pure CSS `group-hover`, no JS state) linking to real pages: Shop/Personalised list the 6 audiences (`/shop/[audience]`, Personalised appends `?category=personalised`, which `/shop/[audience]` now reads via `useSearchParams` to preset that category filter on load), Collections lists the 5 edits (`/collections/[collection]`), Occasions lists all 7 (`/occasions/[occasion]`). `/shop` and `/collections` (no sub-segment) are now real hub pages too (see below); only `/personalised` is still a stub | Build a general `/personalised` hub page (can mostly reuse the audience-page components/filters against the full combined catalog, same pattern as `/shop`) |
+| Nav dropdowns (Shop, Collections, Occasions, Personalised) | **Functional** — each is a real hover mega-menu (`NavDropdown` in `src/components/layout/NavDropdown.tsx`, pure CSS `group-hover`, no JS state) linking to real pages: Shop/Personalised list the 6 audiences (`/shop/[audience]`, Personalised appends `?category=personalised`, which `/shop/[audience]` now reads via `useSearchParams` to preset that category filter on load), Collections lists the 5 edits (`/collections/[collection]`), Occasions lists all 7 (`/occasions/[occasion]`). `/shop`, `/collections`, `/occasions`, and `/personalised` (no sub-segment — the nav item's own top-level link target) are now all real hub pages too (see below) | None |
 | Corporate nav item | **Functional** — `/corporate` and `/corporate/quote` are real pages (see the Corporate gifting pages section below) | None |
 | Newsletter signup (footer) | Stub — form has no submit handler | Email capture endpoint (e.g. Mailchimp/Klaviyo API) |
 | Footer links (About, Bliss Journal, Track Order, Shipping, Returns, FAQs, Contact) | Stub — `href="#"` or non-existent routes | Build out each page |
@@ -86,7 +86,13 @@ filters, sort, and pagination. It was added because the PDP and audience-page br
 | Mobile filter drawer "Apply Filters (N)" | Functional as a close/confirm action (filtering is already live as you check boxes) | No change needed — this is a UI pattern choice, not a backend gap |
 | Breadcrumb | Static — matches the current static route | Should reflect real category/route data once dynamic |
 
-## Occasion pages (`/occasions/[occasion]` — birthday, anniversary, wedding, housewarming, thank-you, just-because, festivals)
+## Occasion pages (`/occasions`, `/occasions/[occasion]` — birthday, anniversary, wedding, housewarming, thank-you, just-because, festivals)
+
+`/occasions` (`src/app/occasions/page.tsx`) is a static hub — the same 7
+`OccasionCard`s used in the homepage's "Made for the moment" section, each
+linking to its `/occasions/[occasion]` page. Added because the header nav
+item and product/audience-page breadcrumbs both link to bare `/occasions`,
+and that route 404'd — only the dynamic `[occasion]` route existed.
 
 One dynamic route (`src/app/occasions/[occasion]/page.tsx`) serves all seven;
 invalid slugs 404 via `notFound()`. Content (title/subtitle/breadcrumb/icon)
@@ -133,6 +139,19 @@ for the audience pages' Categories section.
 | Price / Recipient filters | **Functional**, same mechanics as shop pages | Server-side once catalog is real |
 | Sort / Pagination / Grid-List toggle | **Functional**, identical to shop pages | Same notes as shop pages above |
 | Result count | Accurate (real count of the filtered mock catalog) | None |
+
+## Personalised page (`/personalised`)
+
+Same idea as `/occasions`/`/collections`/`/shop` — the nav item and the
+Personalised dropdown's own top-level link both pointed at `/personalised`,
+which didn't exist (only the dropdown's per-audience items, which deep-link
+into `/shop/[audience]?category=personalised`, actually worked). Built as a
+category-scoped hub, same pattern as the occasion pages: filters
+`allShopProducts` down to `category === "personalised"` across all six
+audiences (48 products), with Price/Occasion/Recipient filters (Occasion
+and Recipient counts computed dynamically from that filtered set, same as
+occasion pages), sort, and pagination. No Category pill row — redundant,
+since the whole page is already scoped to one category.
 
 ## Collection pages (`/collections`, `/collections/[collection]` — self-care, cozy, minimalist, celebration, luxury)
 
