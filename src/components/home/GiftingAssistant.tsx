@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, CalendarHeart, Gift, ArrowRight, ChevronDown } from "lucide-react";
+import { User, CalendarHeart, Gift, ArrowRight } from "lucide-react";
+import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { whoOptions, occasionOptions, budgetOptions } from "@/lib/gifting-assistant-data";
 
 const fields = [
@@ -44,37 +45,16 @@ export function GiftingAssistant() {
         </div>
 
         <div className="flex flex-col md:flex-row md:items-end gap-5 md:gap-4">
-          {fields.map((field) => {
-            const Icon = field.icon;
-            return (
-              <label key={field.key} className="flex-1 min-w-0 block">
-                <span className="eyebrow block text-[10px] text-charcoal-light mb-2">
-                  {field.label}
-                </span>
-                <span className="relative flex items-center gap-2 rounded-xl border border-charcoal/15 bg-cream/60 px-3.5 py-3">
-                  <Icon size={16} className="text-terracotta shrink-0" />
-                  <select
-                    value={selections[field.key]}
-                    onChange={(e) =>
-                      setSelections((prev) => ({ ...prev, [field.key]: e.target.value }))
-                    }
-                    className="w-full appearance-none bg-transparent text-sm text-charcoal focus:outline-none cursor-pointer"
-                  >
-                    <option value="">Select</option>
-                    {field.options.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown
-                    size={14}
-                    className="text-charcoal/40 shrink-0"
-                  />
-                </span>
-              </label>
-            );
-          })}
+          {fields.map((field) => (
+            <SelectDropdown
+              key={field.key}
+              label={field.label}
+              icon={field.icon}
+              options={field.options}
+              value={selections[field.key]}
+              onChange={(v) => setSelections((prev) => ({ ...prev, [field.key]: v }))}
+            />
+          ))}
 
           <button
             type="button"

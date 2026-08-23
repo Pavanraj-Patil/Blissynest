@@ -6,6 +6,7 @@ import { User, CalendarHeart, Gift, ChevronDown, LayoutGrid, List } from "lucide
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
+import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { type SortOption } from "@/components/shop/ShopToolbar";
 import { Pagination } from "@/components/shop/Pagination";
 import { cn } from "@/lib/cn";
@@ -121,35 +122,20 @@ function GiftingAssistantContent() {
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-8 pb-4">
           <div className="mx-auto max-w-4xl rounded-3xl border border-charcoal/10 bg-white px-6 py-7 md:px-10 md:py-8">
             <div className="flex flex-col md:flex-row md:items-end gap-5 md:gap-4">
-              {fields.map((field) => {
-                const Icon = field.icon;
-                return (
-                  <label key={field.key} className="flex-1 min-w-0 block">
-                    <span className="eyebrow block text-[10px] text-charcoal-light mb-2">
-                      {field.label}
-                    </span>
-                    <span className="relative flex items-center gap-2 rounded-xl border border-charcoal/15 bg-cream/60 px-3.5 py-3">
-                      <Icon size={16} className="text-terracotta shrink-0" />
-                      <select
-                        value={selections[field.key]}
-                        onChange={(e) => {
-                          setters[field.key](e.target.value);
-                          setCurrentPage(1);
-                        }}
-                        className="w-full appearance-none bg-transparent text-sm text-charcoal focus:outline-none cursor-pointer"
-                      >
-                        <option value="">Any</option>
-                        {field.options.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="text-charcoal/40 shrink-0" />
-                    </span>
-                  </label>
-                );
-              })}
+              {fields.map((field) => (
+                <SelectDropdown
+                  key={field.key}
+                  label={field.label}
+                  icon={field.icon}
+                  options={field.options}
+                  value={selections[field.key]}
+                  onChange={(v) => {
+                    setters[field.key](v);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="Any"
+                />
+              ))}
 
               {activeFilterCount > 0 && (
                 <button
