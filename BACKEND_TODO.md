@@ -352,12 +352,23 @@ this project avoids on principle.
 Addresses are local component state (not persisted to `localStorage` like
 cart/wishlist — a full address book felt like more permanence than a
 single checkout session needs), seeded with one example address. Add/Edit
-use the same form component; the last remaining address can't be deleted.
-The gift toggle (with note + "hide prices on packing slip") lives in the
-Address step per the reference layout. Coupon codes are a small mocked
-table (`WELCOME10` = 10% off, `FLAT200` = ₹200 off orders above ₹1,500) —
-`calculateDiscount()` in `checkout-data.ts` is the single source of truth
-for the math, applied against the real cart subtotal from `useCart()`.
+use the same form component; any address, including the last one, can be
+deleted — if the list empties out, "Continue to Payment" is disabled
+(`disabled={!selectedId}`) until a new one is added via the always-present
+"Add New Address" card. The gift toggle (with note + "hide prices on
+packing slip") lives in the Address step per the reference layout. Coupon
+codes are a small mocked table (`WELCOME10` = 10% off, `FLAT200` = ₹200 off
+orders above ₹1,500) — `calculateDiscount()` in `checkout-data.ts` is the
+single source of truth for the math, applied against the real cart
+subtotal from `useCart()`.
+
+The Review step shows the delivery address, payment method, and gift note
+(if set) as their own bordered cards, each with a "Change" link that jumps
+back to that step, plus the actual cart items (image/name/qty/price) —
+not just a cramped one-line recap. There's no separate "your order is
+safe with us" trust-badge block on this page (removed per feedback); the
+`OrderSummarySidebar`'s own trust row (Free Delivery/Secure Packaging/
+On-time Delivery/Happiness Guaranteed) already covers that.
 
 "Place Order" generates a mock order number, calls `clearCart()`, and
 swaps the whole page to `OrderConfirmation` — a real order number, the

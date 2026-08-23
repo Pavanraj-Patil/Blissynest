@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   MapPin,
@@ -10,10 +11,6 @@ import {
   ChevronDown,
   ChevronUp,
   Lock,
-  ShieldCheck,
-  BadgeCheck,
-  EyeOff,
-  RotateCcw,
   ShoppingBag,
 } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
@@ -37,13 +34,6 @@ import {
   type Address,
   type Coupon,
 } from "@/lib/checkout-data";
-
-const trustBadges = [
-  { icon: ShieldCheck, label: "Secure Payments" },
-  { icon: BadgeCheck, label: "100% Safe & Reliable" },
-  { icon: EyeOff, label: "Privacy Protected" },
-  { icon: RotateCcw, label: "Easy Returns" },
-];
 
 function StepSection({
   stepNumber,
@@ -370,55 +360,121 @@ export default function CheckoutPage() {
                 title="Review Your Order"
                 subtitle="Confirm everything before you place your order"
               >
-                <div className="space-y-5">
-                  <div className="rounded-xl bg-cream-dark p-4 space-y-2.5 text-sm">
-                    <div className="flex items-start justify-between gap-4">
-                      <span className="text-ink-muted shrink-0">Delivering to</span>
-                      <span className="text-charcoal text-right">
-                        {selectedAddress?.name} — {selectedAddress?.city}, {selectedAddress?.state}
-                      </span>
-                    </div>
-                    <div className="flex items-start justify-between gap-4">
-                      <span className="text-ink-muted shrink-0">Payment method</span>
-                      <span className="text-charcoal text-right">
-                        {selectedPaymentMethod?.label}
-                      </span>
-                    </div>
-                    {isGift && (
-                      <div className="flex items-start justify-between gap-4">
-                        <span className="text-ink-muted shrink-0">Gift note</span>
-                        <span className="text-charcoal text-right max-w-[65%]">
-                          {giftNote || "No message added"}
-                        </span>
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-charcoal/10 p-4 flex items-start gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-cream-dark text-olive shrink-0">
+                      <MapPin size={16} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-charcoal">Delivery Address</p>
+                        <button
+                          type="button"
+                          onClick={() => setStep(1)}
+                          className="text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors shrink-0"
+                        >
+                          Change
+                        </button>
                       </div>
-                    )}
+                      {selectedAddress && (
+                        <>
+                          <p className="mt-1 text-sm text-charcoal">{selectedAddress.name}</p>
+                          <p className="text-sm text-ink-muted leading-relaxed">
+                            {selectedAddress.line1}
+                            {selectedAddress.line2 ? `, ${selectedAddress.line2}` : ""}, {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
+                          </p>
+                          <p className="text-sm text-ink-muted mt-0.5">{selectedAddress.phone}</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-charcoal/10 p-4 flex items-start gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-cream-dark text-olive shrink-0">
+                      <CreditCard size={16} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-charcoal">Payment Method</p>
+                        <button
+                          type="button"
+                          onClick={() => setStep(2)}
+                          className="text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors shrink-0"
+                        >
+                          Change
+                        </button>
+                      </div>
+                      <p className="mt-1 text-sm text-charcoal">{selectedPaymentMethod?.label}</p>
+                      <p className="text-sm text-ink-muted">{selectedPaymentMethod?.description}</p>
+                    </div>
+                  </div>
+
+                  {isGift && (
+                    <div className="rounded-xl border border-charcoal/10 p-4 flex items-start gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-cream-dark text-olive shrink-0">
+                        <Gift size={16} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold text-charcoal">Gift Note</p>
+                          <button
+                            type="button"
+                            onClick={() => setStep(1)}
+                            className="text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors shrink-0"
+                          >
+                            Change
+                          </button>
+                        </div>
+                        <p className="mt-1 text-sm text-ink-muted">
+                          {giftNote || "No message added"}
+                        </p>
+                        {hidePrices && (
+                          <p className="mt-1 text-xs text-olive-dark">
+                            Prices will be hidden on the packing slip
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="rounded-xl border border-charcoal/10 p-4">
+                    <p className="text-sm font-semibold text-charcoal mb-3">
+                      Items ({items.reduce((sum, i) => sum + i.quantity, 0)})
+                    </p>
+                    <div className="space-y-3">
+                      {items.map((item) => (
+                        <div key={item.slug} className="flex items-center gap-3">
+                          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-cream-dark">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm text-charcoal">{item.name}</p>
+                            <p className="text-xs text-ink-muted">Qty: {item.quantity}</p>
+                          </div>
+                          <p className="text-sm font-medium text-charcoal shrink-0">
+                            ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={handlePlaceOrder}
-                    className="inline-flex items-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
                   >
                     Place Order
                     <ArrowRight size={14} />
                   </button>
                 </div>
               </StepSection>
-
-              <div className="rounded-2xl bg-cream-dark px-6 py-6">
-                <p className="flex items-center gap-2.5 text-sm font-semibold text-charcoal">
-                  <ShieldCheck size={18} className="text-olive" />
-                  Your order is safe with us
-                </p>
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {trustBadges.map((b) => (
-                    <div key={b.label} className="flex items-center gap-2">
-                      <b.icon size={15} className="text-terracotta shrink-0" strokeWidth={1.5} />
-                      <span className="text-xs text-charcoal-light">{b.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
             <div>

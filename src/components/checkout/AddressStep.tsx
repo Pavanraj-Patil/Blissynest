@@ -234,19 +234,17 @@ export function AddressStep({
                   >
                     <Pencil size={14} />
                   </button>
-                  {addresses.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onDelete(addr.id);
-                      }}
-                      aria-label="Delete address"
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-white transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onDelete(addr.id);
+                    }}
+                    aria-label="Delete address"
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-white transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               </label>
             ))}
