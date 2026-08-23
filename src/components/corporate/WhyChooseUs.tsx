@@ -64,7 +64,7 @@ export function WhyChooseUs() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-charcoal/10 p-6 grid grid-cols-2 gap-6">
+          <div className="rounded-3xl bg-white border border-charcoal/10 p-6 grid grid-cols-2 gap-6">
             {stats.map((stat) => (
               <div key={stat.label} className="flex items-center gap-3">
                 <stat.icon size={20} strokeWidth={1.5} className="shrink-0 text-olive" />
