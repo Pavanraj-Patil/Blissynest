@@ -187,11 +187,4 @@ export const footerLinks: SimpleLink[] = [
   { label: "Contact Us", href: "/contact" },
 ];
 
-export const navLinks: SimpleLink[] = [
-  { label: "Shop", href: "/shop" },
-  { label: "Collections", href: "/collections" },
-  { label: "Occasions", href: "/occasions" },
-  { label: "Personalised", href: "/personalised" },
-];
-
 export const heroImage = ph(1920, 700, "e3d3bd", "2a2621", "Blissynest Gift Box");

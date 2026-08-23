@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useMemo, useState } from "react";
-import { notFound } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -46,7 +46,16 @@ export default function AudienceShopPage({
   const content = audienceShopContent[audience];
   const shopProducts = shopProductsByAudience[audience];
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
+  const validCategoryParam =
+    categoryParam && shopCategories.some((c) => c.slug === categoryParam)
+      ? categoryParam
+      : null;
+
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    validCategoryParam ? [validCategoryParam] : []
+  );
   const [priceMin, setPriceMin] = useState(PRICE_BOUNDS.min);
   const [priceMax, setPriceMax] = useState(PRICE_BOUNDS.max);
   const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
