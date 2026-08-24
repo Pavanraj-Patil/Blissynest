@@ -1,9 +1,7 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import { SearchX, LayoutGrid, List } from "lucide-react";
-import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
@@ -12,20 +10,23 @@ import { Pagination } from "@/components/shop/Pagination";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { searchProducts } from "@/lib/search-data";
+import type { RelatedProduct } from "@/lib/product-adapters";
 import { cn } from "@/lib/cn";
 
 const ITEMS_PER_PAGE = 12;
 
-function SearchContent() {
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q") ?? "";
-
+export function SearchPageClient({
+  query,
+  initialResults,
+}: {
+  query: string;
+  initialResults: RelatedProduct[];
+}) {
   const [sort, setSort] = useState<SortOption>("best-selling");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const results = useMemo(() => searchProducts(query), [query]);
+  const results = initialResults;
 
   const sortedResults = useMemo(() => {
     const list = [...results];
@@ -52,7 +53,6 @@ function SearchContent() {
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
@@ -170,13 +170,5 @@ function SearchContent() {
       </main>
       <ShopFooter />
     </>
-  );
-}
-
-export function SearchPageClient() {
-  return (
-    <Suspense fallback={null}>
-      <SearchContent />
-    </Suspense>
   );
 }

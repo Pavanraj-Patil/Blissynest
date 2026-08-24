@@ -3,7 +3,6 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { User, CalendarHeart, Gift, LayoutGrid, List } from "lucide-react";
-import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
@@ -13,7 +12,7 @@ import { cn } from "@/lib/cn";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { allShopProducts } from "@/lib/shop-mock-data";
+import type { ListProduct } from "@/lib/product-adapters";
 import {
   whoOptions,
   whoToAudience,
@@ -30,7 +29,7 @@ const fields = [
   { key: "budget" as const, label: "Your budget?", icon: Gift, options: budgetOptions },
 ];
 
-function GiftingAssistantContent() {
+function GiftingAssistantContent({ initialProducts }: { initialProducts: ListProduct[] }) {
   const searchParams = useSearchParams();
 
   const [who, setWho] = useState(searchParams.get("who") ?? "");
@@ -50,13 +49,13 @@ function GiftingAssistantContent() {
   const filteredProducts = useMemo(() => {
     const audience = who ? whoToAudience[who] : null;
     const range = budget ? budgetToRange[budget] : null;
-    return allShopProducts.filter((p) => {
+    return initialProducts.filter((p) => {
       if (audience && p.audience !== audience) return false;
       if (occasion && !p.occasions.includes(occasion)) return false;
       if (range && (p.price < range[0] || p.price > range[1])) return false;
       return true;
     });
-  }, [who, occasion, budget]);
+  }, [who, occasion, budget, initialProducts]);
 
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
@@ -92,7 +91,6 @@ function GiftingAssistantContent() {
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
@@ -232,10 +230,14 @@ function GiftingAssistantContent() {
   );
 }
 
-export function GiftingAssistantPageClient() {
+export function GiftingAssistantPageClient({
+  initialProducts,
+}: {
+  initialProducts: ListProduct[];
+}) {
   return (
     <Suspense fallback={null}>
-      <GiftingAssistantContent />
+      <GiftingAssistantContent initialProducts={initialProducts} />
     </Suspense>
   );
 }

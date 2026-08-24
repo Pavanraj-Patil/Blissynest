@@ -136,22 +136,51 @@ export function AddressesSection({ initial }: { initial: Address[] }) {
   const [addresses, setAddresses] = useState<Address[]>(initial);
   const [mode, setMode] = useState<"list" | "add" | "edit">("list");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const editingAddress = addresses.find((a) => a.id === editingId);
 
-  function addAddress(values: AddressFormValues) {
-    setAddresses((prev) => [...prev, { ...values, id: `addr-${Date.now()}` }]);
+  async function addAddress(values: AddressFormValues) {
+    setError(null);
+    const res = await fetch("/api/addresses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error ?? "Couldn't save that address.");
+      return;
+    }
+    setAddresses((prev) => [...prev, data.address]);
     setMode("list");
   }
 
-  function editAddress(id: string, values: AddressFormValues) {
-    setAddresses((prev) => prev.map((a) => (a.id === id ? { ...values, id } : a)));
+  async function editAddress(id: string, values: AddressFormValues) {
+    setError(null);
+    const res = await fetch(`/api/addresses/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error ?? "Couldn't update that address.");
+      return;
+    }
+    setAddresses((prev) => prev.map((a) => (a.id === id ? data.address : a)));
     setMode("list");
     setEditingId(null);
   }
 
-  function deleteAddress(id: string) {
+  async function deleteAddress(id: string) {
+    setError(null);
     setAddresses((prev) => prev.filter((a) => a.id !== id));
+    const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setError("Couldn't delete that address.");
+      setAddresses(addresses);
+    }
   }
 
   if (mode === "add") {
@@ -172,7 +201,9 @@ export function AddressesSection({ initial }: { initial: Address[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      {error && <p className="mb-4 text-sm text-terracotta-dark">{error}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {addresses.map((addr) => (
         <div key={addr.id} className="relative rounded-2xl border border-charcoal/10 bg-white p-4">
           <div className="flex items-center gap-2">
@@ -222,6 +253,7 @@ export function AddressesSection({ initial }: { initial: Address[] }) {
         <Plus size={20} />
         <span className="text-sm font-medium">Add New Address</span>
       </button>
+      </div>
     </div>
   );
 }

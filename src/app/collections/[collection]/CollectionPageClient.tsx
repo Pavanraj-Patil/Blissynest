@@ -1,8 +1,6 @@
 "use client";
 
-import { use, useMemo, useState } from "react";
-import { notFound } from "next/navigation";
-import { TopBar } from "@/components/layout/TopBar";
+import { useMemo, useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopToolbar, type SortOption } from "@/components/shop/ShopToolbar";
@@ -15,26 +13,22 @@ import { CollectionBanner } from "@/components/collections/CollectionBanner";
 import { CollectionTrustStrip } from "@/components/collections/CollectionTrustStrip";
 import { CollectionFilterSidebar } from "@/components/collections/CollectionFilterSidebar";
 import { CollectionMobileFilterDrawer } from "@/components/collections/CollectionMobileFilterDrawer";
-import {
-  collectionContent,
-  isCollectionSlug,
-  type CollectionProduct,
-} from "@/lib/collection-mock-data";
+import { collectionContent, type CollectionSlug } from "@/lib/collection-mock-data";
+import type { ListProduct } from "@/lib/product-adapters";
 
 const ITEMS_PER_PAGE = 12;
 
 export function CollectionPageClient({
-  params,
+  collection,
+  initialProducts,
 }: {
-  params: Promise<{ collection: string }>;
+  collection: CollectionSlug;
+  initialProducts: ListProduct[];
 }) {
-  const { collection: collectionParam } = use(params);
-
-  if (!isCollectionSlug(collectionParam)) {
-    notFound();
-  }
-  const collection = collectionParam;
-  const content = collectionContent[collection];
+  const content = useMemo(
+    () => ({ ...collectionContent[collection], products: initialProducts }),
+    [collection, initialProducts]
+  );
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
@@ -74,7 +68,7 @@ export function CollectionPageClient({
   }, [content]);
 
   const filteredProducts = useMemo(() => {
-    return content.products.filter((p: CollectionProduct) => {
+    return content.products.filter((p) => {
       if (selectedCategory && p.category !== selectedCategory) return false;
       if (
         selectedAttributes.length > 0 &&
@@ -177,7 +171,6 @@ export function CollectionPageClient({
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">

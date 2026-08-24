@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, X, Mail, Info } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { ArrowLeft, X, Mail, Lock, User as UserIcon, AlertCircle } from "lucide-react";
 
 function GoogleIcon() {
   return (
@@ -28,6 +30,8 @@ function GoogleIcon() {
   );
 }
 
+type Mode = "login" | "signup";
+
 export function AccountAuthModal({
   open,
   onClose,
@@ -35,7 +39,14 @@ export function AccountAuthModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
+  const [mode, setMode] = useState<Mode>("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -51,9 +62,64 @@ export function AccountAuthModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  function resetForm() {
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setError(null);
+    setSubmitting(false);
+  }
+
   function handleClose() {
-    setSubmitted(false);
+    resetForm();
+    setMode("login");
     onClose();
+  }
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    const result = await signIn("password", { email, password, redirect: false });
+    setSubmitting(false);
+    if (result?.error) {
+      setError("Incorrect email or password.");
+      return;
+    }
+    handleClose();
+    router.push("/account");
+    router.refresh();
+  }
+
+  async function handleSignup(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password, confirmPassword }),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      setSubmitting(false);
+      setError(data.error ?? "Something went wrong. Please try again.");
+      return;
+    }
+
+    const result = await signIn("password", { email, password, redirect: false });
+    setSubmitting(false);
+    if (result?.error) {
+      setError("Account created — please sign in.");
+      setMode("login");
+      return;
+    }
+    handleClose();
+    router.push("/account");
+    router.refresh();
   }
 
   if (!open) return null;
@@ -66,7 +132,7 @@ export function AccountAuthModal({
         aria-hidden="true"
       />
 
-      <div className="relative h-full sm:h-auto sm:mx-auto sm:mt-20 sm:max-w-sm sm:px-4">
+      <div className="relative h-full sm:h-auto sm:mx-auto sm:mt-16 sm:max-w-sm sm:px-4">
         <div className="flex h-full sm:h-auto flex-col overflow-hidden bg-white sm:rounded-3xl sm:shadow-2xl">
           <button
             type="button"
@@ -85,7 +151,7 @@ export function AccountAuthModal({
             <X size={18} />
           </button>
 
-          <div className="relative h-28 shrink-0 overflow-hidden bg-gradient-to-br from-olive-dark to-terracotta-dark">
+          <div className="relative h-24 shrink-0 overflow-hidden bg-gradient-to-br from-olive-dark to-terracotta-dark">
             <span className="absolute -right-4 -top-6 text-[7rem] leading-none text-cream/10 select-none">
               ✦
             </span>
@@ -96,80 +162,129 @@ export function AccountAuthModal({
 
           <div className="flex-1 overflow-y-auto px-6 pb-8 pt-12 text-center sm:pt-11">
             <h2 className="font-serif text-xl text-charcoal">
-              Sign Up / Login to Blissynest!
+              {mode === "login" ? "Login to Blissynest" : "Create your account"}
             </h2>
             <p className="mt-1.5 text-sm text-ink-muted">
               For a personalised experience &amp; faster checkout.
             </p>
 
-            {submitted ? (
-              <div className="mt-6 text-left">
-                <div className="flex gap-2.5 rounded-xl bg-cream-dark px-4 py-3.5 text-xs text-charcoal-light leading-relaxed">
-                  <Info size={15} className="text-terracotta shrink-0 mt-0.5" />
-                  <p>
-                    Accounts aren&rsquo;t live in this demo yet — but Blissynest
-                    is fully guest-friendly, so your cart and wishlist work
-                    without one.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="mt-4 w-full rounded-xl bg-olive text-cream px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
-                >
-                  Continue as Guest
-                </button>
+            {error && (
+              <div className="mt-5 flex items-start gap-2 rounded-xl bg-terracotta/10 px-4 py-3 text-left text-xs text-terracotta-dark">
+                <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                <p>{error}</p>
               </div>
-            ) : (
-              <>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setSubmitted(true);
-                  }}
-                  className="mt-6 space-y-3 text-left"
-                >
-                  <label className="relative block">
-                    <Mail
-                      size={16}
-                      className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal/35"
-                    />
-                    <input
-                      required
-                      type="email"
-                      placeholder="Enter email address"
-                      className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 pr-3.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
-                    />
-                  </label>
-                  <button
-                    type="submit"
-                    className="w-full rounded-xl bg-olive text-cream px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
-                  >
-                    Continue
-                  </button>
-                </form>
-
-                <div className="mt-5 flex items-center gap-3 text-xs text-ink-muted">
-                  <span className="h-px flex-1 bg-charcoal/10" />
-                  or continue with
-                  <span className="h-px flex-1 bg-charcoal/10" />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSubmitted(true)}
-                  className="mt-4 flex w-full items-center justify-center gap-2.5 rounded-xl border border-charcoal/15 px-6 py-3 text-sm font-medium text-charcoal hover:bg-cream-dark transition-colors"
-                >
-                  <GoogleIcon />
-                  Continue with Google
-                </button>
-
-                <p className="mt-6 text-[11px] text-ink-muted leading-relaxed">
-                  By continuing, you agree to Blissynest&rsquo;s Terms of Use
-                  and Privacy Policy.
-                </p>
-              </>
             )}
+
+            <form
+              onSubmit={mode === "login" ? handleLogin : handleSignup}
+              className="mt-6 space-y-3 text-left"
+            >
+              {mode === "signup" && (
+                <label className="relative block">
+                  <UserIcon
+                    size={16}
+                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal/35"
+                  />
+                  <input
+                    required
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Full name"
+                    className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 pr-3.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+                  />
+                </label>
+              )}
+
+              <label className="relative block">
+                <Mail
+                  size={16}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal/35"
+                />
+                <input
+                  required
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email address"
+                  className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 pr-3.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+                />
+              </label>
+
+              <label className="relative block">
+                <Lock
+                  size={16}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal/35"
+                />
+                <input
+                  required
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  minLength={mode === "signup" ? 8 : undefined}
+                  className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 pr-3.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+                />
+              </label>
+
+              {mode === "signup" && (
+                <label className="relative block">
+                  <Lock
+                    size={16}
+                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal/35"
+                  />
+                  <input
+                    required
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 pr-3.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+                  />
+                </label>
+              )}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full rounded-xl bg-olive text-cream px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
+              >
+                {submitting ? "Please wait…" : mode === "login" ? "Login" : "Sign Up"}
+              </button>
+            </form>
+
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                setMode(mode === "login" ? "signup" : "login");
+              }}
+              className="mt-4 text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors"
+            >
+              {mode === "login"
+                ? "New here? Create an account"
+                : "Already have an account? Login"}
+            </button>
+
+            <div className="mt-5 flex items-center gap-3 text-xs text-ink-muted">
+              <span className="h-px flex-1 bg-charcoal/10" />
+              or continue with
+              <span className="h-px flex-1 bg-charcoal/10" />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => signIn("google", { callbackUrl: "/account" })}
+              className="mt-4 flex w-full items-center justify-center gap-2.5 rounded-xl border border-charcoal/15 px-6 py-3 text-sm font-medium text-charcoal hover:bg-cream-dark transition-colors"
+            >
+              <GoogleIcon />
+              Continue with Google
+            </button>
+
+            <p className="mt-6 text-[11px] text-ink-muted leading-relaxed">
+              By continuing, you agree to Blissynest&rsquo;s Terms of Use
+              and Privacy Policy.
+            </p>
           </div>
         </div>
       </div>

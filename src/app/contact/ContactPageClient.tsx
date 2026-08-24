@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, MapPin, CheckCircle2 } from "lucide-react";
-import { TopBar } from "@/components/layout/TopBar";
+import { Mail, Phone, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopFooter } from "@/components/shop/ShopFooter";
@@ -15,10 +14,38 @@ const contactPoints = [
 
 export function ContactPageClient() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const res = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        email: formData.get("email"),
+        subject: formData.get("subject"),
+        message: formData.get("message"),
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Something went wrong. Please try again.");
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitted(true);
+  }
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
@@ -65,18 +92,20 @@ export function ContactPageClient() {
                   </p>
                 </div>
               ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setSubmitted(true);
-                  }}
-                  className="space-y-4"
-                >
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {error && (
+                    <div className="flex items-start gap-2 rounded-xl bg-terracotta/10 px-4 py-3 text-xs text-terracotta-dark">
+                      <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                      <p>{error}</p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <label className="block">
                       <span className="text-xs font-medium text-charcoal">Name</span>
                       <input
                         required
+                        name="name"
                         type="text"
                         placeholder="Your name"
                         className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
@@ -86,6 +115,7 @@ export function ContactPageClient() {
                       <span className="text-xs font-medium text-charcoal">Email</span>
                       <input
                         required
+                        name="email"
                         type="email"
                         placeholder="you@example.com"
                         className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
@@ -97,6 +127,7 @@ export function ContactPageClient() {
                     <span className="text-xs font-medium text-charcoal">Subject</span>
                     <input
                       required
+                      name="subject"
                       type="text"
                       placeholder="What's this about?"
                       className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
@@ -107,6 +138,7 @@ export function ContactPageClient() {
                     <span className="text-xs font-medium text-charcoal">Message</span>
                     <textarea
                       required
+                      name="message"
                       rows={5}
                       placeholder="Tell us a bit more..."
                       className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive resize-none"
@@ -115,9 +147,10 @@ export function ContactPageClient() {
 
                   <button
                     type="submit"
-                    className="w-full sm:w-auto rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
+                    disabled={submitting}
+                    className="w-full sm:w-auto rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
                   >
-                    Send Message
+                    {submitting ? "Sending…" : "Send Message"}
                   </button>
                 </form>
               )}

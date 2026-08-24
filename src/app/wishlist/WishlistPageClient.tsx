@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, ArrowRight, X, Star, Check } from "lucide-react";
-import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopFooter } from "@/components/shop/ShopFooter";
@@ -121,7 +120,6 @@ export function WishlistPageClient() {
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">

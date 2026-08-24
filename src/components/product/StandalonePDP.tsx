@@ -15,10 +15,19 @@ import { ReviewsSection } from "./ReviewsSection";
 import { MobileStickyCTA } from "./MobileStickyCTA";
 import { RelatedProducts } from "./RelatedProducts";
 import type { StandaloneProduct } from "@/lib/product-mock-data";
-import { getRelatedProducts, getProductReviews } from "@/lib/product-mock-data";
+import type { RelatedProduct } from "@/lib/product-adapters";
+import type { ApprovedReview } from "@/lib/review-service";
 import { useCart } from "@/lib/cart-context";
 
-export function StandalonePDP({ product }: { product: StandaloneProduct }) {
+export function StandalonePDP({
+  product,
+  related,
+  reviews,
+}: {
+  product: StandaloneProduct;
+  related: RelatedProduct[];
+  reviews: ApprovedReview[];
+}) {
   const router = useRouter();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -29,8 +38,6 @@ export function StandalonePDP({ product }: { product: StandaloneProduct }) {
         (product.variants ?? []).map((v) => [v.label, v.options[0]])
       )
   );
-  const related = getRelatedProducts(product);
-  const reviews = getProductReviews(product);
   const hasVariants = (product.variants?.length ?? 0) > 0;
 
   function handleAddToCart() {

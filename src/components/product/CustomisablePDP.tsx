@@ -18,7 +18,8 @@ import { MobileStickyCTA } from "./MobileStickyCTA";
 import { RelatedProducts } from "./RelatedProducts";
 import { getIcon } from "./icon-map";
 import type { CustomisableProduct } from "@/lib/product-mock-data";
-import { getRelatedProducts, getProductReviews } from "@/lib/product-mock-data";
+import type { RelatedProduct } from "@/lib/product-adapters";
+import type { ApprovedReview } from "@/lib/review-service";
 import { useCart } from "@/lib/cart-context";
 
 const fontClassMap: Record<string, string> = {
@@ -27,7 +28,15 @@ const fontClassMap: Record<string, string> = {
   Modern: "font-sans uppercase tracking-wide",
 };
 
-export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
+export function CustomisablePDP({
+  product,
+  related,
+  reviews,
+}: {
+  product: CustomisableProduct;
+  related: RelatedProduct[];
+  reviews: ApprovedReview[];
+}) {
   const router = useRouter();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -38,8 +47,6 @@ export function CustomisablePDP({ product }: { product: CustomisableProduct }) {
   const [font, setFont] = useState(product.fonts[0]);
   const [color, setColor] = useState(product.colors[0]?.hex ?? "#2a2621");
   const [variant, setVariant] = useState(product.variantOptions?.[0] ?? "");
-  const related = getRelatedProducts(product);
-  const reviews = getProductReviews(product);
 
   const fontClass = fontClassMap[font] ?? "font-serif";
 

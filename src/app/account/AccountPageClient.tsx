@@ -1,9 +1,9 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
-import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopFooter } from "@/components/shop/ShopFooter";
@@ -12,7 +12,9 @@ import { OrdersSection } from "@/components/account/OrdersSection";
 import { AddressesSection } from "@/components/account/AddressesSection";
 import { WishlistSection } from "@/components/account/WishlistSection";
 import { SettingsSection } from "@/components/account/SettingsSection";
-import { accountUser, accountOrders, accountAddresses } from "@/lib/account-data";
+import { accountUser } from "@/lib/account-data";
+import type { AccountOrderDTO } from "@/lib/order-service";
+import type { Address } from "@/lib/checkout-data";
 import { cn } from "@/lib/cn";
 
 const tabs = [
@@ -29,15 +31,35 @@ function isTabKey(value: string | null): value is TabKey {
   return tabs.some((t) => t.key === value);
 }
 
-function AccountDashboard() {
-  const router = useRouter();
+type SessionUser = { name: string | null; email: string | null };
+
+function AccountDashboard({
+  user,
+  orders,
+  addresses,
+}: {
+  user: SessionUser;
+  orders: AccountOrderDTO[];
+  addresses: Address[];
+}) {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState<TabKey>(
     isTabKey(initialTab) ? initialTab : "profile"
   );
 
-  const initials = accountUser.name
+  // Real signed-in name/email, layered over the demo profile's phone/member-
+  // since — those two fields don't exist on the real User model yet (no
+  // phone-collection step anywhere in the app), so they stay placeholder
+  // until that's added.
+  const displayName = user.name ?? user.email ?? "Blissynest Member";
+  const profileUser = {
+    ...accountUser,
+    name: displayName,
+    email: user.email ?? accountUser.email,
+  };
+
+  const initials = displayName
     .split(" ")
     .map((part) => part[0])
     .join("")
@@ -46,7 +68,6 @@ function AccountDashboard() {
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
@@ -59,17 +80,16 @@ function AccountDashboard() {
               {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="font-serif text-xl text-charcoal">{accountUser.name}</h1>
-              <p className="mt-0.5 text-sm text-ink-muted">
-                {accountUser.email} · {accountUser.phone}
-              </p>
+              <h1 className="font-serif text-xl text-charcoal">{displayName}</h1>
+              <p className="mt-0.5 text-sm text-ink-muted">{profileUser.email}</p>
               <p className="mt-1 text-xs text-charcoal-light">
-                Member since {accountUser.memberSince} · Demo profile — sign-in isn&rsquo;t wired up yet
+                Orders and addresses are real. Settings below is still demo
+                data — not yet saved per-account
               </p>
             </div>
             <button
               type="button"
-              onClick={() => router.push("/")}
+              onClick={() => signOut({ callbackUrl: "/" })}
               className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-charcoal/15 px-5 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase text-charcoal hover:bg-white transition-colors"
             >
               <LogOut size={13} />
@@ -96,9 +116,9 @@ function AccountDashboard() {
           </div>
 
           <div className="mt-6">
-            {activeTab === "profile" && <ProfileSection user={accountUser} />}
-            {activeTab === "orders" && <OrdersSection orders={accountOrders} />}
-            {activeTab === "addresses" && <AddressesSection initial={accountAddresses} />}
+            {activeTab === "profile" && <ProfileSection user={profileUser} />}
+            {activeTab === "orders" && <OrdersSection orders={orders} />}
+            {activeTab === "addresses" && <AddressesSection initial={addresses} />}
             {activeTab === "wishlist" && <WishlistSection />}
             {activeTab === "settings" && <SettingsSection />}
           </div>
@@ -109,10 +129,18 @@ function AccountDashboard() {
   );
 }
 
-export function AccountPageClient() {
+export function AccountPageClient({
+  user,
+  orders,
+  addresses,
+}: {
+  user: SessionUser;
+  orders: AccountOrderDTO[];
+  addresses: Address[];
+}) {
   return (
     <Suspense fallback={null}>
-      <AccountDashboard />
+      <AccountDashboard user={user} orders={orders} addresses={addresses} />
     </Suspense>
   );
 }

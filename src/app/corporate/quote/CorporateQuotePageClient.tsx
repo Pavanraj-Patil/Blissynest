@@ -11,8 +11,8 @@ import {
   PhoneCall,
   Palette,
   Truck,
+  AlertCircle,
 } from "lucide-react";
-import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopFooter } from "@/components/shop/ShopFooter";
@@ -36,15 +36,45 @@ function QuoteForm() {
   const matchedInterest = corporateNeeds.find((n) => n.slug === interestParam);
 
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [teamSize, setTeamSize] = useState("");
   const [interest, setInterest] = useState(matchedInterest?.slug ?? "");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setSubmitting(true);
+    setError(null);
 
     const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
-    if (submitter?.value === "download") {
+    const isDownload = submitter?.value === "download";
+    const formData = new FormData(e.currentTarget);
+
+    const res = await fetch("/api/corporate-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        workEmail: formData.get("workEmail"),
+        phone: formData.get("phone"),
+        companyName: formData.get("companyName"),
+        teamSize: teamSize || undefined,
+        interest: interest || undefined,
+        intent: isConsultation ? "CONSULTATION" : "QUOTE",
+        message: formData.get("message") || undefined,
+        downloadedCatalogue: isDownload,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Something went wrong. Please try again.");
+      setSubmitting(false);
+      return;
+    }
+
+    if (isDownload) {
       downloadCatalogue(interest);
       setDownloaded(true);
     }
@@ -56,7 +86,6 @@ function QuoteForm() {
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
@@ -97,11 +126,19 @@ function QuoteForm() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  {error && (
+                    <div className="flex items-start gap-2 rounded-xl bg-terracotta/10 px-4 py-3 text-xs text-terracotta-dark">
+                      <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                      <p>{error}</p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <label className="block">
                       <span className="text-xs font-medium text-charcoal">Full Name *</span>
                       <input
                         type="text"
+                        name="name"
                         required
                         placeholder="Your full name"
                         className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
@@ -111,6 +148,7 @@ function QuoteForm() {
                       <span className="text-xs font-medium text-charcoal">Work Email *</span>
                       <input
                         type="email"
+                        name="workEmail"
                         required
                         placeholder="you@company.com"
                         className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
@@ -123,6 +161,7 @@ function QuoteForm() {
                       <span className="text-xs font-medium text-charcoal">Phone *</span>
                       <input
                         type="tel"
+                        name="phone"
                         required
                         placeholder="Your phone number"
                         className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
@@ -132,6 +171,7 @@ function QuoteForm() {
                       <span className="text-xs font-medium text-charcoal">Company Name *</span>
                       <input
                         type="text"
+                        name="companyName"
                         required
                         placeholder="Your company"
                         className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
@@ -178,6 +218,7 @@ function QuoteForm() {
                     </span>
                     <textarea
                       rows={4}
+                      name="message"
                       placeholder="Occasion, budget, timeline, branding needs..."
                       className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive resize-none"
                     />
@@ -188,7 +229,8 @@ function QuoteForm() {
                       type="submit"
                       name="action"
                       value="submit"
-                      className="flex-1 inline-flex items-center justify-center rounded-xl bg-olive text-cream px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
+                      disabled={submitting}
+                      className="flex-1 inline-flex items-center justify-center rounded-xl bg-olive text-cream px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
                     >
                       {isConsultation ? "Book Consultation" : "Submit Request"}
                     </button>
@@ -196,7 +238,8 @@ function QuoteForm() {
                       type="submit"
                       name="action"
                       value="download"
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-charcoal/20 text-charcoal px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-cream-dark transition-colors"
+                      disabled={submitting}
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-charcoal/20 text-charcoal px-6 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-cream-dark transition-colors disabled:opacity-60"
                     >
                       <Download size={14} />
                       Download Catalogue

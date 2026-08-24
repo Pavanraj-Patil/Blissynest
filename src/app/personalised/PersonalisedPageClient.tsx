@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { FilterSidebar } from "@/components/shop/FilterSidebar";
@@ -12,12 +11,16 @@ import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { allShopProducts } from "@/lib/shop-mock-data";
+import type { ListProduct } from "@/lib/product-adapters";
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
 const ITEMS_PER_PAGE = 12;
 
-export function PersonalisedPageClient() {
+export function PersonalisedPageClient({
+  initialProducts,
+}: {
+  initialProducts: ListProduct[];
+}) {
   const [priceMin, setPriceMin] = useState(PRICE_BOUNDS.min);
   const [priceMax, setPriceMax] = useState(PRICE_BOUNDS.max);
   const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
@@ -27,10 +30,7 @@ export function PersonalisedPageClient() {
   const [currentPage, setCurrentPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const personalisedProducts = useMemo(
-    () => allShopProducts.filter((p) => p.category === "personalised"),
-    []
-  );
+  const personalisedProducts = initialProducts;
 
   const occasionCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -144,7 +144,6 @@ export function PersonalisedPageClient() {
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">

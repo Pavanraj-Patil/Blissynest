@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { collectionContent, isCollectionSlug } from "@/lib/collection-mock-data";
+import { notFound } from "next/navigation";
+import { collectionContent, isCollectionSlug, type CollectionSlug } from "@/lib/collection-mock-data";
+import { db } from "@/lib/db";
+import { toListProduct } from "@/lib/product-adapters";
+import { TopBar } from "@/components/layout/TopBar";
 import { CollectionPageClient } from "./CollectionPageClient";
 
 type Props = {
@@ -20,6 +24,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function CollectionPage({ params }: Props) {
-  return <CollectionPageClient params={params} />;
+export default async function CollectionPage({ params }: Props) {
+  const { collection } = await params;
+
+  if (!isCollectionSlug(collection)) {
+    notFound();
+  }
+  const slug: CollectionSlug = collection;
+
+  const rows = await db.product.findMany({
+    where: { status: "PUBLISHED", collectionSlug: slug },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return (
+    <>
+      <TopBar />
+      <CollectionPageClient collection={slug} initialProducts={rows.map(toListProduct)} />
+    </>
+  );
 }

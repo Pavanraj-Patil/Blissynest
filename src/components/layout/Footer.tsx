@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { footerLinks } from "@/lib/mock-data";
+import { NewsletterForm } from "./NewsletterForm";
 
 function InstagramIcon() {
   return (
@@ -57,21 +57,7 @@ export function Footer() {
               your inbox.
             </p>
           </div>
-          <form className="flex w-full max-w-md mx-auto lg:mx-0 items-center gap-3">
-            <input
-              type="email"
-              required
-              placeholder="Enter your email"
-              className="flex-1 min-w-0 rounded-full border border-charcoal/20 bg-white px-5 py-3 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
-            />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-full bg-olive text-cream px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors shrink-0"
-            >
-              Subscribe
-              <ArrowRight size={14} />
-            </button>
-          </form>
+          <NewsletterForm className="w-full max-w-md mx-auto lg:mx-0" />
           <div className="flex flex-col items-center lg:items-end gap-2 shrink-0">
             <span className="text-xs text-ink-muted">Follow us</span>
             <div className="flex items-center gap-4 text-charcoal">

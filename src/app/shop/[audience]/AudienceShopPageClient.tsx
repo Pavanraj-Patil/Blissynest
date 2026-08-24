@@ -1,8 +1,7 @@
 "use client";
 
-import { use, useMemo, useState } from "react";
-import { notFound, useSearchParams } from "next/navigation";
-import { TopBar } from "@/components/layout/TopBar";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { CategoryPillRow } from "@/components/shop/CategoryPillRow";
@@ -15,35 +14,25 @@ import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
 import {
-  shopProductsByAudience,
   shopCategories,
   shopOccasions,
   audienceShopContent,
-  audienceSlugs,
   type AudienceSlug,
 } from "@/lib/shop-mock-data";
+import type { ListProduct } from "@/lib/product-adapters";
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
 const ITEMS_PER_PAGE = 12;
 
-function isAudienceSlug(value: string): value is AudienceSlug {
-  return (audienceSlugs as string[]).includes(value);
-}
-
 export function AudienceShopPageClient({
-  params,
+  audience,
+  initialProducts,
 }: {
-  params: Promise<{ audience: string }>;
+  audience: AudienceSlug;
+  initialProducts: ListProduct[];
 }) {
-  const { audience: audienceParam } = use(params);
-
-  if (!isAudienceSlug(audienceParam)) {
-    notFound();
-  }
-  const audience = audienceParam;
-
   const content = audienceShopContent[audience];
-  const shopProducts = shopProductsByAudience[audience];
+  const shopProducts = initialProducts;
 
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
@@ -190,7 +179,6 @@ export function AudienceShopPageClient({
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">

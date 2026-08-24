@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import {
   MapPin,
   CreditCard,
@@ -12,23 +13,23 @@ import {
   ChevronUp,
   Lock,
   ShoppingBag,
+  UserCircle2,
 } from "lucide-react";
-import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopFooter } from "@/components/shop/ShopFooter";
+import { AccountAuthModal } from "@/components/layout/AccountAuthModal";
 import { CheckoutStepper, type CheckoutStep } from "@/components/checkout/CheckoutStepper";
 import { AddressStep } from "@/components/checkout/AddressStep";
 import { OrderSummarySidebar } from "@/components/checkout/OrderSummarySidebar";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { useCart } from "@/lib/cart-context";
 import { cn } from "@/lib/cn";
+import { loadRazorpayScript } from "@/lib/load-razorpay-script";
 import {
-  seedAddresses,
   paymentMethods,
   coupons,
   calculateDiscount,
-  generateOrderNumber,
   FREE_SHIPPING_THRESHOLD,
   STANDARD_SHIPPING_FEE,
   type Address,
@@ -95,13 +96,12 @@ function StepSection({
 }
 
 export function CheckoutPageClient() {
+  const { status } = useSession();
   const { items, subtotal, clearCart } = useCart();
 
   const [step, setStep] = useState<CheckoutStep>(1);
-  const [addresses, setAddresses] = useState<Address[]>(seedAddresses);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
-    seedAddresses[0]?.id ?? null
-  );
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [isGift, setIsGift] = useState(false);
   const [giftNote, setGiftNote] = useState("");
   const [hidePrices, setHidePrices] = useState(false);
@@ -109,10 +109,24 @@ export function CheckoutPageClient() {
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
 
+  const [placingOrder, setPlacingOrder] = useState(false);
+  const [placeOrderError, setPlaceOrderError] = useState<string | null>(null);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
   const [orderTotal, setOrderTotal] = useState(0);
   const [orderAddressSummary, setOrderAddressSummary] = useState("");
+  const [authOpen, setAuthOpen] = useState(false);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/addresses")
+      .then((res) => res.json())
+      .then((data: { addresses: Address[] }) => {
+        setAddresses(data.addresses);
+        setSelectedAddressId((prev) => prev ?? data.addresses[0]?.id ?? null);
+      })
+      .catch(() => {});
+  }, [status]);
 
   const discount = calculateDiscount(appliedCoupon, subtotal);
   const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
@@ -121,24 +135,35 @@ export function CheckoutPageClient() {
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? null;
   const selectedPaymentMethod = paymentMethods.find((m) => m.key === paymentMethod) ?? null;
 
-  function handleAddAddress(values: Omit<Address, "id">) {
-    const newAddress: Address = { ...values, id: `addr-${Date.now()}` };
-    setAddresses((prev) => [...prev, newAddress]);
-    setSelectedAddressId(newAddress.id);
-  }
-
-  function handleEditAddress(id: string, values: Omit<Address, "id">) {
-    setAddresses((prev) => prev.map((a) => (a.id === id ? { ...values, id } : a)));
-  }
-
-  function handleDeleteAddress(id: string) {
-    setAddresses((prev) => {
-      const next = prev.filter((a) => a.id !== id);
-      if (selectedAddressId === id) {
-        setSelectedAddressId(next[0]?.id ?? null);
-      }
-      return next;
+  async function handleAddAddress(values: Omit<Address, "id">) {
+    const res = await fetch("/api/addresses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
     });
+    const data = await res.json();
+    if (!res.ok) return;
+    setAddresses((prev) => [...prev, data.address]);
+    setSelectedAddressId(data.address.id);
+  }
+
+  async function handleEditAddress(id: string, values: Omit<Address, "id">) {
+    const res = await fetch(`/api/addresses/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+    const data = await res.json();
+    if (!res.ok) return;
+    setAddresses((prev) => prev.map((a) => (a.id === id ? data.address : a)));
+  }
+
+  async function handleDeleteAddress(id: string) {
+    setAddresses((prev) => prev.filter((a) => a.id !== id));
+    if (selectedAddressId === id) {
+      setSelectedAddressId(addresses.find((a) => a.id !== id)?.id ?? null);
+    }
+    await fetch(`/api/addresses/${id}`, { method: "DELETE" });
   }
 
   function handleApplyCoupon(code: string) {
@@ -161,10 +186,24 @@ export function CheckoutPageClient() {
     setCouponError(null);
   }
 
-  function handlePlaceOrder() {
+  function buildShippingAddress() {
+    if (!selectedAddress) return null;
+    return {
+      label: selectedAddress.label,
+      name: selectedAddress.name,
+      line1: selectedAddress.line1,
+      line2: selectedAddress.line2,
+      city: selectedAddress.city,
+      state: selectedAddress.state,
+      pincode: selectedAddress.pincode,
+      phone: selectedAddress.phone,
+    };
+  }
+
+  function applyOrderSuccess(data: { orderNumber: string; total: number }) {
     if (!selectedAddress) return;
-    setOrderNumber(generateOrderNumber());
-    setOrderTotal(total);
+    setOrderNumber(data.orderNumber);
+    setOrderTotal(data.total);
     setOrderAddressSummary(
       `${selectedAddress.name}, ${selectedAddress.line1}${selectedAddress.line2 ? `, ${selectedAddress.line2}` : ""}, ${selectedAddress.city}, ${selectedAddress.state} - ${selectedAddress.pincode}`
     );
@@ -172,10 +211,118 @@ export function CheckoutPageClient() {
     clearCart();
   }
 
+  async function handlePlaceOrder() {
+    if (!selectedAddress || !paymentMethod) return;
+    setPlacingOrder(true);
+    setPlaceOrderError(null);
+
+    if (paymentMethod === "cod") {
+      try {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            shippingAddress: buildShippingAddress(),
+            paymentMethod,
+            isGift,
+            giftNote: isGift ? giftNote : undefined,
+            hidePricesOnSlip: isGift ? hidePrices : false,
+            couponCode: appliedCoupon?.code,
+          }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          setPlaceOrderError(data.error ?? "Something went wrong placing your order.");
+          setPlacingOrder(false);
+          return;
+        }
+
+        applyOrderSuccess(data);
+      } catch {
+        setPlaceOrderError("Something went wrong placing your order. Please try again.");
+        setPlacingOrder(false);
+      }
+      return;
+    }
+
+    await handleRazorpayPayment();
+  }
+
+  async function handleRazorpayPayment() {
+    if (!selectedAddress || !paymentMethod) return;
+
+    const createRes = await fetch("/api/checkout/razorpay/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ couponCode: appliedCoupon?.code }),
+    });
+    const session = await createRes.json();
+    if (!createRes.ok) {
+      setPlaceOrderError(session.error ?? "Couldn't start payment. Please try again.");
+      setPlacingOrder(false);
+      return;
+    }
+
+    const loaded = await loadRazorpayScript();
+    if (!loaded || !window.Razorpay) {
+      setPlaceOrderError("Couldn't load the payment gateway. Please check your connection and try again.");
+      setPlacingOrder(false);
+      return;
+    }
+
+    const razorpay = new window.Razorpay({
+      key: session.keyId,
+      amount: session.amount,
+      currency: session.currency,
+      order_id: session.razorpayOrderId,
+      name: "Blissynest",
+      description: "Order payment",
+      prefill: { name: selectedAddress.name, contact: selectedAddress.phone },
+      theme: { color: "#6b7a4f" },
+      handler: async (response) => {
+        try {
+          const verifyRes = await fetch("/api/checkout/razorpay/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              shippingAddress: buildShippingAddress(),
+              paymentMethod,
+              isGift,
+              giftNote: isGift ? giftNote : undefined,
+              hidePricesOnSlip: isGift ? hidePrices : false,
+              couponCode: appliedCoupon?.code,
+            }),
+          });
+          const data = await verifyRes.json();
+          if (!verifyRes.ok) {
+            setPlaceOrderError(data.error ?? "Payment succeeded but confirming your order failed. Please contact support.");
+            setPlacingOrder(false);
+            return;
+          }
+          applyOrderSuccess(data);
+        } catch {
+          setPlaceOrderError("Payment succeeded but confirming your order failed. Please contact support.");
+          setPlacingOrder(false);
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          setPlaceOrderError("Payment was cancelled.");
+          setPlacingOrder(false);
+        },
+      },
+    });
+
+    razorpay.open();
+  }
+
   if (orderPlaced) {
     return (
       <>
-        <TopBar />
         <Header />
         <main>
           <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
@@ -196,10 +343,44 @@ export function CheckoutPageClient() {
     );
   }
 
+  if (status !== "authenticated") {
+    return (
+      <>
+        <Header />
+        <main>
+          <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
+            <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Checkout" }]} />
+          </div>
+          <div className="flex flex-col items-center text-center py-20 px-4">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-cream-dark">
+              <UserCircle2 size={38} className="text-olive/40" strokeWidth={1.5} />
+            </div>
+            <h1 className="mt-6 font-serif text-2xl text-charcoal">
+              Sign in to check out
+            </h1>
+            <p className="mt-2 text-sm text-ink-muted max-w-sm">
+              We use your account to keep your order confirmation and order
+              history in one place.
+            </p>
+            <button
+              type="button"
+              onClick={() => setAuthOpen(true)}
+              className="mt-7 inline-flex items-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors"
+            >
+              Sign In
+              <ArrowRight size={14} />
+            </button>
+          </div>
+        </main>
+        <ShopFooter />
+        <AccountAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      </>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <>
-        <TopBar />
         <Header />
         <main>
           <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
@@ -232,7 +413,6 @@ export function CheckoutPageClient() {
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
@@ -336,8 +516,9 @@ export function CheckoutPageClient() {
 
                   <p className="flex items-start gap-1.5 pt-1 text-xs text-ink-muted">
                     <Lock size={12} className="shrink-0 mt-0.5" />
-                    This is a demo store — no payment details are collected.
-                    Selecting a method just saves your preference for the order.
+                    Card, UPI and Net Banking are processed securely by Razorpay
+                    — we never see or store your card or bank details. Cash on
+                    Delivery needs nothing upfront.
                   </p>
 
                   <button
@@ -465,13 +646,18 @@ export function CheckoutPageClient() {
                     </div>
                   </div>
 
+                  {placeOrderError && (
+                    <p className="text-sm text-terracotta-dark">{placeOrderError}</p>
+                  )}
+
                   <button
                     type="button"
                     onClick={handlePlaceOrder}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
+                    disabled={placingOrder}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
                   >
-                    Place Order
-                    <ArrowRight size={14} />
+                    {placingOrder ? "Placing Order…" : "Place Order"}
+                    {!placingOrder && <ArrowRight size={14} />}
                   </button>
                 </div>
               </StepSection>

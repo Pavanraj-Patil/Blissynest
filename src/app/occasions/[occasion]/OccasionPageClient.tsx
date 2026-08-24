@@ -1,8 +1,6 @@
 "use client";
 
-import { use, useMemo, useState } from "react";
-import { notFound } from "next/navigation";
-import { TopBar } from "@/components/layout/TopBar";
+import { useMemo, useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { CategoryPillRow } from "@/components/shop/CategoryPillRow";
@@ -14,13 +12,13 @@ import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { allShopProducts, type ShopProductWithAudience } from "@/lib/shop-mock-data";
+import type { ListProduct } from "@/lib/product-adapters";
 import {
   occasionContent,
   occasionPills,
   recipientPillGroups,
   getOccasionPillIcon,
-  isOccasionSlug,
+  type OccasionSlug,
   type OccasionPillFilter,
 } from "@/lib/occasion-data";
 
@@ -28,10 +26,7 @@ function pillKey(type: OccasionPillFilter["type"], value: string) {
   return `${type}:${value}`;
 }
 
-function productMatchesPill(
-  product: ShopProductWithAudience,
-  pill: OccasionPillFilter
-) {
+function productMatchesPill(product: ListProduct, pill: OccasionPillFilter) {
   if (pill.type === "audience") return product.audience === pill.value;
   if (pill.type === "recipient") {
     const tags = recipientPillGroups[pill.value] ?? [];
@@ -44,17 +39,14 @@ const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
 const ITEMS_PER_PAGE = 12;
 
 export function OccasionPageClient({
-  params,
+  occasion,
+  initialProducts,
 }: {
-  params: Promise<{ occasion: string }>;
+  occasion: OccasionSlug;
+  initialProducts: ListProduct[];
 }) {
-  const { occasion: occasionParam } = use(params);
-
-  if (!isOccasionSlug(occasionParam)) {
-    notFound();
-  }
-  const occasion = occasionParam;
   const content = occasionContent[occasion];
+  const occasionProducts = initialProducts;
 
   const pills = occasionPills[occasion];
 
@@ -66,11 +58,6 @@ export function OccasionPageClient({
   const [view, setView] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
-  const occasionProducts = useMemo(
-    () => allShopProducts.filter((p) => p.occasions.includes(content.label)),
-    [content.label]
-  );
 
   const filterPills = useMemo(
     () =>
@@ -181,7 +168,6 @@ export function OccasionPageClient({
 
   return (
     <>
-      <TopBar />
       <Header />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">

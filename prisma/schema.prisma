@@ -1,0 +1,555 @@
+// Blissynest — Prisma schema
+//
+// Adapted from Artesa's schema (same author, same target market) where the
+// shape genuinely transfers — Cart/CartItem's guest-cart-merges-on-login
+// pattern, Order/OrderItem's server-trusted pricing snapshot, Review's
+// verified-purchase-via-orderId, WebhookEvent idempotency, AuditLog — and
+// reshaped where it doesn't: Blissynest has no single product taxonomy the
+// way Artesa's `Category` enum did. The frontend (see BACKEND_HANDOFF.md
+// Section 4) has THREE separate mock product shapes (shop-by-audience,
+// collection, PDP-detail) that this schema unifies into one real `Product`
+// table, per that document's Section 22 recommendation.
+//
+// Provider is MySQL, not Postgres — a deliberate hosting-driven choice
+// (Hostinger's non-VPS plans only bundle MySQL; Postgres needs a VPS we
+// decided against). The one real schema consequence: MySQL has no native
+// array column type, so every field that would have been a Postgres
+// `String[]` (images, occasionTags, recipientTags, relatedSlugs, Review's
+// photos) is a `Json` array instead. Same data, just JSON-encoded rather
+// than a native array — the Prisma Client types are effectively identical
+// to use from application code either way.
+//
+// Auth is Google + email/password only (no OTP, no magic-link) — see
+// BACKEND_HANDOFF.md Section 32, Open Question #1, now resolved. The
+// Account/Session/VerificationToken tables are Auth.js's standard adapter
+// schema, copied as-is from Artesa (that part is genuinely provider-agnostic
+// boilerplate, not something to redesign).
+//
+// Money is stored as Int in the smallest currency unit (paise), matching
+// Artesa's convention and avoiding float rounding on financial data — this
+// is a deliberate change from the frontend mock data's plain-rupee numbers
+// (e.g. `1999` meaning ₹1,999), which become `199900` here. Every amount
+// needs /100 at display time; `lib/currency.ts` should own that conversion
+// so it happens in exactly one place.
+//
+// Collections/Occasions/Categories are deliberately NOT their own tables
+// yet — per BACKEND_HANDOFF.md Section 8, they "likely stay app-level
+// config" until the admin panel (last phase) needs them to be dynamically
+// editable. Products reference them by plain slug/string for now.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ---------------------------------------------------------------------
+// Products
+// ---------------------------------------------------------------------
+
+enum PdpType {
+  HAMPER
+  CUSTOMISABLE
+  STANDALONE
+}
+
+enum Audience {
+  HER
+  HIM
+  PARENTS
+  COUPLES
+  FRIENDS
+  COLLEAGUES
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ProductBadge {
+  BESTSELLER
+  NEW
+}
+
+model Product {
+  id      String  @id @default(cuid())
+  slug    String  @unique
+  name    String
+  tagline String?
+  pdpType PdpType @default(STANDALONE)
+
+  // Catalogue placement — a product can be shop-scoped (audience set),
+  // collection-scoped (collectionSlug set), or both; occasionTags/
+  // recipientTags are the cross-cutting filter dimensions used everywhere
+  // (see BACKEND_HANDOFF.md Section 9).
+  audience       Audience?
+  category       String // shop category slug OR the product's collection-scoped category — namespaced per catalogue, matching the frontend today (Section 7)
+  collectionSlug String?
+  occasionTags   Json      @default("[]") // string[] — see file header re: MySQL has no native array column
+  recipientTags  Json      @default("[]") // string[]
+  attribute      String? // collection-scoped filter facet (Scent/Material/Theme value) — only meaningful when collectionSlug is set
+  badge          ProductBadge? // small ribbon shown on the product card, distinct from `featured` (homepage curation)
+
+  basePrice          Int // paise, GST-inclusive (matches Artesa's convention — see file header)
+  compareAtPrice     Int?
+  images             Json // string[] — images[0] is the primary/thumbnail image
+  breadcrumbCategory String?
+
+  inStock       Boolean @default(true)
+  stockQuantity Int     @default(0)
+
+  rating      Float @default(0) // computed aggregate once real reviews exist — see Review model
+  reviewCount Int   @default(0)
+
+  benefits       Json? // [{icon, label}] — small trust-badge row shown on every PDP
+  productDetails Json // {description, materials?, dimensions?, howToUse?, care?, delivery}
+
+  // pdpType: "hamper" only
+  whatsInside       Json? // [{icon, name, subtitle, qty}]
+  personalNoteLabel String?
+  personalNotePrice Int?
+
+  // pdpType: "customisable" only — see BACKEND_HANDOFF.md Section 6 for the
+  // exact shape this must match (textLines/fonts/colors/variantLabel/
+  // variantOptions/specs), kept as one JSON blob rather than normalized
+  // tables per Artesa's `customizationSchema` precedent (Section 32 in the
+  // handoff flagged this as the pragmatic choice at this stage).
+  customizationSchema Json?
+
+  // pdpType: "standalone" only — [{label, options: string[]}]
+  variants Json?
+
+  relatedSlugs Json          @default("[]") // string[]
+  featured     Boolean       @default(false)
+  status       ProductStatus @default(PUBLISHED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews         Review[]
+  wishlistedBy    Wishlist[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  restockRequests RestockRequest[]
+
+  @@index([audience, category])
+  @@index([collectionSlug])
+  @@index([featured])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------
+// Users & Auth (Google + email/password only — no OTP, no magic-link)
+// ---------------------------------------------------------------------
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  emailVerified    DateTime?
+  image            String? // OAuth profile picture (Google)
+  passwordHash     String? // bcrypt — null for Google-only accounts
+  role             UserRole  @default(CUSTOMER)
+  twoFactorSecret  String? // TOTP secret, for admin 2FA step-up (kept from Artesa's pattern, optional to wire up)
+  twoFactorEnabled Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  addresses Address[]
+  orders    Order[]
+  wishlist  Wishlist[]
+  reviews   Review[]
+  accounts  Account[]
+  sessions  Session[]
+  cart      Cart?
+}
+
+// Standard Auth.js (NextAuth) adapter tables — required by
+// @auth/prisma-adapter for Google account linking. Session strategy is JWT
+// (matching Artesa's auth.config.ts), so the Session table isn't written to
+// at runtime; kept for schema completeness.
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------
+// Addresses
+// ---------------------------------------------------------------------
+
+// Field names match the frontend's existing `Address` type
+// (src/lib/checkout-data.ts) exactly, so the checkout/account UI needs no
+// reshaping once wired to real data — just a different data source.
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String // "Home", "Work", etc.
+  name      String // recipient name on this address
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  phone     String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------
+// Cart & Wishlist
+// ---------------------------------------------------------------------
+
+// Guests keep using the existing localStorage cart (src/lib/cart-context.tsx)
+// until they sign in, at which point it merges into this row — same pattern
+// as Artesa's Cart model.
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id            String   @id @default(cuid())
+  cartId        String
+  cart          Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  quantity      Int
+  // {textLines: string[], font: string, colorHex: string, variant?: string}
+  // — this is the field the frontend gap in BACKEND_HANDOFF.md Section 6
+  // needs: CustomisablePDP's Add to Cart currently drops all of this.
+  customization Json?
+  createdAt     DateTime @default(now())
+
+  @@index([cartId])
+  @@index([productId])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([productId])
+}
+
+// ---------------------------------------------------------------------
+// Orders
+// ---------------------------------------------------------------------
+
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethodType {
+  CARD
+  UPI
+  NETBANKING
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum CodOutcome {
+  DELIVERED
+  RTO
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  userId      String? // nullable — guest checkout is allowed (BACKEND_HANDOFF.md Section 32, Open Question #2)
+  user        User?       @relation(fields: [userId], references: [id])
+  status      OrderStatus @default(PLACED)
+  items       OrderItem[]
+
+  // Snapshotted at order time — never re-joined against a live Address row,
+  // so a later address edit never rewrites a past order.
+  shippingAddress Json
+  buyerName       String
+  buyerPhone      String
+  buyerEmail      String
+
+  isGift           Boolean @default(false)
+  giftNote         String? @db.Text
+  hidePricesOnSlip Boolean @default(false)
+
+  // All server-computed at order-creation time — never trust a
+  // client-submitted total (BACKEND_HANDOFF.md Section 30).
+  subtotal     Int
+  discount     Int     @default(0)
+  couponCode   String?
+  shippingCost Int
+  gstAmount    Int     @default(0)
+  total        Int
+
+  paymentMethod     PaymentMethodType @default(CARD)
+  paymentStatus     PaymentStatus     @default(PENDING)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  codOutcome        CodOutcome?
+
+  trackingNumber    String?
+  carrierName       String?
+  estimatedDelivery DateTime?
+  deliveredAt       DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+
+  // Snapshotted so a later product edit/delete never rewrites order history.
+  productName  String
+  productImage String
+
+  quantity      Int
+  unitPrice     Int // paise, server-computed at order time
+  customization Json?
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// ---------------------------------------------------------------------
+// Coupons
+// ---------------------------------------------------------------------
+
+enum DiscountType {
+  PERCENT
+  FLAT
+}
+
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  discountType  DiscountType
+  discountValue Int
+  minOrderValue Int          @default(0)
+  usageLimit    Int?
+  usedCount     Int          @default(0)
+  expiresAt     DateTime?
+  active        Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+}
+
+// ---------------------------------------------------------------------
+// Reviews
+// ---------------------------------------------------------------------
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Review {
+  id          String       @id @default(cuid())
+  productId   String
+  product     Product      @relation(fields: [productId], references: [id])
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  orderId     String // the delivered order that makes this a verified purchase
+  rating      Int // 1-5
+  comment     String       @db.Text
+  photos      Json         @default("[]") // string[]
+  status      ReviewStatus @default(PENDING)
+  sellerReply String?      @db.Text
+  createdAt   DateTime     @default(now())
+
+  @@unique([orderId, productId]) // one review per product per order
+  @@index([productId])
+  @@index([userId])
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------
+// Leads / notifications — matches the exact fields already in the
+// frontend forms (BACKEND_HANDOFF.md Sections 17, 25)
+// ---------------------------------------------------------------------
+
+enum LeadIntent {
+  QUOTE
+  CONSULTATION
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  CONVERTED
+  CLOSED
+}
+
+model CorporateLead {
+  id                  String     @id @default(cuid())
+  name                String
+  workEmail           String
+  phone               String
+  companyName         String
+  teamSize            String?
+  interest            String? // corporateNeeds slug
+  intent              LeadIntent @default(QUOTE)
+  message             String?    @db.Text
+  downloadedCatalogue Boolean    @default(false)
+  status              LeadStatus @default(NEW)
+  createdAt           DateTime   @default(now())
+
+  @@index([status])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model RestockRequest {
+  id        String   @id @default(cuid())
+  email     String
+  userId    String?
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  notified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+}
+
+// ---------------------------------------------------------------------
+// Homepage promo banners (the "Featured This Season" carousel)
+// ---------------------------------------------------------------------
+
+// `icon` and `gradient` are keys into a small curated preset map
+// (src/lib/banner-presets.ts), not raw component refs or Tailwind class
+// strings — keeps the admin form a set of dropdowns instead of exposing
+// Tailwind syntax to whoever's editing this.
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String
+  href      String
+  icon      String
+  gradient  String
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+// ---------------------------------------------------------------------
+// Site config, audit, webhook idempotency
+// ---------------------------------------------------------------------
+
+model SiteSettings {
+  id                    String   @id @default("singleton")
+  gstRatePercent        Int      @default(0)
+  freeShippingThreshold Int      @default(99900) // paise — ₹999, matches current frontend constant
+  standardShippingFee   Int      @default(9900) // paise — ₹99
+  updatedAt             DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  adminUserId String
+  action      String // e.g. "ORDER_STATUS_CHANGED", "PRODUCT_PRICE_EDITED", "COUPON_CREATED"
+  targetType  String // e.g. "Order", "Product", "Coupon"
+  targetId    String
+  changes     Json?
+  createdAt   DateTime @default(now())
+
+  @@index([adminUserId])
+  @@index([targetType, targetId])
+}
+
+// Prevents double-processing the same Razorpay webhook delivery (Razorpay,
+// like most providers, can and does redeliver on timeout/retry).
+model WebhookEvent {
+  id          String   @id @default(cuid())
+  provider    String // "razorpay"
+  eventId     String
+  processedAt DateTime @default(now())
+
+  @@unique([provider, eventId])
+}

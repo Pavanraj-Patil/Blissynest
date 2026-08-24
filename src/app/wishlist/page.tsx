@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TopBar } from "@/components/layout/TopBar";
 import { WishlistPageClient } from "./WishlistPageClient";
 
 export const metadata: Metadata = {
@@ -7,5 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function WishlistPage() {
-  return <WishlistPageClient />;
+  return (
+    <>
+      <TopBar />
+      <WishlistPageClient />
+    </>
+  );
 }

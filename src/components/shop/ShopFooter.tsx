@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { NewsletterForm } from "@/components/layout/NewsletterForm";
 
 function InstagramIcon() {
   return (
@@ -86,21 +86,7 @@ export function ShopFooter() {
               Gift ideas, new launches and feel-good stories — straight to
               your inbox.
             </p>
-            <form className="mt-5 flex items-center gap-3">
-              <input
-                type="email"
-                required
-                placeholder="Enter your email"
-                className="flex-1 min-w-0 rounded-full border border-charcoal/20 bg-white px-5 py-3 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
-              />
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 rounded-full bg-olive text-cream px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors shrink-0"
-              >
-                Subscribe
-                <ArrowRight size={14} />
-              </button>
-            </form>
+            <NewsletterForm className="mt-5" />
           </div>
 
           {columns.map((col) => (

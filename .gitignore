@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -42,3 +43,11 @@ next-env.d.ts
 
 # claude code session-local files
 .claude/scheduled_tasks.lock
+
+/src/generated/prisma
+
+# locally-synced AI coding tool skill docs (per-editor caches, not app code)
+.claude/skills/
+.agents/
+.windsurf/
+skills-lock.json

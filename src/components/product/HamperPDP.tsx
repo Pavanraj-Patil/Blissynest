@@ -16,17 +16,24 @@ import { ReviewsSection } from "./ReviewsSection";
 import { MobileStickyCTA } from "./MobileStickyCTA";
 import { RelatedProducts } from "./RelatedProducts";
 import type { HamperProduct } from "@/lib/product-mock-data";
-import { getRelatedProducts, getProductReviews } from "@/lib/product-mock-data";
+import type { RelatedProduct } from "@/lib/product-adapters";
+import type { ApprovedReview } from "@/lib/review-service";
 import { useCart } from "@/lib/cart-context";
 
-export function HamperPDP({ product }: { product: HamperProduct }) {
+export function HamperPDP({
+  product,
+  related,
+  reviews,
+}: {
+  product: HamperProduct;
+  related: RelatedProduct[];
+  reviews: ApprovedReview[];
+}) {
   const router = useRouter();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [addNote, setAddNote] = useState(false);
   const [added, setAdded] = useState(false);
-  const related = getRelatedProducts(product);
-  const reviews = getProductReviews(product);
 
   const unitPrice =
     product.price + (addNote && product.personalNote ? product.personalNote.price : 0);

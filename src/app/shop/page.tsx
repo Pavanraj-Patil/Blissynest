@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TopBar } from "@/components/layout/TopBar";
 import { ShopPageClient } from "./ShopPageClient";
 
 export const metadata: Metadata = {
@@ -7,5 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function ShopPage() {
-  return <ShopPageClient />;
+  return (
+    <>
+      <TopBar />
+      <ShopPageClient />
+    </>
+  );
 }

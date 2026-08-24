@@ -82,7 +82,7 @@ const genericCare = [
   "Handle with care",
 ];
 
-const flagshipProducts: ProductDetail[] = [
+export const flagshipProducts: ProductDetail[] = [
   {
     pdpType: "hamper",
     slug: "birthday-self-care-box",
@@ -505,57 +505,8 @@ export function getRelatedProducts(
   }));
 }
 
-const genericReviewerNames = [
-  "Priya S.",
-  "Rohan M.",
-  "Ananya K.",
-  "Vikram T.",
-  "Sneha R.",
-  "Arjun P.",
-  "Kavya N.",
-  "Rahul D.",
-];
-
-const genericReviewComments = [
-  "Beautifully packaged and arrived right on time. Exactly what I was hoping for.",
-  "Great quality for the price — the recipient was really happy with it.",
-  "Simple, thoughtful and beautifully presented. Would order again.",
-  "Loved the packaging and the little details. Made gifting so easy.",
-  "Exactly as pictured. Delivery was quick and the presentation was lovely.",
-  "A lovely, considered gift — didn't feel generic at all.",
-];
-
-const genericReviewDates = [
-  "1 week ago",
-  "2 weeks ago",
-  "3 weeks ago",
-  "1 month ago",
-  "6 weeks ago",
-  "2 months ago",
-];
-
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 31 + str.charCodeAt(i)) % 1000;
-  }
-  return hash;
-}
-
-function generateGenericReviews(product: ProductDetail): ProductReview[] {
-  const seed = hashString(product.slug);
-  return Array.from({ length: 3 }).map((_, i) => {
-    const idx = seed + i;
-    return {
-      name: genericReviewerNames[idx % genericReviewerNames.length],
-      rating: Math.max(3, product.rating - (i === 2 ? 1 : 0)),
-      date: genericReviewDates[idx % genericReviewDates.length],
-      comment: genericReviewComments[idx % genericReviewComments.length],
-      verified: i !== 2,
-    };
-  });
-}
-
-export function getProductReviews(product: ProductDetail): ProductReview[] {
-  return product.reviewsList ?? generateGenericReviews(product);
-}
+// Note: `reviewsList` on the 3 flagship products (hand-written review
+// cards) is no longer read anywhere — PDP reviews now come from the real
+// `Review` table via src/lib/review-service.ts. The field/data stays on
+// these three products rather than being stripped out, since removing it
+// would mean editing hand-authored data for no functional benefit.

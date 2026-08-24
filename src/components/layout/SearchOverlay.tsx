@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Search, X, ArrowRight, SearchX, TrendingUp } from "lucide-react";
-import { searchProducts } from "@/lib/search-data";
+import type { RelatedProduct } from "@/lib/product-adapters";
 
 const popularSearches = [
   { label: "Scented Candles", href: "/search?q=candle" },
@@ -24,10 +24,34 @@ export function SearchOverlay({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<RelatedProduct[]>([]);
+  const [total, setTotal] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const results = useMemo(() => searchProducts(query, 6), [query]);
-  const hasMore = query.trim() && searchProducts(query).length > results.length;
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) return;
+    const controller = new AbortController();
+    const id = setTimeout(() => {
+      fetch(`/api/search?q=${encodeURIComponent(q)}&limit=6`, { signal: controller.signal })
+        .then((res) => res.json())
+        .then((data: { items: RelatedProduct[]; total: number }) => {
+          setResults(data.items);
+          setTotal(data.total);
+        })
+        .catch((err) => {
+          if (err.name !== "AbortError") console.error(err);
+        });
+    }, 200);
+    return () => {
+      clearTimeout(id);
+      controller.abort();
+    };
+  }, [query]);
+
+  const hasQuery = query.trim().length > 0;
+  const visibleResults = hasQuery ? results : [];
+  const hasMore = hasQuery && total > visibleResults.length;
 
   useEffect(() => {
     if (!open) return;
@@ -137,7 +161,7 @@ export function SearchOverlay({
               </div>
             )}
 
-            {query.trim() && results.length === 0 && (
+            {hasQuery && visibleResults.length === 0 && (
               <div className="flex flex-col items-center text-center px-6 py-14">
                 <SearchX size={32} className="text-charcoal/20" strokeWidth={1.5} />
                 <p className="mt-3 text-sm text-charcoal">
@@ -157,9 +181,9 @@ export function SearchOverlay({
               </div>
             )}
 
-            {results.length > 0 && (
+            {visibleResults.length > 0 && (
               <div className="p-2.5">
-                {results.map((p) => (
+                {visibleResults.map((p) => (
                   <Link
                     key={p.slug}
                     href={`/product/${p.slug}`}

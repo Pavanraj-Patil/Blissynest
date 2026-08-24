@@ -3,9 +3,13 @@
 import {
   createContext,
   useContext,
+  useEffect,
+  useRef,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { useSession } from "next-auth/react";
 import { createLocalStore } from "@/lib/local-store";
 
 export type WishlistItem = {
@@ -26,28 +30,85 @@ type WishlistContextValue = {
 };
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
-const store = createLocalStore<WishlistItem[]>("blissynest-wishlist", []);
+const localStore = createLocalStore<WishlistItem[]>("blissynest-wishlist", []);
+
+async function fetchJson(url: string, init?: RequestInit): Promise<{ items: WishlistItem[] }> {
+  const res = await fetch(url, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...init?.headers },
+  });
+  return res.json();
+}
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
-  const items = useSyncExternalStore(
-    store.subscribe,
-    store.getSnapshot,
-    store.getServerSnapshot
+  const { status } = useSession();
+  const authenticated = status === "authenticated";
+
+  const localItems = useSyncExternalStore(
+    localStore.subscribe,
+    localStore.getSnapshot,
+    localStore.getServerSnapshot
   );
+  const [serverItems, setServerItems] = useState<WishlistItem[] | null>(null);
+  const mergedForSession = useRef(false);
+
+  useEffect(() => {
+    if (!authenticated) {
+      mergedForSession.current = false;
+      return;
+    }
+    if (mergedForSession.current) return;
+    mergedForSession.current = true;
+
+    const guestItems = localStore.getSnapshot();
+    const sync = guestItems.length > 0
+      ? fetchJson("/api/wishlist/merge", {
+          method: "POST",
+          body: JSON.stringify({ slugs: guestItems.map((i) => i.slug) }),
+        }).then((data) => {
+          localStore.setState([]);
+          return data;
+        })
+      : fetchJson("/api/wishlist");
+
+    sync.then((data) => setServerItems(data.items)).catch(() => setServerItems([]));
+  }, [authenticated]);
+
+  const items = authenticated ? (serverItems ?? []) : localItems;
 
   function isWishlisted(slug: string) {
     return items.some((i) => i.slug === slug);
   }
 
   function toggleItem(item: WishlistItem) {
-    const next = items.some((i) => i.slug === item.slug)
-      ? items.filter((i) => i.slug !== item.slug)
-      : [...items, item];
-    store.setState(next);
+    if (authenticated) {
+      if (isWishlisted(item.slug)) {
+        fetchJson(`/api/wishlist?slug=${encodeURIComponent(item.slug)}`, {
+          method: "DELETE",
+        }).then((data) => setServerItems(data.items));
+      } else {
+        fetchJson("/api/wishlist", {
+          method: "POST",
+          body: JSON.stringify({ slug: item.slug }),
+        }).then((data) => setServerItems(data.items));
+      }
+      return;
+    }
+    const current = localStore.getSnapshot();
+    const next = current.some((i) => i.slug === item.slug)
+      ? current.filter((i) => i.slug !== item.slug)
+      : [...current, item];
+    localStore.setState(next);
   }
 
   function removeItem(slug: string) {
-    store.setState(items.filter((i) => i.slug !== slug));
+    if (authenticated) {
+      fetchJson(`/api/wishlist?slug=${encodeURIComponent(slug)}`, { method: "DELETE" }).then(
+        (data) => setServerItems(data.items)
+      );
+      return;
+    }
+    localStore.setState(localStore.getSnapshot().filter((i) => i.slug !== slug));
   }
 
   const count = items.length;
