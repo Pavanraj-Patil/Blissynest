@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { Quote } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { testimonials } from "@/lib/corporate-data";
 
 const INTERVAL_MS = 5000;
 
-export function TestimonialCarousel() {
+type Testimonial = { quote: string; name: string; title: string; company: string };
+
+export function TestimonialCarousel({ testimonials }: { testimonials: Testimonial[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -17,7 +18,7 @@ export function TestimonialCarousel() {
       setIndex((i) => (i + 1) % testimonials.length);
     }, INTERVAL_MS);
     return () => clearInterval(id);
-  }, [paused]);
+  }, [paused, testimonials.length]);
 
   const active = testimonials[index];
 

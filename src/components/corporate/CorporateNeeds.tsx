@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { corporateNeeds, type CorporateNeed } from "@/lib/corporate-data";
+import { corporateNeeds } from "@/lib/corporate-data";
+
+type CorporateNeed = { slug: string; icon: LucideIcon; title: string; subtitle: string };
 
 type Tone = {
   bg: string;
@@ -87,13 +89,33 @@ function NeedCard({
   );
 }
 
-export function CorporateNeeds() {
+// slug -> content-schema field-name prefix (needEmployeeTitle, needEmployeeSubtitle, ...)
+const slugToFieldPrefix: Record<string, string> = {
+  employee: "needEmployee",
+  client: "needClient",
+  festive: "needFestive",
+  milestone: "needMilestone",
+  welcome: "needWelcome",
+  event: "needEvent",
+  custom: "needCustom",
+};
+
+export function CorporateNeeds({ content }: { content: Record<string, unknown> }) {
+  const needs: CorporateNeed[] = corporateNeeds.map((need) => {
+    const prefix = slugToFieldPrefix[need.slug];
+    return {
+      ...need,
+      title: (content[`${prefix}Title`] as string) ?? need.title,
+      subtitle: (content[`${prefix}Subtitle`] as string) ?? need.subtitle,
+    };
+  });
+
   return (
     <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-10 md:py-14">
       <div className="text-center mb-10">
-        <p className="eyebrow text-terracotta-dark mb-2">Corporate Catalogue</p>
+        <p className="eyebrow text-terracotta-dark mb-2">{content.eyebrow as string}</p>
         <h2 className="font-serif text-2xl md:text-3xl text-charcoal">
-          Gifts for every corporate need
+          {content.heading as string}
         </h2>
       </div>
 
@@ -106,7 +128,7 @@ export function CorporateNeeds() {
           gridTemplateAreas: `"a a b c" "a a d e" "f f g g"`,
         }}
       >
-        {corporateNeeds.map((need, i) => (
+        {needs.map((need, i) => (
           <NeedCard
             key={need.slug}
             need={need}
@@ -119,7 +141,7 @@ export function CorporateNeeds() {
 
       {/* Mobile / tablet: even grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 lg:hidden">
-        {corporateNeeds.map((need, i) => (
+        {needs.map((need, i) => (
           <div key={need.slug} className="min-h-[172px]">
             <NeedCard need={need} tone={tones[i]} />
           </div>

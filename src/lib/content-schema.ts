@@ -439,6 +439,190 @@ export const contentSchema: Record<string, PageSchema> = {
       },
     },
   },
+  corporate: {
+    hero: {
+      title: "Corporate Hero",
+      fields: {
+        heading: { type: "TEXT", label: "Heading Line 1", default: "Meaningful gifts." },
+        headingHighlight: { type: "TEXT", label: "Heading Line 2 (highlighted)", default: "Stronger connections." },
+        subcopy: {
+          type: "TEXT",
+          label: "Subcopy",
+          default: "Thoughtfully curated gifts for your employees, clients and partners — perfect for every milestone.",
+        },
+        primaryCta: { type: "LINK", label: "Primary Button", default: { label: "Request a Quote", href: "/corporate/quote" } },
+        secondaryCta: {
+          type: "LINK",
+          label: "Secondary Button",
+          default: { label: "Book a Consultation", href: "/corporate/quote?intent=consultation" },
+        },
+        image: { type: "IMAGE", label: "Hero Image", default: "https://placehold.co/900x760/e3d3bd/2a2621.png?text=Corporate+Gift+Box&font=playfair-display" },
+        trustPoints: {
+          type: "LIST",
+          label: "Trust Points",
+          itemLabel: "trust point",
+          listFields: [
+            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
+            { key: "title", label: "Title", kind: "text" },
+            { key: "subtitle", label: "Subtitle", kind: "text" },
+          ],
+          emptyItem: { icon: contentIconOptions[0], title: "", subtitle: "" },
+          default: [
+            { icon: "PackageOpen", title: "Bulk Gifting", subtitle: "Made Simple" },
+            { icon: "Wand2", title: "Customisation", subtitle: "For Your Brand" },
+            { icon: "Truck", title: "Pan India Delivery", subtitle: "On Time, Every Time" },
+            { icon: "HelpCircle", title: "Dedicated Support", subtitle: "At Every Step" },
+          ],
+        },
+      },
+    },
+    needs: {
+      title: "Corporate Needs Grid",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Corporate Catalogue" },
+        heading: { type: "TEXT", label: "Heading", default: "Gifts for every corporate need" },
+        // Fixed-position text only (not a LIST): each card's icon, slug, and
+        // grid placement are hardcoded to a specific 7-cell bento layout
+        // (gridTemplateAreas in CorporateNeeds.tsx) and the slug is also
+        // referenced by needToCollectionSlugs in corporate-data.ts — freely
+        // adding/removing/reordering here would break both.
+        needEmployeeTitle: { type: "TEXT", label: "Employee Gifting — Title", default: "Employee Gifting" },
+        needEmployeeSubtitle: { type: "TEXT", label: "Employee Gifting — Subtitle", default: "Celebrate your team" },
+        needClientTitle: { type: "TEXT", label: "Client Gifting — Title", default: "Client Gifting" },
+        needClientSubtitle: { type: "TEXT", label: "Client Gifting — Subtitle", default: "Build lasting relationships" },
+        needFestiveTitle: { type: "TEXT", label: "Festival Gifting — Title", default: "Festival Gifting" },
+        needFestiveSubtitle: { type: "TEXT", label: "Festival Gifting — Subtitle", default: "Celebrate togetherness" },
+        needMilestoneTitle: { type: "TEXT", label: "Milestone Gifting — Title", default: "Milestone Gifting" },
+        needMilestoneSubtitle: { type: "TEXT", label: "Milestone Gifting — Subtitle", default: "Mark every achievement" },
+        needWelcomeTitle: { type: "TEXT", label: "Welcome Kits — Title", default: "Welcome Kits" },
+        needWelcomeSubtitle: { type: "TEXT", label: "Welcome Kits — Subtitle", default: "Warm welcomes matter" },
+        needEventTitle: { type: "TEXT", label: "Event Gifting — Title", default: "Event Gifting" },
+        needEventSubtitle: { type: "TEXT", label: "Event Gifting — Subtitle", default: "Make every event special" },
+        needCustomTitle: { type: "TEXT", label: "Custom Hampers — Title", default: "Custom Hampers" },
+        needCustomSubtitle: { type: "TEXT", label: "Custom Hampers — Subtitle", default: "Curated just for you" },
+      },
+    },
+    "how-it-works": {
+      title: "How It Works — Steps",
+      fields: {
+        heading: { type: "TEXT", label: "Heading", default: "How does it work?" },
+        subcopy: { type: "TEXT", label: "Subcopy", default: "Book your corporate gifts in 4 simple steps" },
+        // Fixed-position (not a LIST): numbered 01-04 and colour-cycled by
+        // index (cardBg[i] in HowItWorks.tsx has exactly 4 entries), so the
+        // step count and order are structural, not freely editable.
+        step1Title: { type: "TEXT", label: "Step 1 — Title", default: "Share Your Requirements" },
+        step1Description: { type: "TEXT", label: "Step 1 — Description", default: "Tell us your headcount, budget and occasion — takes two minutes." },
+        step2Title: { type: "TEXT", label: "Step 2 — Title", default: "Consultation Call" },
+        step2Description: { type: "TEXT", label: "Step 2 — Description", default: "Our gifting expert walks you through curated options for your brand." },
+        step3Title: { type: "TEXT", label: "Step 3 — Title", default: "Customise & Approve" },
+        step3Description: { type: "TEXT", label: "Step 3 — Description", default: "Pick your hamper, add your branding, and approve the final look." },
+        step4Title: { type: "TEXT", label: "Step 4 — Title", default: "Pan-India Delivery" },
+        step4Description: { type: "TEXT", label: "Step 4 — Description", default: "We handle packaging and delivery, tracked every step of the way." },
+      },
+    },
+    "why-choose-us": {
+      title: "Why Choose Us",
+      fields: {
+        heading: { type: "TEXT", label: "Heading", default: "Why businesses love gifting with Blissynest" },
+        checklist: {
+          type: "LIST",
+          label: "Checklist",
+          itemLabel: "item",
+          listFields: [{ key: "text", label: "Text", kind: "text" }],
+          emptyItem: { text: "" },
+          default: [
+            { text: "Premium quality, thoughtfully curated products" },
+            { text: "Personalisation with your logo, message & packaging" },
+            { text: "Flexible solutions for budgets of all sizes" },
+            { text: "Reliable pan India & international delivery" },
+            { text: "Sustainable & ethical gifting choices" },
+            { text: "Dedicated account manager & end-to-end support" },
+          ],
+        },
+        cta: { type: "LINK", label: "CTA", default: { label: "Know More", href: "/corporate/quote" } },
+        image: { type: "IMAGE", label: "Image", default: "https://placehold.co/700x560/3a4529/cfb587.png?text=Your+Brand&font=playfair-display" },
+      },
+    },
+    testimonials: {
+      title: "Testimonials",
+      fields: {
+        items: {
+          type: "LIST",
+          label: "Testimonials",
+          itemLabel: "testimonial",
+          listFields: [
+            { key: "quote", label: "Quote", kind: "text" },
+            { key: "name", label: "Name", kind: "text" },
+            { key: "title", label: "Title", kind: "text" },
+            { key: "company", label: "Company", kind: "text" },
+          ],
+          emptyItem: { quote: "", name: "", title: "", company: "" },
+          default: [
+            { quote: "Blissynest made our annual gifting effortless and memorable. The quality, packaging and on-time delivery were exceptional!", name: "Priya Mehta", title: "Head – People & Culture", company: "Verdant Systems" },
+            { quote: "From the first call to the final delivery, everything felt effortless. Our employees still talk about the Diwali hampers.", name: "Arjun Nair", title: "VP, Human Resources", company: "Northbridge Analytics" },
+            { quote: "We needed 300 branded welcome kits in under two weeks. Blissynest delivered early, and every box was exactly on-brief.", name: "Kavya Reddy", title: "Talent & Culture Lead", company: "Solace Interiors" },
+            { quote: "Personalised, punctual and genuinely thoughtful — exactly what we wanted for this year's client appreciation gifts.", name: "Rohan Kapoor", title: "Client Success Director", company: "Fieldstone Partners" },
+          ],
+        },
+      },
+    },
+    "trusted-by": {
+      title: "Trusted By Strip",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Trusted by teams at" },
+        companies: {
+          type: "LIST",
+          label: "Companies",
+          itemLabel: "company",
+          listFields: [
+            { key: "name", label: "Name", kind: "text" },
+            { key: "initials", label: "Initials", kind: "text" },
+          ],
+          emptyItem: { name: "", initials: "" },
+          default: [
+            { name: "Verdant Systems", initials: "VS" },
+            { name: "Northbridge Analytics", initials: "NA" },
+            { name: "Solace Interiors", initials: "SI" },
+            { name: "Marrow & Co.", initials: "MC" },
+            { name: "Fieldstone Partners", initials: "FP" },
+            { name: "Everline Media", initials: "EM" },
+          ],
+        },
+      },
+    },
+    "curated-collections": {
+      title: "Curated Collections",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Ready-Made Sets" },
+        heading: { type: "TEXT", label: "Heading", default: "Curated collections for every occasion" },
+        // Fixed-position (not a LIST): slugs are referenced by
+        // needToCollectionSlugs in corporate-data.ts for the downloadable
+        // catalogue feature, and the final "Create Your Own" tile is a
+        // special CTA card, not real content — neither is safe to
+        // freely add/remove/reorder.
+        collectionWelcomeKitsTitle: { type: "TEXT", label: "Welcome Kits — Title", default: "New Employee Welcome Kits" },
+        collectionDiwaliTitle: { type: "TEXT", label: "Diwali Gifts — Title", default: "Diwali Gifts" },
+        collectionWorkAnniversaryTitle: { type: "TEXT", label: "Work Anniversary — Title", default: "Work Anniversary" },
+        collectionWomensDayTitle: { type: "TEXT", label: "Women's Day — Title", default: "Women's Day Gifts" },
+        collectionHolidayTitle: { type: "TEXT", label: "Holiday — Title", default: "Holiday Gifts" },
+        collectionClientAppreciationTitle: { type: "TEXT", label: "Client Appreciation — Title", default: "Client Appreciation" },
+      },
+    },
+    "final-cta": {
+      title: "Final CTA",
+      fields: {
+        heading: { type: "TEXT", label: "Heading", default: "Let's plan your next gifting moment." },
+        subcopy: {
+          type: "TEXT",
+          label: "Subcopy",
+          default: "Share your requirements and our gifting expert will get back to you within one business day.",
+        },
+        cta: { type: "LINK", label: "Button", default: { label: "Request a Quote", href: "/corporate/quote" } },
+        email: { type: "TEXT", label: "Email", default: "corporate@blissynest.com" },
+        phone: { type: "TEXT", label: "Phone", default: "1800-123-456" },
+      },
+    },
+  },
   // Header/MobileNav nav labels are deliberately NOT here — Header.tsx is
   // imported directly by 14 "use client" page components (same shape as
   // the TopBar regression fixed earlier), so making it async would need

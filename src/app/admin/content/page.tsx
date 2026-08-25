@@ -13,6 +13,7 @@ const pageLabels: Record<string, string> = {
   help: "Help",
   contact: "Contact",
   "track-order": "Track Order",
+  corporate: "Corporate Gifting",
   layout: "Site-Wide (Header / Footer)",
 };
 

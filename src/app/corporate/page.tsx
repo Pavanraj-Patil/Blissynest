@@ -10,13 +10,16 @@ import { WhyChooseUs } from "@/components/corporate/WhyChooseUs";
 import { CuratedCollections } from "@/components/corporate/CuratedCollections";
 import { TrustedByStrip } from "@/components/corporate/TrustedByStrip";
 import { CorporateFinalCta } from "@/components/corporate/CorporateFinalCta";
+import { getPageContent } from "@/lib/content-service";
 
 export const metadata: Metadata = {
   title: "Corporate Gifting | Blissynest",
   description: "Bulk and branded gifting for teams, clients, and every corporate occasion.",
 };
 
-export default function CorporatePage() {
+export default async function CorporatePage() {
+  const content = await getPageContent("corporate");
+
   return (
     <>
       <TopBar />
@@ -31,13 +34,13 @@ export default function CorporatePage() {
           />
         </div>
 
-        <CorporateHero />
-        <CorporateNeeds />
-        <HowItWorks />
-        <WhyChooseUs />
-        <CuratedCollections />
-        <TrustedByStrip />
-        <CorporateFinalCta />
+        <CorporateHero content={content.hero} />
+        <CorporateNeeds content={content.needs} />
+        <HowItWorks content={content["how-it-works"]} />
+        <WhyChooseUs content={content["why-choose-us"]} testimonials={content.testimonials} />
+        <CuratedCollections content={content["curated-collections"]} />
+        <TrustedByStrip content={content["trusted-by"]} />
+        <CorporateFinalCta content={content["final-cta"]} />
       </main>
       <ShopFooter />
     </>

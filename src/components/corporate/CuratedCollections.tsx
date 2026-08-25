@@ -6,8 +6,23 @@ import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { curatedCollections } from "@/lib/corporate-data";
 
-export function CuratedCollections() {
+// slug -> content-schema field-name prefix (collectionWelcomeKitsTitle, ...)
+// — "custom" has no entry since that tile's title is a fixed CTA, not content.
+const slugToFieldPrefix: Record<string, string> = {
+  "welcome-kits": "collectionWelcomeKits",
+  diwali: "collectionDiwali",
+  "work-anniversary": "collectionWorkAnniversary",
+  "womens-day": "collectionWomensDay",
+  holiday: "collectionHoliday",
+  "client-appreciation": "collectionClientAppreciation",
+};
+
+export function CuratedCollections({ content }: { content: Record<string, unknown> }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const collections = curatedCollections.map((c) => {
+    const prefix = slugToFieldPrefix[c.slug];
+    return prefix ? { ...c, title: (content[`${prefix}Title`] as string) ?? c.title } : c;
+  });
 
   function scroll(direction: 1 | -1) {
     scrollRef.current?.scrollBy({ left: direction * 300, behavior: "smooth" });
@@ -17,9 +32,9 @@ export function CuratedCollections() {
     <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-10 md:py-14">
       <div className="flex items-end justify-between gap-4 mb-8">
         <div>
-          <p className="eyebrow text-terracotta-dark mb-2">Ready-Made Sets</p>
+          <p className="eyebrow text-terracotta-dark mb-2">{content.eyebrow as string}</p>
           <h2 className="font-serif text-2xl md:text-3xl text-charcoal">
-            Curated collections for every occasion
+            {content.heading as string}
           </h2>
         </div>
         <div className="hidden sm:flex items-center gap-2 shrink-0">
@@ -46,7 +61,7 @@ export function CuratedCollections() {
         ref={scrollRef}
         className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
       >
-        {curatedCollections.map((c) =>
+        {collections.map((c) =>
           c.isCustom ? (
             <Link
               key={c.slug}
