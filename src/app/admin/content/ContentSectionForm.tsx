@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, AlertCircle } from "lucide-react";
 import { RepeatingListField } from "@/components/admin/RepeatingListField";
+import { NestedListField } from "@/components/admin/NestedListField";
 import type { SectionSchema } from "@/lib/content-schema";
 
 const inputClass =
@@ -126,18 +127,40 @@ export function ContentSectionForm({
           );
         }
 
-        // LIST
-        const items = Array.isArray(value) ? value : [];
+        if (descriptor.type === "LIST") {
+          const items = Array.isArray(value) ? value : [];
+          return (
+            <div key={key}>
+              <span className={labelClass}>{descriptor.label}</span>
+              <div className="mt-2">
+                <RepeatingListField
+                  value={items}
+                  onChange={(next) => set(key, next)}
+                  fields={descriptor.listFields}
+                  emptyItem={descriptor.emptyItem}
+                  addLabel={`Add ${descriptor.itemLabel}`}
+                />
+              </div>
+            </div>
+          );
+        }
+
+        // NESTED_LIST
+        const groups = Array.isArray(value) ? value : [];
         return (
           <div key={key}>
             <span className={labelClass}>{descriptor.label}</span>
             <div className="mt-2">
-              <RepeatingListField
-                value={items}
+              <NestedListField
+                value={groups}
                 onChange={(next) => set(key, next)}
-                fields={descriptor.listFields}
-                emptyItem={descriptor.default[0] ?? {}}
-                addLabel={`Add ${descriptor.itemLabel}`}
+                groupNameField={descriptor.groupNameField}
+                groupLabel={descriptor.groupLabel}
+                itemsField={descriptor.itemsField}
+                itemFields={descriptor.itemFields}
+                itemLabel={descriptor.itemLabel}
+                emptyItem={descriptor.emptyItem}
+                emptyGroup={{ [descriptor.groupNameField]: "", [descriptor.itemsField]: [] }}
               />
             </div>
           </div>

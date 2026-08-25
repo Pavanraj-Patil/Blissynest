@@ -1,0 +1,76 @@
+"use client";
+
+import { Plus, Trash2 } from "lucide-react";
+import { RepeatingListField, type ListFieldDef } from "./RepeatingListField";
+
+const inputClass =
+  "w-full rounded-lg border border-charcoal/15 px-3 py-2 text-sm font-medium text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive";
+
+// A list of groups, each holding its own repeating list — e.g. FAQ
+// categories, each with its own Q&A list. RepeatingListField's rows are
+// flat, so this wraps it once per group instead of teaching it to nest.
+export function NestedListField<G extends Record<string, unknown>>({
+  value,
+  onChange,
+  groupNameField,
+  groupLabel,
+  itemsField,
+  itemFields,
+  itemLabel,
+  emptyItem,
+  emptyGroup,
+}: {
+  value: G[];
+  onChange: (next: G[]) => void;
+  groupNameField: string;
+  groupLabel: string;
+  itemsField: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  itemFields: ListFieldDef<any>[];
+  itemLabel: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  emptyItem: any;
+  emptyGroup: G;
+}) {
+  function updateGroup(index: number, patch: Partial<G>) {
+    onChange(value.map((g, i) => (i === index ? { ...g, ...patch } : g)));
+  }
+
+  return (
+    <div className="space-y-4">
+      {value.map((group, i) => (
+        <div key={i} className="rounded-xl border border-charcoal/15 p-3 space-y-2.5">
+          <div className="flex items-center gap-2">
+            <input
+              value={(group[groupNameField] as string) ?? ""}
+              onChange={(e) => updateGroup(i, { [groupNameField]: e.target.value } as Partial<G>)}
+              placeholder="Category name"
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={() => onChange(value.filter((_, idx) => idx !== i))}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <RepeatingListField
+            value={(group[itemsField] as Record<string, unknown>[]) ?? []}
+            onChange={(next) => updateGroup(i, { [itemsField]: next } as Partial<G>)}
+            fields={itemFields}
+            emptyItem={emptyItem}
+            addLabel={itemLabel}
+          />
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange([...value, emptyGroup])}
+        className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
+      >
+        <Plus size={13} /> {groupLabel}
+      </button>
+    </div>
+  );
+}

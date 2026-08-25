@@ -535,6 +535,7 @@ enum ContentBlockType {
   IMAGE
   LINK
   LIST
+  NESTED_LIST
 }
 
 // Generic admin-editable content — marketing copy/images across the

@@ -21,7 +21,7 @@ const corporateChecklistIconDefaults = ["Users", "Briefcase", "PartyPopper", "Pa
 // admin has ever saved a ContentBlock row for it (see content-service.ts
 // getPageContent) — no backfill/seed script needed when a new key is
 // added here.
-export type ContentFieldType = "TEXT" | "IMAGE" | "LINK" | "LIST";
+export type ContentFieldType = "TEXT" | "IMAGE" | "LINK" | "LIST" | "NESTED_LIST";
 
 export type LinkValue = { label: string; href: string };
 
@@ -29,8 +29,36 @@ type FieldDescriptor =
   | { type: "TEXT"; label: string; default: string }
   | { type: "IMAGE"; label: string; default: string }
   | { type: "LINK"; label: string; default: LinkValue }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  | { type: "LIST"; label: string; itemLabel: string; listFields: ListFieldDef<any>[]; default: any[] };
+  | {
+      type: "LIST";
+      label: string;
+      itemLabel: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      listFields: ListFieldDef<any>[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      emptyItem: any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      default: any[];
+    }
+  // A list of groups, each holding its own repeating list (e.g. FAQ
+  // categories, each with its own Q&A list) — the one shape RepeatingListField
+  // can't render directly since its rows are flat. Purpose-built for this
+  // rather than teaching RepeatingListField to nest for the one page that
+  // needs it.
+  | {
+      type: "NESTED_LIST";
+      label: string;
+      groupLabel: string;
+      groupNameField: string;
+      itemsField: string;
+      itemLabel: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      itemFields: ListFieldDef<any>[];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      emptyItem: any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      default: any[];
+    };
 
 export type SectionSchema = {
   title: string;
@@ -73,6 +101,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "href", label: "Link (e.g. /shop/her)", kind: "text" },
             { key: "image", label: "Image URL", kind: "text" },
           ],
+          emptyItem: { label: "", href: "", image: "" },
           default: audienceCategories.map((c) => ({ label: c.label, href: c.href, image: c.image })),
         },
       },
@@ -92,6 +121,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
             { key: "dark", label: "Dark text overlay", kind: "checkbox" },
           ],
+          emptyItem: { label: "", slug: "", image: "", icon: contentIconOptions[0], dark: false },
           default: occasions.map((o, i) => ({
             label: o.label,
             slug: o.slug,
@@ -118,6 +148,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "image", label: "Image URL", kind: "text" },
             { key: "dark", label: "Dark overlay", kind: "checkbox" },
           ],
+          emptyItem: { title: "", subtitle: "", slug: "", image: "", dark: false },
           default: editCollections.map((c) => ({
             title: c.title,
             subtitle: c.subtitle,
@@ -140,6 +171,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "title", label: "Title", kind: "text" },
             { key: "subtitle", label: "Subtitle", kind: "text" },
           ],
+          emptyItem: { icon: contentIconOptions[0], title: "", subtitle: "" },
           default: featureStrip.map((f, i) => ({ icon: featureIconDefaults[i], title: f.title, subtitle: f.subtitle })),
         },
       },
@@ -154,6 +186,7 @@ export const contentSchema: Record<string, PageSchema> = {
           label: "Photos",
           itemLabel: "photo",
           listFields: [{ key: "image", label: "Image URL", kind: "text" }],
+          emptyItem: { image: "" },
           default: communityPhotos.map((image) => ({ image })),
         },
       },
@@ -191,6 +224,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "label", label: "Label", kind: "text" },
             { key: "href", label: "Link", kind: "text" },
           ],
+          emptyItem: { icon: contentIconOptions[0], label: "", href: "" },
           default: corporateChecklist.map((item, i) => ({
             icon: corporateChecklistIconDefaults[i],
             label: item.label,
@@ -243,6 +277,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "title", label: "Title", kind: "text" },
             { key: "body", label: "Body", kind: "text" },
           ],
+          emptyItem: { icon: contentIconOptions[0], title: "", body: "" },
           default: [
             { icon: "Clock", title: "Delivery timelines", body: "Most orders are dispatched within 24–48 hours and delivered within 3–5 business days, depending on your location. Personalised and hamper orders may take an extra 1–2 days to prepare with care." },
             { icon: "Truck", title: "Shipping charges", body: "Free shipping on all orders above ₹999. Orders below that ship for a flat ₹99. Charges are calculated automatically at checkout — no surprises at the end." },
@@ -268,6 +303,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "title", label: "Title", kind: "text" },
             { key: "body", label: "Body", kind: "text" },
           ],
+          emptyItem: { icon: contentIconOptions[0], title: "", body: "" },
           default: [
             { icon: "RotateCcw", title: "Return window", body: "Most items can be returned within 7 days of delivery, as long as they're unused and in their original packaging. Start a return from your order confirmation email or the Track Order page." },
             { icon: "Ban", title: "What can't be returned", body: "Personalised items (engraved, monogrammed, or made to order), perishables like sweets and gourmet hampers, and gift cards can't be returned once made — these are called out on the product page before you order." },
@@ -294,6 +330,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "body", label: "Body", kind: "text" },
             { key: "href", label: "Link", kind: "text" },
           ],
+          emptyItem: { icon: contentIconOptions[0], title: "", body: "", href: "" },
           default: [
             { icon: "PackageSearch", title: "Track an Order", body: "Check the live status of a recent order.", href: "/track-order" },
             { icon: "HelpCircle", title: "FAQs", body: "Quick answers about orders, payments, and personalisation.", href: "/faqs" },
@@ -325,10 +362,64 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "label", label: "Label", kind: "text" },
             { key: "value", label: "Value", kind: "text" },
           ],
+          emptyItem: { icon: contentIconOptions[0], label: "", value: "" },
           default: [
             { icon: "Mail", label: "Email", value: "hello@blissynest.com" },
             { icon: "Phone", label: "Phone", value: "1800-123-456" },
             { icon: "MapPin", label: "Studio", value: "Koregaon Park, Pune, Maharashtra" },
+          ],
+        },
+      },
+    },
+  },
+  faqs: {
+    hero: {
+      title: "FAQs Page",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Good to Know" },
+        heading: { type: "TEXT", label: "Heading", default: "Frequently Asked Questions" },
+        groups: {
+          type: "NESTED_LIST",
+          label: "FAQ Categories",
+          groupLabel: "Add category",
+          groupNameField: "category",
+          itemsField: "items",
+          itemLabel: "Add question",
+          itemFields: [
+            { key: "question", label: "Question", kind: "text" },
+            { key: "answer", label: "Answer", kind: "text" },
+          ],
+          emptyItem: { question: "", answer: "" },
+          default: [
+            {
+              category: "Orders & Payments",
+              items: [
+                { question: "How do I track my order?", answer: "Head to the Track Order page and enter your order number and email — you'll see the latest status right away." },
+                { question: "Can I change or cancel my order after placing it?", answer: "If your order hasn't shipped yet, contact us as soon as possible and we'll do our best to update or cancel it. Once it's dispatched, it'll need to go through the returns process instead." },
+                { question: "What payment methods do you accept?", answer: "Cards, UPI, net banking, and cash on delivery, all selectable at checkout." },
+              ],
+            },
+            {
+              category: "Shipping",
+              items: [
+                { question: "How long does delivery take?", answer: "Most orders arrive within 3–5 business days. Personalised items may take 1–2 days longer to prepare." },
+                { question: "Is shipping free?", answer: "Yes, on all orders above ₹999. Orders below that have a flat ₹99 shipping charge." },
+              ],
+            },
+            {
+              category: "Returns & Refunds",
+              items: [
+                { question: "What's your return policy?", answer: "Unused items in original packaging can be returned within 7 days of delivery. See the full Returns page for details." },
+                { question: "Can I return a personalised gift?", answer: "Personalised and made-to-order items can't be returned unless they arrive damaged or incorrect." },
+              ],
+            },
+            {
+              category: "Personalisation & Gifting",
+              items: [
+                { question: "Can I add a gift note?", answer: "Yes — every order can include a free handwritten-style gift note, added during checkout." },
+                { question: "Can prices be hidden if I'm sending this as a gift?", answer: "Yes, there's a 'hide prices on packing slip' option in the gift step at checkout." },
+              ],
+            },
           ],
         },
       },
@@ -391,6 +482,7 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "label", label: "Label", kind: "text" },
             { key: "href", label: "Link", kind: "text" },
           ],
+          emptyItem: { label: "", href: "" },
           default: footerLinks,
         },
         copyright: { type: "TEXT", label: "Copyright Line", default: "© 2026 BlissyNest. All rights reserved." },

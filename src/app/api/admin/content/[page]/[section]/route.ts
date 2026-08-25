@@ -16,7 +16,7 @@ function isValidForType(type: string, value: unknown): boolean {
       typeof (value as Record<string, unknown>).href === "string"
     );
   }
-  if (type === "LIST") return Array.isArray(value);
+  if (type === "LIST" || type === "NESTED_LIST") return Array.isArray(value);
   return false;
 }
 

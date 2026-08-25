@@ -7,6 +7,7 @@ import { ContentSectionForm } from "./ContentSectionForm";
 const pageLabels: Record<string, string> = {
   home: "Homepage",
   about: "About",
+  faqs: "FAQs",
   shipping: "Shipping",
   returns: "Returns",
   help: "Help",
