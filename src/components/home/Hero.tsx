@@ -14,7 +14,7 @@ export function Hero() {
         sizes="100vw"
       />
 
-      <div className="relative h-full mx-auto max-w-[1440px] px-4 md:px-8 flex items-end pb-10 sm:pb-14 md:pb-16">
+      <div className="relative h-full mx-auto max-w-[1440px] px-4 md:px-8 flex items-end pb-10 sm:items-center sm:pb-0">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4">
           <Button
             href="/gifting-assistant"
