@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { Coupon } from "@/generated/prisma/client";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 
 type CouponFormValues = {
   code: string;
@@ -162,8 +163,10 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const editingCoupon = coupons.find((c) => c.id === editingId);
+  const deletingCoupon = coupons.find((c) => c.id === deletingId);
 
   async function handleAdd(values: CouponFormValues) {
     setSubmitting(true);
@@ -204,6 +207,7 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
 
   async function handleDelete(id: string) {
     setCoupons((prev) => prev.filter((c) => c.id !== id));
+    setDeletingId(null);
     await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
   }
 
@@ -316,7 +320,7 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDelete(c.id)}
+                        onClick={() => setDeletingId(c.id)}
                         aria-label="Delete coupon"
                         className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark transition-colors"
                       >
@@ -330,6 +334,14 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
           </table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deletingCoupon !== undefined}
+        title="Delete this coupon?"
+        description={`Code "${deletingCoupon?.code}" will be permanently deleted and stop working immediately, including for anyone who already has it saved.`}
+        onConfirm={() => deletingId && handleDelete(deletingId)}
+        onCancel={() => setDeletingId(null)}
+      />
     </div>
   );
 }

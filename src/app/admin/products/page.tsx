@@ -171,7 +171,7 @@ export default async function AdminProductsPage({
                     </td>
                     <td className="py-2.5 pr-5 pl-3">
                       <div className="flex justify-end">
-                        <ProductRowActions id={p.id} />
+                        <ProductRowActions id={p.id} name={p.name} />
                       </div>
                     </td>
                   </tr>

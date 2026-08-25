@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, ExternalLink, type LucideIcon } from "lucide-react";
 import type { Banner } from "@/generated/prisma/client";
 import { bannerIconOptions, bannerGradientOptions, bannerGradients, getBannerIcon } from "@/lib/banner-presets";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 
 // Takes the resolved icon component as a prop (rather than each caller
 // computing `const Icon = getBannerIcon(key)` inline in their own render
@@ -199,8 +200,10 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const editingBanner = banners.find((b) => b.id === editingId);
+  const deletingBanner = banners.find((b) => b.id === deletingId);
 
   async function handleAdd(values: BannerFormValues) {
     setSubmitting(true);
@@ -243,6 +246,7 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
 
   async function handleDelete(id: string) {
     setBanners((prev) => prev.filter((b) => b.id !== id));
+    setDeletingId(null);
     await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
   }
 
@@ -409,7 +413,7 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(banner.id)}
+                      onClick={() => setDeletingId(banner.id)}
                       aria-label="Delete banner"
                       className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark transition-colors"
                     >
@@ -422,6 +426,14 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={deletingBanner !== undefined}
+        title="Delete this banner?"
+        description={`"${deletingBanner?.title}" will be permanently deleted and disappear from the site immediately.`}
+        onConfirm={() => deletingId && handleDelete(deletingId)}
+        onCancel={() => setDeletingId(null)}
+      />
     </div>
   );
 }

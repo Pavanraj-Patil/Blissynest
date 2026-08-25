@@ -95,7 +95,7 @@ export default async function AdminCustomersPage({
                       {u.totalSpent > 0 ? `₹${u.totalSpent.toLocaleString("en-IN")}` : "—"}
                     </td>
                     <td className="py-2.5 pr-5 pl-3 text-right">
-                      <UserRoleToggle userId={u.id} role={u.role} isSelf={u.id === session.user.id} />
+                      <UserRoleToggle userId={u.id} userEmail={u.email} role={u.role} isSelf={u.id === session.user.id} />
                     </td>
                   </tr>
                 ))}
