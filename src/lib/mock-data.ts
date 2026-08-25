@@ -188,3 +188,8 @@ export const footerLinks: SimpleLink[] = [
 ];
 
 export const heroImage = ph(1920, 700, "e3d3bd", "2a2621", "Blissynest Gift Box");
+// Portrait crop for mobile/tablet — a wide desktop crop scaled down and
+// object-fit-cropped for a phone-width viewport loses the subject; a
+// separate art-directed image is the standard fix (see foxtale.in's
+// hero, which does the same thing with two entirely different files).
+export const heroImageMobile = ph(900, 1200, "e3d3bd", "2a2621", "Blissynest Gift Box");

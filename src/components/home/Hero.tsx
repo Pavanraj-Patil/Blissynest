@@ -1,16 +1,24 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import { heroImage } from "@/lib/mock-data";
+import { heroImage, heroImageMobile } from "@/lib/mock-data";
 
 export function Hero() {
   return (
     <section className="relative h-[440px] sm:h-[520px] md:h-[560px] lg:h-[620px] w-full overflow-hidden">
       <Image
+        src={heroImageMobile}
+        alt="An open Blissynest gift box with a candle, mug, card, and blanket, surrounded by dried flowers"
+        fill
+        priority
+        className="block md:hidden object-cover object-center"
+        sizes="100vw"
+      />
+      <Image
         src={heroImage}
         alt="An open Blissynest gift box with a candle, mug, card, and blanket, surrounded by dried flowers"
         fill
         priority
-        className="object-cover object-[68%_center]"
+        className="hidden md:block object-cover object-[68%_center]"
         sizes="100vw"
       />
 
