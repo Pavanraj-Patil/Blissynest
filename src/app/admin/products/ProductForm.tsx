@@ -33,7 +33,36 @@ export type ProductFormInitial = {
   personalNoteLabel: string;
   personalNotePrice: number | "";
   variants: { label: string; options: string[] }[];
+  textLines: { label: string; required: boolean; maxLength: number; placeholder: string }[];
+  fonts: string[];
+  colors: { name: string; hex: string }[];
+  variantLabel: string;
+  variantOptions: string[];
+  specs: { icon: string; label: string; value: string }[];
 };
+
+const customisableFonts = ["Serif", "Script", "Modern"] as const;
+
+// Matches src/components/product/icon-map.ts exactly — the PDP falls back
+// to a generic gift icon for anything else, so keeping this list in sync
+// is what makes a chosen icon actually show up as intended.
+const specIconOptions = [
+  "ShieldCheck",
+  "Heart",
+  "PackageCheck",
+  "Lock",
+  "Flame",
+  "Coffee",
+  "Flower2",
+  "Droplet",
+  "Mail",
+  "Gift",
+  "Sparkles",
+  "MapPin",
+  "Weight",
+  "Clock",
+  "Truck",
+] as const;
 
 export const emptyProductForm: ProductFormInitial = {
   name: "",
@@ -63,6 +92,12 @@ export const emptyProductForm: ProductFormInitial = {
   personalNoteLabel: "",
   personalNotePrice: "",
   variants: [],
+  textLines: [],
+  fonts: [],
+  colors: [],
+  variantLabel: "",
+  variantOptions: [],
+  specs: [],
 };
 
 const inputClass =
@@ -97,7 +132,7 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
     const payload = {
       name: values.name,
       tagline: values.tagline || undefined,
-      pdpType: values.pdpType === "CUSTOMISABLE" ? "STANDALONE" : values.pdpType,
+      pdpType: values.pdpType,
       audience: values.audience || undefined,
       category: values.category,
       collectionSlug: values.collectionSlug || undefined,
@@ -125,6 +160,15 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           ? values.personalNotePrice
           : undefined,
       variants: values.pdpType === "STANDALONE" ? values.variants : undefined,
+      textLines: values.pdpType === "CUSTOMISABLE" ? values.textLines : undefined,
+      fonts: values.pdpType === "CUSTOMISABLE" ? values.fonts : undefined,
+      colors: values.pdpType === "CUSTOMISABLE" ? values.colors : undefined,
+      variantLabel: values.pdpType === "CUSTOMISABLE" ? values.variantLabel || undefined : undefined,
+      variantOptions:
+        values.pdpType === "CUSTOMISABLE" && values.variantOptions.length > 0
+          ? values.variantOptions
+          : undefined,
+      specs: values.pdpType === "CUSTOMISABLE" ? values.specs : undefined,
     };
 
     const res = await fetch(isEdit ? `/api/admin/products/${initial!.id}` : "/api/admin/products", {
@@ -186,17 +230,11 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
             >
               <option value="STANDALONE">Standalone</option>
               <option value="HAMPER">Hamper</option>
-              {values.pdpType === "CUSTOMISABLE" && <option value="CUSTOMISABLE">Customisable</option>}
+              <option value="CUSTOMISABLE">Customisable</option>
             </select>
             {isEdit && (
               <span className="mt-1 block text-[11px] text-ink-muted">
                 Locked after creation.
-              </span>
-            )}
-            {values.pdpType === "CUSTOMISABLE" && (
-              <span className="mt-1 block text-[11px] text-ink-muted">
-                Personalisation fields (text lines, fonts, colors) aren&rsquo;t editable here yet —
-                only the fields below.
               </span>
             )}
           </label>
@@ -525,6 +563,230 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
             >
               <Plus size={13} /> Add variant
             </button>
+          </div>
+        </Section>
+      )}
+
+      {values.pdpType === "CUSTOMISABLE" && (
+        <Section title="Personalisation (Customisable)">
+          <div>
+            <span className={labelClass}>Text Lines</span>
+            <div className="mt-2 space-y-3">
+              {values.textLines.map((line, i) => (
+                <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_5rem_auto_auto] gap-2 items-start">
+                  <input
+                    placeholder="Label (e.g. Name)"
+                    value={line.label}
+                    onChange={(e) =>
+                      set(
+                        "textLines",
+                        values.textLines.map((l, idx) => (idx === i ? { ...l, label: e.target.value } : l))
+                      )
+                    }
+                    className={inputClass}
+                  />
+                  <input
+                    placeholder="Placeholder text"
+                    value={line.placeholder}
+                    onChange={(e) =>
+                      set(
+                        "textLines",
+                        values.textLines.map((l, idx) => (idx === i ? { ...l, placeholder: e.target.value } : l))
+                      )
+                    }
+                    className={inputClass}
+                  />
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder="Max chars"
+                    value={line.maxLength}
+                    onChange={(e) =>
+                      set(
+                        "textLines",
+                        values.textLines.map((l, idx) =>
+                          idx === i ? { ...l, maxLength: Number(e.target.value) } : l
+                        )
+                      )
+                    }
+                    className={inputClass}
+                  />
+                  <label className="mt-1.5 flex items-center gap-1.5 text-xs text-charcoal-light whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={line.required}
+                      onChange={(e) =>
+                        set(
+                          "textLines",
+                          values.textLines.map((l, idx) => (idx === i ? { ...l, required: e.target.checked } : l))
+                        )
+                      }
+                      className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+                    />
+                    Required
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => set("textLines", values.textLines.filter((_, idx) => idx !== i))}
+                    className="mt-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  set("textLines", [
+                    ...values.textLines,
+                    { label: "", required: false, maxLength: 30, placeholder: "" },
+                  ])
+                }
+                className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
+              >
+                <Plus size={13} /> Add text line
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <span className={labelClass}>Font Styles</span>
+            <p className="mt-1 text-[11px] text-ink-muted">
+              Only these three are supported by the PDP&rsquo;s preview.
+            </p>
+            <div className="mt-2 flex gap-4">
+              {customisableFonts.map((f) => (
+                <label key={f} className="flex items-center gap-1.5 text-sm text-charcoal cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={values.fonts.includes(f)}
+                    onChange={(e) =>
+                      set(
+                        "fonts",
+                        e.target.checked ? [...values.fonts, f] : values.fonts.filter((x) => x !== f)
+                      )
+                    }
+                    className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+                  />
+                  {f}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <span className={labelClass}>Colors</span>
+            <div className="mt-2 space-y-2">
+              {values.colors.map((c, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={c.hex}
+                    onChange={(e) =>
+                      set("colors", values.colors.map((cc, idx) => (idx === i ? { ...cc, hex: e.target.value } : cc)))
+                    }
+                    className="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-charcoal/15"
+                  />
+                  <input
+                    placeholder="Color name (e.g. Charcoal)"
+                    value={c.name}
+                    onChange={(e) =>
+                      set("colors", values.colors.map((cc, idx) => (idx === i ? { ...cc, name: e.target.value } : cc)))
+                    }
+                    className={`${inputClass} mt-0`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => set("colors", values.colors.filter((_, idx) => idx !== i))}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => set("colors", [...values.colors, { name: "", hex: "#2a2621" }])}
+                className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
+              >
+                <Plus size={13} /> Add color
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="block">
+              <span className={labelClass}>Variant Label (optional, e.g. Size)</span>
+              <input
+                value={values.variantLabel}
+                onChange={(e) => set("variantLabel", e.target.value)}
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className={labelClass}>Variant Options (comma-separated)</span>
+              <input
+                value={values.variantOptions.join(", ")}
+                onChange={(e) =>
+                  set("variantOptions", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))
+                }
+                placeholder="Small, Medium, Large"
+                className={inputClass}
+              />
+            </label>
+          </div>
+
+          <div>
+            <span className={labelClass}>Specs (optional)</span>
+            <div className="mt-2 space-y-2">
+              {values.specs.map((spec, i) => (
+                <div key={i} className="grid grid-cols-1 sm:grid-cols-[8rem_1fr_1fr_auto] gap-2 items-start">
+                  <select
+                    value={spec.icon}
+                    onChange={(e) =>
+                      set("specs", values.specs.map((s, idx) => (idx === i ? { ...s, icon: e.target.value } : s)))
+                    }
+                    className={inputClass}
+                  >
+                    {specIconOptions.map((icon) => (
+                      <option key={icon} value={icon}>
+                        {icon}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    placeholder="Label (e.g. Material)"
+                    value={spec.label}
+                    onChange={(e) =>
+                      set("specs", values.specs.map((s, idx) => (idx === i ? { ...s, label: e.target.value } : s)))
+                    }
+                    className={inputClass}
+                  />
+                  <input
+                    placeholder="Value (e.g. Solid Oak)"
+                    value={spec.value}
+                    onChange={(e) =>
+                      set("specs", values.specs.map((s, idx) => (idx === i ? { ...s, value: e.target.value } : s)))
+                    }
+                    className={inputClass}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => set("specs", values.specs.filter((_, idx) => idx !== i))}
+                    className="mt-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => set("specs", [...values.specs, { icon: "Gift", label: "", value: "" }])}
+                className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
+              >
+                <Plus size={13} /> Add spec
+              </button>
+            </div>
           </div>
         </Section>
       )}

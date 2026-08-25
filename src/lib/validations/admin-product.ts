@@ -2,12 +2,11 @@ import { z } from "zod";
 
 // The admin product form. Deliberately doesn't cover every field on the
 // Product model — see AdminProductForm's comments for what's out of scope
-// in this first pass (customizationSchema editing, changing slug/pdpType
-// after creation) and why.
+// in this first pass (changing slug/pdpType after creation) and why.
 export const adminProductSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   tagline: z.string().trim().optional(),
-  pdpType: z.enum(["HAMPER", "STANDALONE"]),
+  pdpType: z.enum(["HAMPER", "STANDALONE", "CUSTOMISABLE"]),
   audience: z.enum(["HER", "HIM", "PARENTS", "COUPLES", "FRIENDS", "COLLEAGUES", ""]).optional(),
   category: z.string().trim().min(1, "Category is required"),
   collectionSlug: z.string().trim().optional(),
@@ -37,6 +36,24 @@ export const adminProductSchema = z.object({
   // Standalone-only
   variants: z
     .array(z.object({ label: z.string().min(1), options: z.array(z.string().min(1)) }))
+    .optional(),
+  // Customisable-only
+  textLines: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        required: z.boolean(),
+        maxLength: z.coerce.number().int().min(1),
+        placeholder: z.string(),
+      })
+    )
+    .optional(),
+  fonts: z.array(z.string().min(1)).optional(),
+  colors: z.array(z.object({ name: z.string().min(1), hex: z.string().min(1) })).optional(),
+  variantLabel: z.string().trim().optional(),
+  variantOptions: z.array(z.string().min(1)).optional(),
+  specs: z
+    .array(z.object({ icon: z.string().min(1), label: z.string().min(1), value: z.string().min(1) }))
     .optional(),
 });
 

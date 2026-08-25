@@ -27,6 +27,15 @@ export default async function AdminEditProductPage({
     delivery: string;
   };
 
+  const cs = product.customizationSchema as {
+    textLines?: { label: string; required: boolean; maxLength: number; placeholder: string }[];
+    fonts?: string[];
+    colors?: { name: string; hex: string }[];
+    variantLabel?: string | null;
+    variantOptions?: string[] | null;
+    specs?: { icon: string; label: string; value: string }[] | null;
+  } | null;
+
   const initial: ProductFormInitial = {
     id: product.id,
     name: product.name,
@@ -61,6 +70,12 @@ export default async function AdminEditProductPage({
     personalNoteLabel: product.personalNoteLabel ?? "",
     personalNotePrice: toRupees(product.personalNotePrice),
     variants: (product.variants as { label: string; options: string[] }[] | null) ?? [],
+    textLines: cs?.textLines ?? [],
+    fonts: cs?.fonts ?? [],
+    colors: cs?.colors ?? [],
+    variantLabel: cs?.variantLabel ?? "",
+    variantOptions: cs?.variantOptions ?? [],
+    specs: cs?.specs ?? [],
   };
 
   return (

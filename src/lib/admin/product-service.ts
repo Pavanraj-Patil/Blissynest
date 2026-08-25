@@ -58,6 +58,18 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
           variants: (input.variants ?? []).length > 0 ? input.variants : undefined,
         }
       : {}),
+    ...(input.pdpType === "CUSTOMISABLE"
+      ? {
+          customizationSchema: {
+            textLines: input.textLines ?? [],
+            fonts: input.fonts ?? [],
+            colors: input.colors ?? [],
+            variantLabel: input.variantLabel || null,
+            variantOptions: (input.variantOptions ?? []).length > 0 ? input.variantOptions : null,
+            specs: (input.specs ?? []).length > 0 ? input.specs : null,
+          },
+        }
+      : {}),
   };
 }
 
