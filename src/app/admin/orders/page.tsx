@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Search, PackageX } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { getOrdersForAdmin } from "@/lib/admin/order-service";
+import { OrderRow } from "./OrderRow";
 
 const PAGE_SIZE = 20;
 
@@ -121,9 +122,12 @@ export default async function AdminOrdersPage({
               </thead>
               <tbody>
                 {orders.map((o) => (
-                  <tr key={o.id} className="border-b border-charcoal/5 last:border-0 hover:bg-cream/40">
+                  <OrderRow key={o.id} orderId={o.id}>
                     <td className="py-2.5 pl-5 pr-3">
-                      <Link href={`/admin/orders/${o.id}`} className="font-medium text-charcoal hover:text-terracotta-dark">
+                      <Link
+                        href={`/admin/orders/${o.id}`}
+                        className="font-medium text-charcoal hover:text-terracotta-dark"
+                      >
                         {o.orderNumber}
                       </Link>
                     </td>
@@ -148,7 +152,7 @@ export default async function AdminOrdersPage({
                     <td className="py-2.5 pr-5 pl-3 text-right font-medium text-charcoal">
                       ₹{o.total.toLocaleString("en-IN")}
                     </td>
-                  </tr>
+                  </OrderRow>
                 ))}
               </tbody>
             </table>

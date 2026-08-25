@@ -59,6 +59,58 @@ export async function getUsersForAdmin(params: {
   };
 }
 
+export type AdminUserOrder = {
+  id: string;
+  orderNumber: string;
+  status: string;
+  total: number; // rupees
+  createdAt: Date;
+};
+
+export type AdminUserDetail = {
+  id: string;
+  name: string | null;
+  email: string;
+  role: UserRole;
+  createdAt: Date;
+  orders: AdminUserOrder[];
+  totalSpent: number; // rupees
+};
+
+export async function getUserForAdmin(id: string): Promise<AdminUserDetail | null> {
+  const user = await db.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+      orders: {
+        orderBy: { createdAt: "desc" },
+        select: { id: true, orderNumber: true, status: true, total: true, createdAt: true },
+      },
+    },
+  });
+  if (!user) return null;
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    createdAt: user.createdAt,
+    orders: user.orders.map((o) => ({
+      id: o.id,
+      orderNumber: o.orderNumber,
+      status: o.status,
+      total: Math.round(o.total / 100),
+      createdAt: o.createdAt,
+    })),
+    totalSpent: Math.round(user.orders.reduce((sum, o) => sum + o.total, 0) / 100),
+  };
+}
+
 export async function setUserRole(
   id: string,
   role: UserRole,

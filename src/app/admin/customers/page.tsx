@@ -73,7 +73,9 @@ export default async function AdminCustomersPage({
                 {users.map((u) => (
                   <tr key={u.id} className="border-b border-charcoal/5 last:border-0 hover:bg-cream/40">
                     <td className="py-2.5 pl-5 pr-3 font-medium text-charcoal">
-                      {u.name ?? "—"}
+                      <Link href={`/admin/customers/${u.id}`} className="hover:text-terracotta-dark">
+                        {u.name ?? "—"}
+                      </Link>
                       {u.id === session.user.id && (
                         <span className="ml-1.5 text-[10px] font-normal text-ink-muted">(you)</span>
                       )}

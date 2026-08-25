@@ -41,10 +41,12 @@ export default async function AdminOrderDetailPage({
             Placed {order.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
-        {order.user && (
-          <Link href={`/admin/customers`} className="text-xs text-ink-muted hover:text-terracotta-dark">
-            View customer
+        {order.userId ? (
+          <Link href={`/admin/customers/${order.userId}`} className="text-xs text-ink-muted hover:text-terracotta-dark">
+            View customer →
           </Link>
+        ) : (
+          <span className="text-xs text-ink-muted">Guest checkout — no account</span>
         )}
       </div>
 
