@@ -5,7 +5,7 @@ const icons = [Gift, PackageCheck, Wand2, Truck];
 
 export function FeatureStrip() {
   return (
-    <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-4 md:py-6">
+    <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-3 md:py-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 border-t border-b border-charcoal/10 py-8">
         {featureStrip.map((f, i) => {
           const Icon = icons[i];

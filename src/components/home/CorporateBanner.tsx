@@ -18,7 +18,7 @@ const corporateImage =
 
 export function CorporateBanner() {
   return (
-    <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-6 md:py-10">
+    <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-4 md:py-7">
       <div className="rounded-3xl bg-charcoal text-cream px-6 py-12 md:px-14 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr_1fr] gap-10 items-center">
           <div>
