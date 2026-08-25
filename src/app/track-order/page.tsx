@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { TopBar } from "@/components/layout/TopBar";
+import { getPageContent } from "@/lib/content-service";
 import { TrackOrderClient } from "./TrackOrderClient";
 
 export const metadata: Metadata = {
@@ -7,11 +8,13 @@ export const metadata: Metadata = {
   description: "Check the delivery status of your Blissynest order.",
 };
 
-export default function TrackOrderPage() {
+export default async function TrackOrderPage() {
+  const content = await getPageContent("track-order");
+
   return (
     <>
       <TopBar />
-      <TrackOrderClient />
+      <TrackOrderClient content={content.hero} />
     </>
   );
 }

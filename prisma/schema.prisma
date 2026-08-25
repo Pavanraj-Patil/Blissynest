@@ -530,6 +530,34 @@ model SiteSettings {
   updatedAt             DateTime @updatedAt
 }
 
+enum ContentBlockType {
+  TEXT
+  IMAGE
+  LINK
+  LIST
+}
+
+// Generic admin-editable content — marketing copy/images across the
+// homepage and static pages that would otherwise be hardcoded JSX or
+// static TS data files. One row per field (not one JSON blob per page)
+// so a missing row can fall back to a single default (src/lib/
+// content-schema.ts) instead of needing a deep-merge against a partial
+// document. `value`'s shape depends on `type`: TEXT/IMAGE -> string,
+// LINK -> {label, href}, LIST -> array of objects (shape declared per
+// key in content-schema.ts, not enforced at the DB layer).
+model ContentBlock {
+  id        String           @id @default(cuid())
+  page      String
+  section   String
+  key       String
+  type      ContentBlockType
+  value     Json
+  updatedAt DateTime         @updatedAt
+
+  @@unique([page, section, key])
+  @@index([page])
+}
+
 model AuditLog {
   id          String   @id @default(cuid())
   adminUserId String

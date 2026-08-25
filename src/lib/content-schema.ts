@@ -1,0 +1,404 @@
+import type { ListFieldDef } from "@/components/admin/RepeatingListField";
+import {
+  audienceCategories,
+  occasions,
+  editCollections,
+  featureStrip,
+  communityPhotos,
+  corporateChecklist,
+  footerLinks,
+} from "@/lib/mock-data";
+import { contentIconOptions } from "@/lib/content-icons";
+
+const occasionIconDefaults = ["Cake", "Heart", "Gem", "Home", "Mail", "Sparkles", "Flame"];
+const featureIconDefaults = ["Gift", "PackageCheck", "Wand2", "Truck"];
+const corporateChecklistIconDefaults = ["Users", "Briefcase", "PartyPopper", "PackageOpen", "CalendarDays"];
+
+// The single source of truth for every admin-editable content field on
+// the homepage and static pages: what it's called in the admin UI, what
+// shape it is, and — critically — its default value. Defaults come from
+// today's hardcoded copy, so a page renders correctly even before an
+// admin has ever saved a ContentBlock row for it (see content-service.ts
+// getPageContent) — no backfill/seed script needed when a new key is
+// added here.
+export type ContentFieldType = "TEXT" | "IMAGE" | "LINK" | "LIST";
+
+export type LinkValue = { label: string; href: string };
+
+type FieldDescriptor =
+  | { type: "TEXT"; label: string; default: string }
+  | { type: "IMAGE"; label: string; default: string }
+  | { type: "LINK"; label: string; default: LinkValue }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | { type: "LIST"; label: string; itemLabel: string; listFields: ListFieldDef<any>[]; default: any[] };
+
+export type SectionSchema = {
+  title: string;
+  fields: Record<string, FieldDescriptor>;
+};
+
+export type PageSchema = Record<string, SectionSchema>;
+
+export const contentSchema: Record<string, PageSchema> = {
+  home: {
+    hero: {
+      title: "Hero",
+      fields: {
+        primaryCta: {
+          type: "LINK",
+          label: "Primary Button",
+          default: { label: "Find the Perfect Gift", href: "/gifting-assistant" },
+        },
+        secondaryCta: {
+          type: "LINK",
+          label: "Secondary Button",
+          default: { label: "Explore Collections", href: "/collections" },
+        },
+      },
+    },
+    "who-are-you-gifting": {
+      title: "Who's It For — Tiles",
+      fields: {
+        sectionTitle: {
+          type: "TEXT",
+          label: "Section Title",
+          default: "Who are you making smile?",
+        },
+        tiles: {
+          type: "LIST",
+          label: "Tiles",
+          itemLabel: "tile",
+          listFields: [
+            { key: "label", label: "Label (e.g. Gifts for Her)", kind: "text" },
+            { key: "href", label: "Link (e.g. /shop/her)", kind: "text" },
+            { key: "image", label: "Image URL", kind: "text" },
+          ],
+          default: audienceCategories.map((c) => ({ label: c.label, href: c.href, image: c.image })),
+        },
+      },
+    },
+    "made-for-the-moment": {
+      title: "Made for the Moment — Occasions",
+      fields: {
+        sectionTitle: { type: "TEXT", label: "Section Title", default: "Made for the moment" },
+        tiles: {
+          type: "LIST",
+          label: "Occasion Tiles",
+          itemLabel: "occasion",
+          listFields: [
+            { key: "label", label: "Label", kind: "text" },
+            { key: "slug", label: "Slug (e.g. birthday)", kind: "text" },
+            { key: "image", label: "Image URL", kind: "text" },
+            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
+            { key: "dark", label: "Dark text overlay", kind: "checkbox" },
+          ],
+          default: occasions.map((o, i) => ({
+            label: o.label,
+            slug: o.slug,
+            image: o.image,
+            icon: occasionIconDefaults[i],
+            dark: o.label === "Festivals",
+          })),
+        },
+      },
+    },
+    "blissynest-edit": {
+      title: "The Blissynest Edit — Collections",
+      fields: {
+        sectionTitle: { type: "TEXT", label: "Section Title", default: "The Blissynest Edit" },
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Curated Collections" },
+        tiles: {
+          type: "LIST",
+          label: "Collection Tiles",
+          itemLabel: "collection",
+          listFields: [
+            { key: "title", label: "Title", kind: "text" },
+            { key: "subtitle", label: "Subtitle", kind: "text" },
+            { key: "slug", label: "Slug (e.g. self-care)", kind: "text" },
+            { key: "image", label: "Image URL", kind: "text" },
+            { key: "dark", label: "Dark overlay", kind: "checkbox" },
+          ],
+          default: editCollections.map((c) => ({
+            title: c.title,
+            subtitle: c.subtitle,
+            slug: c.slug,
+            image: c.image,
+            dark: c.title === "The Luxury Edit",
+          })),
+        },
+      },
+    },
+    "feature-strip": {
+      title: "Trust Feature Strip",
+      fields: {
+        items: {
+          type: "LIST",
+          label: "Features",
+          itemLabel: "feature",
+          listFields: [
+            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
+            { key: "title", label: "Title", kind: "text" },
+            { key: "subtitle", label: "Subtitle", kind: "text" },
+          ],
+          default: featureStrip.map((f, i) => ({ icon: featureIconDefaults[i], title: f.title, subtitle: f.subtitle })),
+        },
+      },
+    },
+    "community-strip": {
+      title: "From Our Community",
+      fields: {
+        sectionTitle: { type: "TEXT", label: "Section Title", default: "From our community" },
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Real moments, real smiles" },
+        photos: {
+          type: "LIST",
+          label: "Photos",
+          itemLabel: "photo",
+          listFields: [{ key: "image", label: "Image URL", kind: "text" }],
+          default: communityPhotos.map((image) => ({ image })),
+        },
+      },
+    },
+    "corporate-banner": {
+      title: "Corporate Gifting Banner",
+      fields: {
+        heading: { type: "TEXT", label: "Heading", default: "Thoughtful gifting, at scale." },
+        subcopy: {
+          type: "TEXT",
+          label: "Subcopy",
+          default: "From employee welcome kits to premium client gifts, Blissynest makes corporate gifting effortless.",
+        },
+        cta: {
+          type: "LINK",
+          label: "Primary Button",
+          default: { label: "Explore Corporate Gifting", href: "/corporate" },
+        },
+        quoteLink: {
+          type: "LINK",
+          label: "Quote Link",
+          default: { label: "Request a Quote", href: "/corporate/quote" },
+        },
+        image: {
+          type: "IMAGE",
+          label: "Image",
+          default: "https://placehold.co/560x460/1c1712/cfb587.png?text=Corporate+Gift+Set&font=playfair-display",
+        },
+        checklist: {
+          type: "LIST",
+          label: "Checklist Links",
+          itemLabel: "item",
+          listFields: [
+            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
+            { key: "label", label: "Label", kind: "text" },
+            { key: "href", label: "Link", kind: "text" },
+          ],
+          default: corporateChecklist.map((item, i) => ({
+            icon: corporateChecklistIconDefaults[i],
+            label: item.label,
+            href: item.href,
+          })),
+        },
+      },
+    },
+    "loved-by-many": {
+      title: "Loved by Many — Heading",
+      fields: {
+        sectionTitle: { type: "TEXT", label: "Section Title", default: "Loved by many" },
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Bestsellers" },
+      },
+    },
+  },
+  about: {
+    hero: {
+      title: "About Page",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Our Story" },
+        heading: { type: "TEXT", label: "Heading", default: "About Blissynest" },
+        paragraph1: {
+          type: "TEXT",
+          label: "Paragraph 1",
+          default:
+            "Blissynest started with a simple frustration: most gifting felt transactional — a rushed scroll, a generic hamper, a card nobody reads. We wanted something that felt more like the moment it was marking. So we built a place where every gift is chosen the way you'd choose one for someone you actually love — with a little thought, a little care, and packaging that feels like part of the gift, not an afterthought.",
+        },
+        paragraph2: {
+          type: "TEXT",
+          label: "Paragraph 2",
+          default:
+            "Today that means a catalogue built around real moments — birthdays, anniversaries, festivals, thank-yous, and the days that don't need a reason at all — curated by people who still get excited about a well-wrapped box.",
+        },
+      },
+    },
+  },
+  shipping: {
+    hero: {
+      title: "Shipping Page",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Good to Know" },
+        heading: { type: "TEXT", label: "Heading", default: "Shipping & Delivery" },
+        sections: {
+          type: "LIST",
+          label: "Policy Sections",
+          itemLabel: "section",
+          listFields: [
+            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
+            { key: "title", label: "Title", kind: "text" },
+            { key: "body", label: "Body", kind: "text" },
+          ],
+          default: [
+            { icon: "Clock", title: "Delivery timelines", body: "Most orders are dispatched within 24–48 hours and delivered within 3–5 business days, depending on your location. Personalised and hamper orders may take an extra 1–2 days to prepare with care." },
+            { icon: "Truck", title: "Shipping charges", body: "Free shipping on all orders above ₹999. Orders below that ship for a flat ₹99. Charges are calculated automatically at checkout — no surprises at the end." },
+            { icon: "MapPin", title: "Where we deliver", body: "We currently deliver across India, including most Tier 1 and Tier 2 cities. Enter your pincode on any product page to check serviceability before you order." },
+            { icon: "PackageCheck", title: "Tracking your order", body: "Once your order ships, you'll get a tracking link by email. You can also check the status any time from the Track Order page." },
+          ],
+        },
+      },
+    },
+  },
+  returns: {
+    hero: {
+      title: "Returns Page",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Good to Know" },
+        heading: { type: "TEXT", label: "Heading", default: "Returns & Refunds" },
+        sections: {
+          type: "LIST",
+          label: "Policy Sections",
+          itemLabel: "section",
+          listFields: [
+            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
+            { key: "title", label: "Title", kind: "text" },
+            { key: "body", label: "Body", kind: "text" },
+          ],
+          default: [
+            { icon: "RotateCcw", title: "Return window", body: "Most items can be returned within 7 days of delivery, as long as they're unused and in their original packaging. Start a return from your order confirmation email or the Track Order page." },
+            { icon: "Ban", title: "What can't be returned", body: "Personalised items (engraved, monogrammed, or made to order), perishables like sweets and gourmet hampers, and gift cards can't be returned once made — these are called out on the product page before you order." },
+            { icon: "Wallet", title: "Refunds", body: "Once a returned item reaches us and passes a quick quality check, refunds are processed to your original payment method within 5–7 business days." },
+            { icon: "MessageCircle", title: "Something arrived damaged?", body: "That's on us — reach out within 48 hours of delivery with a photo and your order number, and we'll sort a replacement or refund, no return needed." },
+          ],
+        },
+      },
+    },
+  },
+  help: {
+    hero: {
+      title: "Help Page",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Help Centre" },
+        heading: { type: "TEXT", label: "Heading", default: "How can we help?" },
+        links: {
+          type: "LIST",
+          label: "Help Tiles",
+          itemLabel: "tile",
+          listFields: [
+            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
+            { key: "title", label: "Title", kind: "text" },
+            { key: "body", label: "Body", kind: "text" },
+            { key: "href", label: "Link", kind: "text" },
+          ],
+          default: [
+            { icon: "PackageSearch", title: "Track an Order", body: "Check the live status of a recent order.", href: "/track-order" },
+            { icon: "HelpCircle", title: "FAQs", body: "Quick answers about orders, payments, and personalisation.", href: "/faqs" },
+            { icon: "Truck", title: "Shipping & Delivery", body: "Timelines, charges, and where we deliver.", href: "/shipping" },
+            { icon: "RotateCcw", title: "Returns & Refunds", body: "How returns work and what's eligible.", href: "/returns" },
+            { icon: "Mail", title: "Contact Us", body: "Can't find what you need? Send us a message.", href: "/contact" },
+          ],
+        },
+      },
+    },
+  },
+  contact: {
+    hero: {
+      title: "Contact Page",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "We'd Love to Hear From You" },
+        heading: { type: "TEXT", label: "Heading", default: "Contact Us" },
+        subcopy: {
+          type: "TEXT",
+          label: "Subcopy",
+          default: "Questions about an order, a bulk request, or just want to say hi — we read every message.",
+        },
+        contactPoints: {
+          type: "LIST",
+          label: "Contact Points",
+          itemLabel: "contact point",
+          listFields: [
+            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
+            { key: "label", label: "Label", kind: "text" },
+            { key: "value", label: "Value", kind: "text" },
+          ],
+          default: [
+            { icon: "Mail", label: "Email", value: "hello@blissynest.com" },
+            { icon: "Phone", label: "Phone", value: "1800-123-456" },
+            { icon: "MapPin", label: "Studio", value: "Koregaon Park, Pune, Maharashtra" },
+          ],
+        },
+      },
+    },
+  },
+  "track-order": {
+    hero: {
+      title: "Track Order Page",
+      fields: {
+        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Where's My Order?" },
+        heading: { type: "TEXT", label: "Heading", default: "Track Your Order" },
+        subcopy: {
+          type: "TEXT",
+          label: "Subcopy",
+          default: "Enter your order number and email to see the latest status.",
+        },
+      },
+    },
+  },
+  // Header/MobileNav nav labels are deliberately NOT here — Header.tsx is
+  // imported directly by 14 "use client" page components (same shape as
+  // the TopBar regression fixed earlier), so making it async would need
+  // the same 14-file page.tsx migration all over again for a few words of
+  // structural nav-category text. Not worth repeating that for this.
+  layout: {
+    topbar: {
+      title: "Top Bar Links",
+      fields: {
+        trackOrder: { type: "LINK", label: "Track Order Link", default: { label: "Track Order", href: "/track-order" } },
+        help: { type: "LINK", label: "Help Link", default: { label: "Help", href: "/help" } },
+        corporateGifting: {
+          type: "LINK",
+          label: "Corporate Gifting Link",
+          default: { label: "Corporate Gifting", href: "/corporate" },
+        },
+      },
+    },
+    footer: {
+      title: "Footer",
+      fields: {
+        newsletterHeading: {
+          type: "TEXT",
+          label: "Newsletter Heading",
+          default: "A little inspiration, delivered.",
+        },
+        newsletterSubcopy: {
+          type: "TEXT",
+          label: "Newsletter Subcopy",
+          default: "Gift ideas, new launches and feel-good stories — straight to your inbox.",
+        },
+        instagramUrl: { type: "TEXT", label: "Instagram URL", default: "#" },
+        facebookUrl: { type: "TEXT", label: "Facebook URL", default: "#" },
+        pinterestUrl: { type: "TEXT", label: "Pinterest URL", default: "#" },
+        youtubeUrl: { type: "TEXT", label: "YouTube URL", default: "#" },
+        links: {
+          type: "LIST",
+          label: "Footer Links",
+          itemLabel: "link",
+          listFields: [
+            { key: "label", label: "Label", kind: "text" },
+            { key: "href", label: "Link", kind: "text" },
+          ],
+          default: footerLinks,
+        },
+        copyright: { type: "TEXT", label: "Copyright Line", default: "© 2026 BlissyNest. All rights reserved." },
+      },
+    },
+  },
+};
+
+export function getSectionSchema(page: string, section: string): SectionSchema | undefined {
+  return contentSchema[page]?.[section];
+}

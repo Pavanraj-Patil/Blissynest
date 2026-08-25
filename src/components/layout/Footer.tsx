@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { footerLinks } from "@/lib/mock-data";
 import { NewsletterForm } from "./NewsletterForm";
+import { getPageContent } from "@/lib/content-service";
+
+type FooterLink = { label: string; href: string };
 
 function InstagramIcon() {
   return (
@@ -36,25 +38,28 @@ function YoutubeIcon() {
   );
 }
 
-const socials = [
-  { icon: InstagramIcon, label: "Instagram", href: "#" },
-  { icon: FacebookIcon, label: "Facebook", href: "#" },
-  { icon: PinterestIcon, label: "Pinterest", href: "#" },
-  { icon: YoutubeIcon, label: "YouTube", href: "#" },
-];
+export async function Footer() {
+  const content = await getPageContent("layout");
+  const footer = content.footer;
+  const links = footer.links as FooterLink[];
 
-export function Footer() {
+  const socials = [
+    { icon: InstagramIcon, label: "Instagram", href: footer.instagramUrl as string },
+    { icon: FacebookIcon, label: "Facebook", href: footer.facebookUrl as string },
+    { icon: PinterestIcon, label: "Pinterest", href: footer.pinterestUrl as string },
+    { icon: YoutubeIcon, label: "YouTube", href: footer.youtubeUrl as string },
+  ];
+
   return (
     <footer className="bg-cream-dark border-t border-charcoal/10">
       <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-12 md:py-14">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-10 border-b border-charcoal/10">
           <div className="max-w-sm text-center lg:text-left mx-auto lg:mx-0">
             <h2 className="font-serif text-2xl text-charcoal">
-              A little inspiration, delivered.
+              {footer.newsletterHeading as string}
             </h2>
             <p className="text-sm text-ink-muted mt-2">
-              Gift ideas, new launches and feel-good stories — straight to
-              your inbox.
+              {footer.newsletterSubcopy as string}
             </p>
           </div>
           <NewsletterForm className="w-full max-w-md mx-auto lg:mx-0" />
@@ -76,7 +81,7 @@ export function Footer() {
         </div>
 
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-charcoal-light pt-8">
-          {footerLinks.map((link) => (
+          {links.map((link) => (
             <Link
               key={link.label}
               href={link.href}
@@ -88,7 +93,7 @@ export function Footer() {
         </nav>
 
         <p className="text-xs text-ink-muted text-center lg:text-left mt-6">
-          © 2026 BlissyNest. All rights reserved.
+          {footer.copyright as string}
         </p>
       </div>
     </footer>

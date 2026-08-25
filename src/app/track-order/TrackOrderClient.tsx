@@ -20,7 +20,10 @@ function estimatedDelivery(): string {
   return date.toLocaleDateString("en-IN", { day: "numeric", month: "long" });
 }
 
-export function TrackOrderClient() {
+type TrackOrderContent = { eyebrow: string; heading: string; subcopy: string };
+
+export function TrackOrderClient({ content: rawContent }: { content: Record<string, unknown> }) {
+  const content = rawContent as TrackOrderContent;
   const [result, setResult] = useState<{ orderNumber: string; step: number } | null>(null);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -45,10 +48,10 @@ export function TrackOrderClient() {
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 pb-10 text-center">
-          <p className="eyebrow text-terracotta-dark mb-2">Where&rsquo;s My Order?</p>
-          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">Track Your Order</h1>
+          <p className="eyebrow text-terracotta-dark mb-2">{content.eyebrow}</p>
+          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">{content.heading}</h1>
           <p className="mt-3 text-sm text-ink-muted max-w-xl mx-auto">
-            Enter your order number and email to see the latest status.
+            {content.subcopy}
           </p>
         </div>
 

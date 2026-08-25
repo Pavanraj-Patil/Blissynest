@@ -1,12 +1,22 @@
 import Link from "next/link";
 import { Gift } from "lucide-react";
 import { getSiteSettings } from "@/lib/site-settings";
+import { getPageContent } from "@/lib/content-service";
+import type { LinkValue } from "@/lib/content-schema";
 
 // Real, DB-backed threshold (see /admin/settings) — this used to hardcode
 // "₹999" as literal text, which would've silently gone stale the moment an
 // admin changed the actual checkout threshold in Settings.
 export async function TopBar() {
-  const { freeShippingThreshold } = await getSiteSettings();
+  const [{ freeShippingThreshold }, content] = await Promise.all([
+    getSiteSettings(),
+    getPageContent("layout"),
+  ]);
+  const { trackOrder, help, corporateGifting } = content.topbar as {
+    trackOrder: LinkValue;
+    help: LinkValue;
+    corporateGifting: LinkValue;
+  };
 
   return (
     <div className="bg-charcoal text-cream/90 text-xs">
@@ -18,19 +28,16 @@ export async function TopBar() {
           </span>
         </p>
         <div className="hidden sm:flex items-center gap-1.5 text-cream/75 shrink-0">
-          <Link href="/track-order" className="hover:text-cream transition-colors">
-            Track Order
+          <Link href={trackOrder.href} className="hover:text-cream transition-colors">
+            {trackOrder.label}
           </Link>
           <span className="text-cream/30">|</span>
-          <Link href="/help" className="hover:text-cream transition-colors">
-            Help
+          <Link href={help.href} className="hover:text-cream transition-colors">
+            {help.label}
           </Link>
           <span className="text-cream/30">|</span>
-          <Link
-            href="/corporate"
-            className="hover:text-cream transition-colors"
-          >
-            Corporate Gifting
+          <Link href={corporateGifting.href} className="hover:text-cream transition-colors">
+            {corporateGifting.label}
           </Link>
         </div>
       </div>

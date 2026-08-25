@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { RepeatingListField } from "@/components/admin/RepeatingListField";
 
 export type ProductFormInitial = {
   id?: string;
@@ -443,59 +444,17 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
 
       {values.pdpType === "HAMPER" && (
         <Section title="What's Inside (Hamper)">
-          <div className="space-y-3">
-            {values.whatsInside.map((item, i) => (
-              <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_5rem_auto] gap-2 items-start">
-                <input
-                  placeholder="Item name"
-                  value={item.name}
-                  onChange={(e) =>
-                    set(
-                      "whatsInside",
-                      values.whatsInside.map((it, idx) => (idx === i ? { ...it, name: e.target.value } : it))
-                    )
-                  }
-                  className={inputClass}
-                />
-                <input
-                  placeholder="Subtitle"
-                  value={item.subtitle}
-                  onChange={(e) =>
-                    set(
-                      "whatsInside",
-                      values.whatsInside.map((it, idx) => (idx === i ? { ...it, subtitle: e.target.value } : it))
-                    )
-                  }
-                  className={inputClass}
-                />
-                <input
-                  placeholder="1x"
-                  value={item.qty}
-                  onChange={(e) =>
-                    set(
-                      "whatsInside",
-                      values.whatsInside.map((it, idx) => (idx === i ? { ...it, qty: e.target.value } : it))
-                    )
-                  }
-                  className={inputClass}
-                />
-                <button
-                  type="button"
-                  onClick={() => set("whatsInside", values.whatsInside.filter((_, idx) => idx !== i))}
-                  className="mt-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => set("whatsInside", [...values.whatsInside, { name: "", subtitle: "", qty: "1x" }])}
-              className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
-            >
-              <Plus size={13} /> Add item
-            </button>
-          </div>
+          <RepeatingListField
+            value={values.whatsInside}
+            onChange={(next) => set("whatsInside", next)}
+            fields={[
+              { key: "name", label: "Item name", kind: "text" },
+              { key: "subtitle", label: "Subtitle", kind: "text" },
+              { key: "qty", label: "1x", kind: "text" },
+            ]}
+            emptyItem={{ name: "", subtitle: "", qty: "1x" }}
+            addLabel="Add item"
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
@@ -523,47 +482,16 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
 
       {values.pdpType === "STANDALONE" && (
         <Section title="Variants (optional)">
-          <div className="space-y-3">
-            {values.variants.map((v, i) => (
-              <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_2fr_auto] gap-2 items-start">
-                <input
-                  placeholder="Scent"
-                  value={v.label}
-                  onChange={(e) =>
-                    set("variants", values.variants.map((vv, idx) => (idx === i ? { ...vv, label: e.target.value } : vv)))
-                  }
-                  className={inputClass}
-                />
-                <input
-                  placeholder="Lavender, Vanilla, Sandalwood"
-                  value={v.options.join(", ")}
-                  onChange={(e) =>
-                    set(
-                      "variants",
-                      values.variants.map((vv, idx) =>
-                        idx === i ? { ...vv, options: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) } : vv
-                      )
-                    )
-                  }
-                  className={inputClass}
-                />
-                <button
-                  type="button"
-                  onClick={() => set("variants", values.variants.filter((_, idx) => idx !== i))}
-                  className="mt-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => set("variants", [...values.variants, { label: "", options: [] }])}
-              className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
-            >
-              <Plus size={13} /> Add variant
-            </button>
-          </div>
+          <RepeatingListField
+            value={values.variants}
+            onChange={(next) => set("variants", next)}
+            fields={[
+              { key: "label", label: "Scent", kind: "text" },
+              { key: "options", label: "Lavender, Vanilla, Sandalwood", kind: "taglist" },
+            ]}
+            emptyItem={{ label: "", options: [] }}
+            addLabel="Add variant"
+          />
         </Section>
       )}
 
@@ -571,81 +499,19 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
         <Section title="Personalisation (Customisable)">
           <div>
             <span className={labelClass}>Text Lines</span>
-            <div className="mt-2 space-y-3">
-              {values.textLines.map((line, i) => (
-                <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_5rem_auto_auto] gap-2 items-start">
-                  <input
-                    placeholder="Label (e.g. Name)"
-                    value={line.label}
-                    onChange={(e) =>
-                      set(
-                        "textLines",
-                        values.textLines.map((l, idx) => (idx === i ? { ...l, label: e.target.value } : l))
-                      )
-                    }
-                    className={inputClass}
-                  />
-                  <input
-                    placeholder="Placeholder text"
-                    value={line.placeholder}
-                    onChange={(e) =>
-                      set(
-                        "textLines",
-                        values.textLines.map((l, idx) => (idx === i ? { ...l, placeholder: e.target.value } : l))
-                      )
-                    }
-                    className={inputClass}
-                  />
-                  <input
-                    type="number"
-                    min={1}
-                    placeholder="Max chars"
-                    value={line.maxLength}
-                    onChange={(e) =>
-                      set(
-                        "textLines",
-                        values.textLines.map((l, idx) =>
-                          idx === i ? { ...l, maxLength: Number(e.target.value) } : l
-                        )
-                      )
-                    }
-                    className={inputClass}
-                  />
-                  <label className="mt-1.5 flex items-center gap-1.5 text-xs text-charcoal-light whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      checked={line.required}
-                      onChange={(e) =>
-                        set(
-                          "textLines",
-                          values.textLines.map((l, idx) => (idx === i ? { ...l, required: e.target.checked } : l))
-                        )
-                      }
-                      className="h-4 w-4 rounded border-charcoal/25 accent-olive"
-                    />
-                    Required
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => set("textLines", values.textLines.filter((_, idx) => idx !== i))}
-                    className="mt-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() =>
-                  set("textLines", [
-                    ...values.textLines,
-                    { label: "", required: false, maxLength: 30, placeholder: "" },
-                  ])
-                }
-                className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
-              >
-                <Plus size={13} /> Add text line
-              </button>
+            <div className="mt-2">
+              <RepeatingListField
+                value={values.textLines}
+                onChange={(next) => set("textLines", next)}
+                fields={[
+                  { key: "label", label: "Label (e.g. Name)", kind: "text" },
+                  { key: "placeholder", label: "Placeholder text", kind: "text" },
+                  { key: "maxLength", label: "Max chars", kind: "number", min: 1 },
+                  { key: "required", label: "Required", kind: "checkbox" },
+                ]}
+                emptyItem={{ label: "", required: false, maxLength: 30, placeholder: "" }}
+                addLabel="Add text line"
+              />
             </div>
           </div>
 
@@ -676,41 +542,17 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
 
           <div>
             <span className={labelClass}>Colors</span>
-            <div className="mt-2 space-y-2">
-              {values.colors.map((c, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={c.hex}
-                    onChange={(e) =>
-                      set("colors", values.colors.map((cc, idx) => (idx === i ? { ...cc, hex: e.target.value } : cc)))
-                    }
-                    className="h-9 w-9 shrink-0 cursor-pointer rounded-lg border border-charcoal/15"
-                  />
-                  <input
-                    placeholder="Color name (e.g. Charcoal)"
-                    value={c.name}
-                    onChange={(e) =>
-                      set("colors", values.colors.map((cc, idx) => (idx === i ? { ...cc, name: e.target.value } : cc)))
-                    }
-                    className={`${inputClass} mt-0`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => set("colors", values.colors.filter((_, idx) => idx !== i))}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => set("colors", [...values.colors, { name: "", hex: "#2a2621" }])}
-                className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
-              >
-                <Plus size={13} /> Add color
-              </button>
+            <div className="mt-2">
+              <RepeatingListField
+                value={values.colors}
+                onChange={(next) => set("colors", next)}
+                fields={[
+                  { key: "hex", label: "Color", kind: "color" },
+                  { key: "name", label: "Color name (e.g. Charcoal)", kind: "text" },
+                ]}
+                emptyItem={{ name: "", hex: "#2a2621" }}
+                addLabel="Add color"
+              />
             </div>
           </div>
 
@@ -738,54 +580,18 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
 
           <div>
             <span className={labelClass}>Specs (optional)</span>
-            <div className="mt-2 space-y-2">
-              {values.specs.map((spec, i) => (
-                <div key={i} className="grid grid-cols-1 sm:grid-cols-[8rem_1fr_1fr_auto] gap-2 items-start">
-                  <select
-                    value={spec.icon}
-                    onChange={(e) =>
-                      set("specs", values.specs.map((s, idx) => (idx === i ? { ...s, icon: e.target.value } : s)))
-                    }
-                    className={inputClass}
-                  >
-                    {specIconOptions.map((icon) => (
-                      <option key={icon} value={icon}>
-                        {icon}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    placeholder="Label (e.g. Material)"
-                    value={spec.label}
-                    onChange={(e) =>
-                      set("specs", values.specs.map((s, idx) => (idx === i ? { ...s, label: e.target.value } : s)))
-                    }
-                    className={inputClass}
-                  />
-                  <input
-                    placeholder="Value (e.g. Solid Oak)"
-                    value={spec.value}
-                    onChange={(e) =>
-                      set("specs", values.specs.map((s, idx) => (idx === i ? { ...s, value: e.target.value } : s)))
-                    }
-                    className={inputClass}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => set("specs", values.specs.filter((_, idx) => idx !== i))}
-                    className="mt-1.5 flex h-9 w-9 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => set("specs", [...values.specs, { icon: "Gift", label: "", value: "" }])}
-                className="flex items-center gap-1.5 text-xs font-medium text-terracotta-dark hover:text-terracotta"
-              >
-                <Plus size={13} /> Add spec
-              </button>
+            <div className="mt-2">
+              <RepeatingListField
+                value={values.specs}
+                onChange={(next) => set("specs", next)}
+                fields={[
+                  { key: "icon", label: "Icon", kind: "select", options: specIconOptions },
+                  { key: "label", label: "Label (e.g. Material)", kind: "text" },
+                  { key: "value", label: "Value (e.g. Solid Oak)", kind: "text" },
+                ]}
+                emptyItem={{ icon: "Gift", label: "", value: "" }}
+                addLabel="Add spec"
+              />
             </div>
           </div>
         </Section>

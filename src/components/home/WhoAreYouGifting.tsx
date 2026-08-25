@@ -1,18 +1,25 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { CategoryCard } from "@/components/ui/CategoryCard";
-import { audienceCategories } from "@/lib/mock-data";
+import { getPageContent } from "@/lib/content-service";
 
-export function WhoAreYouGifting() {
+type Tile = { label: string; href: string; image: string };
+
+export async function WhoAreYouGifting() {
+  const content = await getPageContent("home");
+  const section = content["who-are-you-gifting"];
+  const sectionTitle = section.sectionTitle as string;
+  const tiles = section.tiles as Tile[];
+
   return (
     <section className="mx-auto max-w-[1440px] px-4 md:px-8 py-4 md:py-6">
-      <SectionHeader title="Who are you making smile?" linkHref="/shop" />
+      <SectionHeader title={sectionTitle} linkHref="/shop" />
       <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-        {audienceCategories.map((cat) => (
+        {tiles.map((tile) => (
           <CategoryCard
-            key={cat.label}
-            label={cat.label}
-            image={cat.image}
-            href={cat.href}
+            key={tile.label}
+            label={tile.label}
+            image={tile.image}
+            href={tile.href}
           />
         ))}
       </div>

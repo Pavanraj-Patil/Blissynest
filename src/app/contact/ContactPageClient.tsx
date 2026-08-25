@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { ShopFooter } from "@/components/shop/ShopFooter";
+import { getContentIcon } from "@/lib/content-icons";
 
-const contactPoints = [
-  { icon: Mail, label: "Email", value: "hello@blissynest.com" },
-  { icon: Phone, label: "Phone", value: "1800-123-456" },
-  { icon: MapPin, label: "Studio", value: "Koregaon Park, Pune, Maharashtra" },
-];
+type ContactPoint = { icon: string; label: string; value: string };
+type ContactContent = {
+  eyebrow: string;
+  heading: string;
+  subcopy: string;
+  contactPoints: ContactPoint[];
+};
 
-export function ContactPageClient() {
+export function ContactPageClient({ content }: { content: Record<string, unknown> }) {
+  const { eyebrow, heading, subcopy, contactPoints } = content as ContactContent;
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,30 +57,33 @@ export function ContactPageClient() {
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 pb-10 text-center">
-          <p className="eyebrow text-terracotta-dark mb-2">We&rsquo;d Love to Hear From You</p>
-          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">Contact Us</h1>
+          <p className="eyebrow text-terracotta-dark mb-2">{eyebrow}</p>
+          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">{heading}</h1>
           <p className="mt-3 text-sm text-ink-muted max-w-xl mx-auto">
-            Questions about an order, a bulk request, or just want to say hi — we read every message.
+            {subcopy}
           </p>
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-10 max-w-4xl mx-auto">
             <div className="space-y-4">
-              {contactPoints.map((c) => (
-                <div
-                  key={c.label}
-                  className="flex items-center gap-3.5 rounded-2xl border border-charcoal/10 bg-white p-5"
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cream-dark">
-                    <c.icon size={18} className="text-terracotta" strokeWidth={1.5} />
+              {contactPoints.map((c) => {
+                const Icon = getContentIcon(c.icon);
+                return (
+                  <div
+                    key={c.label}
+                    className="flex items-center gap-3.5 rounded-2xl border border-charcoal/10 bg-white p-5"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cream-dark">
+                      <Icon size={18} className="text-terracotta" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-ink-muted">{c.label}</p>
+                      <p className="text-sm font-medium text-charcoal">{c.value}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-ink-muted">{c.label}</p>
-                    <p className="text-sm font-medium text-charcoal">{c.value}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               <p className="text-xs text-ink-muted leading-relaxed px-1">
                 We usually reply within 24 hours on business days.
               </p>

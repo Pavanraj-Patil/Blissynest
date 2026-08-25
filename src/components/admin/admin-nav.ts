@@ -11,6 +11,7 @@ import {
   Mail,
   Send,
   Settings,
+  FileText,
 } from "lucide-react";
 
 export type AdminNavItem = { label: string; href: string; icon: LucideIcon };
@@ -34,7 +35,10 @@ export const adminNavSections: AdminNavSection[] = [
   },
   {
     title: "Marketing",
-    items: [{ label: "Banners", href: "/admin/banners", icon: ImageIcon }],
+    items: [
+      { label: "Banners", href: "/admin/banners", icon: ImageIcon },
+      { label: "Site Content", href: "/admin/content", icon: FileText },
+    ],
   },
   {
     title: "Customers",
