@@ -14,35 +14,22 @@ export function Hero() {
         sizes="100vw"
       />
 
-      {/* Scrim: opaque cream on the left for text legibility, fading out to reveal the photo on the right */}
-      <div
-        className="absolute inset-0
-          bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_88%,transparent_100%)]
-          sm:bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_62%,transparent_92%)]
-          md:bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_48%,transparent_75%)]
-          lg:bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_38%,transparent_62%)]"
-      />
-
-      <div className="relative h-full mx-auto max-w-[1440px] px-4 md:px-8 flex items-start pt-12 sm:items-center sm:pt-0">
-        <div className="max-w-[18rem] sm:max-w-sm lg:max-w-lg">
-          <p className="text-gold text-sm mb-4 tracking-widest">❧❧❧❧</p>
-          <h1 className="font-serif text-3xl sm:text-5xl lg:text-[3.4rem] leading-[1.15] sm:leading-[1.08] text-charcoal">
-            For every feeling
-            <br />
-            worth celebrating.
-          </h1>
-          <p className="mt-5 text-charcoal-light text-sm sm:text-lg leading-relaxed">
-            Thoughtfully curated gifts for the people who make life
-            beautiful.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
-            <Button href="/gifting-assistant" variant="primary">
-              Find the Perfect Gift
-            </Button>
-            <Button href="/collections" variant="outline">
-              Explore Collections
-            </Button>
-          </div>
+      <div className="relative h-full mx-auto max-w-[1440px] px-4 md:px-8 flex items-end pb-10 sm:pb-14 md:pb-16">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4">
+          <Button
+            href="/gifting-assistant"
+            variant="primary"
+            className="px-5 py-2.5 text-[10px] sm:px-7 sm:py-3.5 sm:text-xs"
+          >
+            Find the Perfect Gift
+          </Button>
+          <Button
+            href="/collections"
+            variant="dark"
+            className="px-5 py-2.5 text-[10px] sm:px-7 sm:py-3.5 sm:text-xs"
+          >
+            Explore Collections
+          </Button>
         </div>
       </div>
     </section>
