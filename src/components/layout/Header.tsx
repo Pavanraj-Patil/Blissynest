@@ -42,12 +42,20 @@ export function Header() {
           <MobileNav />
           <Link href="/" className="shrink-0">
             <Image
+              src="/mini_logo.png"
+              alt="Blissynest"
+              width={64}
+              height={64}
+              priority
+              className="block h-8 w-8 min-[380px]:hidden"
+            />
+            <Image
               src="/blissynest-logo.png"
               alt="Blissynest"
               width={210}
               height={42}
               priority
-              className="block h-8 w-auto sm:h-9 md:h-11"
+              className="hidden h-8 w-auto min-[380px]:block sm:h-9 md:h-11"
             />
           </Link>
         </div>
