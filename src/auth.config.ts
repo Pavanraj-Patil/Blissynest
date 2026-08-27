@@ -48,6 +48,10 @@ export default {
       },
     }),
   ],
+  // NextAuth v5 only auto-trusts the request Host header on Vercel; on any
+  // other host (this app targets Hostinger — see prisma/schema.prisma) it
+  // throws UntrustedHost on every auth request without this.
+  trustHost: true,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/account",
