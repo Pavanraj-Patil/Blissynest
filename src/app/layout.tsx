@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   title: "Blissynest — Gifts That Feel Like Home",
   description:
     "Thoughtfully curated gifts for the people who make life beautiful.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
