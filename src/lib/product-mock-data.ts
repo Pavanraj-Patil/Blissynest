@@ -39,6 +39,7 @@ type BaseProduct = {
   tagline?: string;
   rating: number;
   reviews: number;
+  inStock: boolean;
   price: number;
   images: string[];
   breadcrumbCategory: string;
@@ -89,6 +90,7 @@ export const flagshipProducts: ProductDetail[] = [
     name: "The Birthday Self-Care Box",
     rating: 5,
     reviews: 124,
+    inStock: true,
     price: 1999,
     breadcrumbCategory: "Birthday Gifts",
     images: [
@@ -195,6 +197,7 @@ export const flagshipProducts: ProductDetail[] = [
     tagline: "Add your name, date or a special note to make it truly yours.",
     rating: 5,
     reviews: 98,
+    inStock: true,
     price: 899,
     breadcrumbCategory: "Personalised",
     images: [
@@ -281,6 +284,7 @@ export const flagshipProducts: ProductDetail[] = [
     tagline: "A calming candle made for slow evenings & thoughtful gifting.",
     rating: 5,
     reviews: 53,
+    inStock: true,
     price: 1499,
     breadcrumbCategory: "Home & Living",
     images: [
@@ -355,6 +359,7 @@ function fallbackFromShopProduct(product: ShopProduct): StandaloneProduct {
     tagline: "Thoughtfully chosen, beautifully packaged.",
     rating: product.rating,
     reviews: product.reviews,
+    inStock: true,
     price: product.price,
     breadcrumbCategory: product.category
       .split("-")
@@ -383,6 +388,7 @@ function fallbackFromCollectionProduct(product: CollectionProduct): StandalonePr
     tagline: "Thoughtfully chosen, beautifully packaged.",
     rating: product.rating,
     reviews: product.reviews,
+    inStock: true,
     price: product.price,
     breadcrumbCategory: product.category
       .split("-")
@@ -413,6 +419,7 @@ function fallbackFromBestseller(name: string): StandaloneProduct | null {
     tagline: "Thoughtfully chosen, beautifully packaged.",
     rating: match.rating,
     reviews: match.reviews,
+    inStock: true,
     price: match.price,
     breadcrumbCategory: "Bestsellers",
     images: [match.image],

@@ -4,14 +4,23 @@ import { useState, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminTopbar } from "./AdminTopbar";
+import type { AdminNavCounts } from "./admin-nav";
 
-export function AdminShell({ adminName, children }: { adminName: string; children: ReactNode }) {
+export function AdminShell({
+  adminName,
+  counts,
+  children,
+}: {
+  adminName: string;
+  counts: AdminNavCounts;
+  children: ReactNode;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="flex h-screen overflow-hidden bg-cream">
       <aside className="hidden lg:block w-64 shrink-0 border-r border-charcoal/10">
-        <AdminSidebar />
+        <AdminSidebar counts={counts} />
       </aside>
 
       {mobileOpen && (
@@ -30,7 +39,7 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
             >
               <X size={16} />
             </button>
-            <AdminSidebar onNavigate={() => setMobileOpen(false)} />
+            <AdminSidebar onNavigate={() => setMobileOpen(false)} counts={counts} />
           </div>
         </div>
       )}

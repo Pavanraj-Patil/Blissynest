@@ -201,6 +201,7 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const editingBanner = banners.find((b) => b.id === editingId);
   const deletingBanner = banners.find((b) => b.id === deletingId);
@@ -245,9 +246,12 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
   }
 
   async function handleDelete(id: string) {
-    setBanners((prev) => prev.filter((b) => b.id !== id));
-    setDeletingId(null);
+    if (deleting) return;
+    setDeleting(true);
     await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
+    setBanners((prev) => prev.filter((b) => b.id !== id));
+    setDeleting(false);
+    setDeletingId(null);
   }
 
   async function handleToggleActive(id: string, active: boolean) {
@@ -431,6 +435,7 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
         open={deletingBanner !== undefined}
         title="Delete this banner?"
         description={`"${deletingBanner?.title}" will be permanently deleted and disappear from the site immediately.`}
+        submitting={deleting}
         onConfirm={() => deletingId && handleDelete(deletingId)}
         onCancel={() => setDeletingId(null)}
       />

@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/admin/require-admin";
 function titleFromSlug(slug: string[]): string {
   return slug[slug.length - 1]
     .split("-")
+    .filter(Boolean)
     .map((w) => w[0].toUpperCase() + w.slice(1))
     .join(" ");
 }

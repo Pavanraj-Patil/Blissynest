@@ -28,6 +28,7 @@ export async function LovedByMany() {
               price={p.price}
               rating={p.rating}
               reviews={p.reviews}
+              inStock={p.inStock}
               image={p.image}
               href={`/product/${p.id}`}
             />

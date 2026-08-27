@@ -509,6 +509,7 @@ export type ShopProduct = {
   price: number;
   rating: number;
   reviews: number;
+  inStock: boolean;
   image: string;
   category: string;
   occasions: string[];
@@ -540,6 +541,7 @@ function buildProducts(audience: AudienceSlug): ShopProduct[] {
         price: seed.price,
         rating,
         reviews,
+        inStock: true,
         image: ph(320, 320, bg, fg, seed.name),
         category: cat.slug,
         occasions,

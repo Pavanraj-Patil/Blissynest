@@ -35,9 +35,15 @@ type Mode = "login" | "signup";
 export function AccountAuthModal({
   open,
   onClose,
+  initialMode = "login",
+  initialName = "",
+  initialEmail = "",
 }: {
   open: boolean;
   onClose: () => void;
+  initialMode?: Mode;
+  initialName?: string;
+  initialEmail?: string;
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
@@ -47,6 +53,17 @@ export function AccountAuthModal({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    // Resetting form state to the caller's prefill props when the modal
+    // opens — a real sync-to-an-external-trigger case, not derivable state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMode(initialMode);
+    setName(initialName);
+    setEmail(initialEmail);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;

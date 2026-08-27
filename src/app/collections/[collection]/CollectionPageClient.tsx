@@ -21,13 +21,19 @@ const ITEMS_PER_PAGE = 12;
 export function CollectionPageClient({
   collection,
   initialProducts,
+  bannerImage,
 }: {
   collection: CollectionSlug;
   initialProducts: ListProduct[];
+  bannerImage?: string;
 }) {
   const content = useMemo(
-    () => ({ ...collectionContent[collection], products: initialProducts }),
-    [collection, initialProducts]
+    () => ({
+      ...collectionContent[collection],
+      products: initialProducts,
+      bannerImage: bannerImage || collectionContent[collection].bannerImage,
+    }),
+    [collection, initialProducts, bannerImage]
   );
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -237,6 +243,7 @@ export function CollectionPageClient({
                       price={p.price}
                       rating={p.rating}
                       reviews={p.reviews}
+                      inStock={p.inStock}
                       image={p.image}
                       href={`/product/${p.id}`}
                       layout={view}

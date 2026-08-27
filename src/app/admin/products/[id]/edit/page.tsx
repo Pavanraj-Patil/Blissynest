@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { db } from "@/lib/db";
+import { paiseToRupees } from "@/lib/currency";
 import { ProductForm, type ProductFormInitial } from "../../ProductForm";
 
 function toRupees(paise: number | null): number | "" {
-  return paise === null ? "" : Math.round(paise / 100);
+  return paise === null ? "" : paiseToRupees(paise);
 }
 
 export default async function AdminEditProductPage({
@@ -49,11 +50,12 @@ export default async function AdminEditProductPage({
     recipientTags: product.recipientTags as string[],
     attribute: product.attribute ?? "",
     badge: product.badge ?? "",
-    basePrice: Math.round(product.basePrice / 100),
+    basePrice: paiseToRupees(product.basePrice),
     compareAtPrice: toRupees(product.compareAtPrice),
     images: (product.images as string[]).length > 0 ? (product.images as string[]) : [""],
     stockQuantity: product.stockQuantity,
     featured: product.featured,
+    sortRank: product.sortRank ?? "",
     status: product.status,
     description: details.description,
     materials: details.materials ?? "",

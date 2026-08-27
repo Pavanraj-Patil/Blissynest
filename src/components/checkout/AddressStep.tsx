@@ -43,7 +43,9 @@ function AddressForm({
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">Address Label</span>
+          <span className="text-xs font-medium text-charcoal">
+            Address Label <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             value={values.label}
@@ -53,7 +55,9 @@ function AddressForm({
           />
         </label>
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">Full Name</span>
+          <span className="text-xs font-medium text-charcoal">
+            Full Name <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             value={values.name}
@@ -65,7 +69,9 @@ function AddressForm({
       </div>
 
       <label className="block">
-        <span className="text-xs font-medium text-charcoal">Address Line 1</span>
+        <span className="text-xs font-medium text-charcoal">
+          Address Line 1 <span className="text-terracotta-dark">*</span>
+        </span>
         <input
           required
           value={values.line1}
@@ -87,7 +93,9 @@ function AddressForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">City</span>
+          <span className="text-xs font-medium text-charcoal">
+            City <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             value={values.city}
@@ -96,7 +104,9 @@ function AddressForm({
           />
         </label>
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">State</span>
+          <span className="text-xs font-medium text-charcoal">
+            State <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             value={values.state}
@@ -105,7 +115,9 @@ function AddressForm({
           />
         </label>
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">Pincode</span>
+          <span className="text-xs font-medium text-charcoal">
+            Pincode <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             maxLength={6}
@@ -117,7 +129,9 @@ function AddressForm({
       </div>
 
       <label className="block max-w-xs">
-        <span className="text-xs font-medium text-charcoal">Phone</span>
+        <span className="text-xs font-medium text-charcoal">
+          Phone <span className="text-terracotta-dark">*</span>
+        </span>
         <input
           required
           value={values.phone}
@@ -160,6 +174,15 @@ type AddressStepProps = {
   hidePrices: boolean;
   onToggleHidePrices: (v: boolean) => void;
   onContinue: () => void;
+  // Extra gate beyond `!!selectedId`, e.g. a guest's contact email also
+  // needing to be valid before continuing. Defaults to true so every
+  // existing caller keeps its current behavior unchanged.
+  canContinue?: boolean;
+  // Prefills a brand-new address's Phone field (e.g. a guest's own contact
+  // number they already typed above) so they don't have to enter it twice —
+  // still just a starting value, editable in case delivery goes to someone
+  // else's number.
+  defaultPhone?: string;
 };
 
 export function AddressStep({
@@ -176,6 +199,8 @@ export function AddressStep({
   hidePrices,
   onToggleHidePrices,
   onContinue,
+  canContinue = true,
+  defaultPhone,
 }: AddressStepProps) {
   const [mode, setMode] = useState<"list" | "add" | "edit">("list");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -318,7 +343,7 @@ export function AddressStep({
           <button
             type="button"
             onClick={onContinue}
-            disabled={!selectedId}
+            disabled={!selectedId || !canContinue}
             className="inline-flex items-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
           >
             Continue to Payment
@@ -329,7 +354,7 @@ export function AddressStep({
 
       {mode === "add" && (
         <AddressForm
-          initial={emptyForm}
+          initial={defaultPhone ? { ...emptyForm, phone: defaultPhone } : emptyForm}
           onSave={(values) => {
             onAdd(values);
             setMode("list");

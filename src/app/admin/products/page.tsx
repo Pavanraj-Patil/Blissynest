@@ -1,10 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ExternalLink, Search, PackageX, Plus } from "lucide-react";
+import { ExternalLink, PackageX, Plus } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 import { ProductRowActions } from "./ProductRowActions";
+import { ProductSearchInput } from "./ProductSearchInput";
 
 const PAGE_SIZE = 20;
 
@@ -14,22 +15,34 @@ const statusStyles: Record<string, string> = {
   ARCHIVED: "bg-charcoal/10 text-charcoal-light",
 };
 
+const audienceValues = ["HER", "HIM", "PARENTS", "COUPLES", "FRIENDS", "COLLEAGUES"] as const;
+const audienceLabels: Record<string, string> = {
+  HER: "Her",
+  HIM: "Him",
+  PARENTS: "Parents",
+  COUPLES: "Couples",
+  FRIENDS: "Friends",
+  COLLEAGUES: "Colleagues",
+};
+
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; audience?: string; category?: string; page?: string }>;
 }) {
   await requireAdmin();
-  const { q, status, page: pageParam } = await searchParams;
+  const { q, status, audience, category, page: pageParam } = await searchParams;
   const query = (q ?? "").trim();
   const page = Math.max(1, Number(pageParam) || 1);
 
   const where: Prisma.ProductWhereInput = {
     ...(query && { name: { contains: query } }),
     ...(status && ["PUBLISHED", "DRAFT", "ARCHIVED"].includes(status) && { status: status as never }),
+    ...(audience && (audienceValues as readonly string[]).includes(audience) && { audience: audience as never }),
+    ...(category && { category }),
   };
 
-  const [products, total] = await Promise.all([
+  const [products, total, categoryRows] = await Promise.all([
     db.product.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -37,7 +50,13 @@ export default async function AdminProductsPage({
       take: PAGE_SIZE,
     }),
     db.product.count({ where }),
+    db.product.findMany({
+      distinct: ["category"],
+      select: { category: true },
+      orderBy: { category: "asc" },
+    }),
   ]);
+  const categories = categoryRows.map((r) => r.category);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -45,8 +64,22 @@ export default async function AdminProductsPage({
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (status) params.set("status", status);
+    if (audience) params.set("audience", audience);
+    if (category) params.set("category", category);
     params.set("page", String(targetPage));
     return `/admin/products?${params.toString()}`;
+  }
+
+  function filterHref(next: { status?: string; audience?: string }) {
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    const nextStatus = "status" in next ? next.status : status;
+    const nextAudience = "audience" in next ? next.audience : audience;
+    if (nextStatus) params.set("status", nextStatus);
+    if (nextAudience) params.set("audience", nextAudience);
+    if (category) params.set("category", category);
+    const qs = params.toString();
+    return `/admin/products${qs ? `?${qs}` : ""}`;
   }
 
   const statusFilters = [
@@ -72,37 +105,72 @@ export default async function AdminProductsPage({
         </Link>
       </div>
 
-      <div className="rounded-2xl border border-charcoal/10 bg-white p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <form className="flex-1 max-w-sm">
-            <label className="relative block">
-              <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/35" />
-              <input
-                type="text"
-                name="q"
-                defaultValue={query}
-                placeholder="Search by name…"
-                className="w-full rounded-lg border border-charcoal/15 py-2 pl-9 pr-3 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
-              />
-              {status && <input type="hidden" name="status" value={status} />}
-            </label>
-          </form>
+      <div className="rounded-2xl border border-charcoal/10 bg-white p-4 space-y-3">
+        <form className="flex flex-col sm:flex-row gap-3">
+          <ProductSearchInput defaultValue={query} />
 
-          <div className="flex items-center gap-1.5">
-            {statusFilters.map((f) => (
-              <Link
-                key={f.value}
-                href={`/admin/products${f.value ? `?status=${f.value}` : ""}${query ? `${f.value ? "&" : "?"}q=${encodeURIComponent(query)}` : ""}`}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  (status ?? "") === f.value
-                    ? "bg-olive text-cream"
-                    : "border border-charcoal/15 text-charcoal-light hover:bg-cream-dark"
-                }`}
-              >
-                {f.label}
-              </Link>
+          <select
+            name="category"
+            defaultValue={category ?? ""}
+            className="rounded-lg border border-charcoal/15 py-2 px-3 text-sm text-charcoal focus:outline-none focus:border-olive"
+          >
+            <option value="">All categories</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
-          </div>
+          </select>
+
+          {status && <input type="hidden" name="status" value={status} />}
+          {audience && <input type="hidden" name="audience" value={audience} />}
+
+          <button
+            type="submit"
+            className="rounded-lg bg-olive text-cream px-5 py-2 text-xs font-semibold tracking-[0.08em] uppercase hover:bg-olive-dark transition-colors shrink-0"
+          >
+            Search
+          </button>
+        </form>
+
+        <div className="flex flex-wrap items-center gap-1.5">
+          {statusFilters.map((f) => (
+            <Link
+              key={f.value}
+              href={filterHref({ status: f.value })}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                (status ?? "") === f.value
+                  ? "bg-olive text-cream"
+                  : "border border-charcoal/15 text-charcoal-light hover:bg-cream-dark"
+              }`}
+            >
+              {f.label}
+            </Link>
+          ))}
+          <span className="mx-1 h-4 w-px bg-charcoal/10" />
+          <Link
+            href={filterHref({ audience: "" })}
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              !audience
+                ? "bg-terracotta text-cream"
+                : "border border-charcoal/15 text-charcoal-light hover:bg-cream-dark"
+            }`}
+          >
+            All audiences
+          </Link>
+          {audienceValues.map((a) => (
+            <Link
+              key={a}
+              href={filterHref({ audience: a })}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                audience === a
+                  ? "bg-terracotta text-cream"
+                  : "border border-charcoal/15 text-charcoal-light hover:bg-cream-dark"
+              }`}
+            >
+              {audienceLabels[a]}
+            </Link>
+          ))}
         </div>
       </div>
 

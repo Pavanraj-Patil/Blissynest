@@ -17,6 +17,9 @@ export default async function AccountPage() {
   if (!session?.user?.id) {
     redirect("/");
   }
+  if (session.user.role === "ADMIN") {
+    redirect("/admin");
+  }
 
   const [orders, addressRows] = await Promise.all([
     getOrdersForUser(session.user.id),

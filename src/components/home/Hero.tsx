@@ -1,13 +1,15 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import { heroImage, heroImageMobile } from "@/lib/mock-data";
 import { getPageContent } from "@/lib/content-service";
-import type { LinkValue } from "@/lib/content-schema";
+import type { LinkValue, ResponsiveImageValue } from "@/lib/content-schema";
 
 export async function Hero() {
   const content = await getPageContent("home");
   const primaryCta = content.hero.primaryCta as LinkValue;
   const secondaryCta = content.hero.secondaryCta as LinkValue;
+  const heroImageValue = content.hero.image as ResponsiveImageValue;
+  const heroImage = heroImageValue.desktop;
+  const heroImageMobile = heroImageValue.mobile || heroImageValue.desktop;
 
   return (
     <section className="relative h-[440px] sm:h-[520px] md:h-[560px] lg:h-[620px] w-full overflow-hidden">

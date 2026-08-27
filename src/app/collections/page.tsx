@@ -6,14 +6,21 @@ import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { CollectionCard } from "@/components/ui/CollectionCard";
-import { editCollections } from "@/lib/mock-data";
+import { getPageContent } from "@/lib/content-service";
+
+type CollectionTile = { title: string; subtitle: string; slug: string; image: string; dark: boolean };
 
 export const metadata: Metadata = {
   title: "Collections | Blissynest",
   description: "The Blissynest Edit — five curated collections for every kind of gifting moment.",
 };
 
-export default function CollectionsPage() {
+export default async function CollectionsPage() {
+  // Reuses the homepage's "blissynest-edit" tiles — same admin edit, same
+  // tiles everywhere, instead of a second hardcoded copy that drifts.
+  const content = await getPageContent("home");
+  const tiles = content["blissynest-edit"].tiles as CollectionTile[];
+
   return (
     <>
       <TopBar />
@@ -38,14 +45,14 @@ export default function CollectionsPage() {
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">
           <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-            {editCollections.map((c) => (
+            {tiles.map((c) => (
               <CollectionCard
                 key={c.slug}
                 title={c.title}
                 subtitle={c.subtitle}
                 image={c.image}
                 href={`/collections/${c.slug}`}
-                dark={c.title === "The Luxury Edit"}
+                dark={c.dark}
               />
             ))}
           </div>

@@ -5,9 +5,9 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { adminNavSections, dashboardNavItem, type AdminNavItem } from "./admin-nav";
+import { adminNavSections, dashboardNavItem, type AdminNavItem, type AdminNavCounts } from "./admin-nav";
 
-function NavLink({ item, active }: { item: AdminNavItem; active: boolean }) {
+function NavLink({ item, active, count }: { item: AdminNavItem; active: boolean; count?: number }) {
   return (
     <Link
       href={item.href}
@@ -19,7 +19,12 @@ function NavLink({ item, active }: { item: AdminNavItem; active: boolean }) {
       )}
     >
       <item.icon size={17} strokeWidth={1.75} />
-      {item.label}
+      <span className="flex-1">{item.label}</span>
+      {!!count && (
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-terracotta-dark px-1.5 text-[10px] font-semibold text-cream">
+          {count > 99 ? "99+" : count}
+        </span>
+      )}
     </Link>
   );
 }
@@ -29,7 +34,13 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
+export function AdminSidebar({
+  onNavigate,
+  counts,
+}: {
+  onNavigate?: () => void;
+  counts?: AdminNavCounts;
+}) {
   const pathname = usePathname();
 
   return (
@@ -54,7 +65,12 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
             </p>
             <div className="space-y-0.5">
               {section.items.map((item) => (
-                <NavLink key={item.href} item={item} active={isActive(pathname, item.href)} />
+                <NavLink
+                  key={item.href}
+                  item={item}
+                  active={isActive(pathname, item.href)}
+                  count={item.countKey ? counts?.[item.countKey] : undefined}
+                />
               ))}
             </div>
           </div>

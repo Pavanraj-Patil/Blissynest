@@ -13,7 +13,6 @@ import {
   ChevronUp,
   Lock,
   ShoppingBag,
-  UserCircle2,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -28,13 +27,12 @@ import { cn } from "@/lib/cn";
 import { loadRazorpayScript } from "@/lib/load-razorpay-script";
 import {
   paymentMethods,
-  coupons,
-  calculateDiscount,
   FREE_SHIPPING_THRESHOLD,
   STANDARD_SHIPPING_FEE,
   type Address,
-  type Coupon,
 } from "@/lib/checkout-data";
+
+type AppliedCoupon = { code: string; discount: number };
 
 function StepSection({
   stepNumber,
@@ -95,19 +93,32 @@ function StepSection({
   );
 }
 
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isValidPhone(value: string): boolean {
+  return value.replace(/\D/g, "").length >= 10;
+}
+
 export function CheckoutPageClient() {
   const { status } = useSession();
   const { items, subtotal, clearCart } = useCart();
+  const authenticated = status === "authenticated";
 
   const [step, setStep] = useState<CheckoutStep>(1);
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [guestAddress, setGuestAddress] = useState<Address | null>(null);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [isGift, setIsGift] = useState(false);
   const [giftNote, setGiftNote] = useState("");
   const [hidePrices, setHidePrices] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponApplying, setCouponApplying] = useState(false);
 
   const [placingOrder, setPlacingOrder] = useState(false);
   const [placeOrderError, setPlaceOrderError] = useState<string | null>(null);
@@ -128,14 +139,31 @@ export function CheckoutPageClient() {
       .catch(() => {});
   }, [status]);
 
-  const discount = calculateDiscount(appliedCoupon, subtotal);
+  // Swapping to the confirmation view is a client-side state change, not a
+  // real navigation, so the browser doesn't reset scroll on its own — the
+  // user is usually scrolled down near "Place Order" at this point.
+  useEffect(() => {
+    if (orderPlaced) window.scrollTo(0, 0);
+  }, [orderPlaced]);
+
+  const discount = appliedCoupon?.discount ?? 0;
   const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
   const total = Math.max(0, subtotal - discount + shipping);
 
-  const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? null;
+  // Guests never get a persisted Address row (that API stays account-only) —
+  // their one typed address lives only in this component's state and is
+  // snapshotted onto the Order at placement time.
+  const visibleAddresses = authenticated ? addresses : guestAddress ? [guestAddress] : [];
+  const selectedAddress = visibleAddresses.find((a) => a.id === selectedAddressId) ?? null;
   const selectedPaymentMethod = paymentMethods.find((m) => m.key === paymentMethod) ?? null;
 
   async function handleAddAddress(values: Omit<Address, "id">) {
+    if (!authenticated) {
+      const local: Address = { id: "guest-address", ...values };
+      setGuestAddress(local);
+      setSelectedAddressId(local.id);
+      return;
+    }
     const res = await fetch("/api/addresses", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -148,6 +176,10 @@ export function CheckoutPageClient() {
   }
 
   async function handleEditAddress(id: string, values: Omit<Address, "id">) {
+    if (!authenticated) {
+      setGuestAddress({ id, ...values });
+      return;
+    }
     const res = await fetch(`/api/addresses/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -159,6 +191,11 @@ export function CheckoutPageClient() {
   }
 
   async function handleDeleteAddress(id: string) {
+    if (!authenticated) {
+      setGuestAddress(null);
+      setSelectedAddressId(null);
+      return;
+    }
     setAddresses((prev) => prev.filter((a) => a.id !== id));
     if (selectedAddressId === id) {
       setSelectedAddressId(addresses.find((a) => a.id !== id)?.id ?? null);
@@ -166,19 +203,35 @@ export function CheckoutPageClient() {
     await fetch(`/api/addresses/${id}`, { method: "DELETE" });
   }
 
-  function handleApplyCoupon(code: string) {
-    const match = coupons.find((c) => c.code === code.toUpperCase());
-    if (!match) {
-      setCouponError("That coupon code isn't valid.");
-      return;
-    }
-    const amount = calculateDiscount(match, subtotal);
-    if (amount === 0) {
-      setCouponError("Your order doesn't meet this coupon's minimum value.");
-      return;
-    }
-    setAppliedCoupon(match);
+  function buildGuestFields() {
+    if (authenticated) return {};
+    return {
+      guestEmail,
+      guestPhone,
+      guestItems: items.map((i) => ({ slug: i.slug, quantity: i.quantity })),
+    };
+  }
+
+  async function handleApplyCoupon(code: string) {
+    setCouponApplying(true);
     setCouponError(null);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCouponError(data.error ?? "That coupon code isn't valid.");
+        return;
+      }
+      setAppliedCoupon(data.coupon);
+    } catch {
+      setCouponError("Something went wrong. Please try again.");
+    } finally {
+      setCouponApplying(false);
+    }
   }
 
   function handleRemoveCoupon() {
@@ -228,6 +281,7 @@ export function CheckoutPageClient() {
             giftNote: isGift ? giftNote : undefined,
             hidePricesOnSlip: isGift ? hidePrices : false,
             couponCode: appliedCoupon?.code,
+            ...buildGuestFields(),
           }),
         });
         const data = await res.json();
@@ -255,7 +309,7 @@ export function CheckoutPageClient() {
     const createRes = await fetch("/api/checkout/razorpay/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ couponCode: appliedCoupon?.code }),
+      body: JSON.stringify({ couponCode: appliedCoupon?.code, ...buildGuestFields() }),
     });
     const session = await createRes.json();
     if (!createRes.ok) {
@@ -295,6 +349,7 @@ export function CheckoutPageClient() {
               giftNote: isGift ? giftNote : undefined,
               hidePricesOnSlip: isGift ? hidePrices : false,
               couponCode: appliedCoupon?.code,
+              ...buildGuestFields(),
             }),
           });
           const data = await verifyRes.json();
@@ -336,44 +391,31 @@ export function CheckoutPageClient() {
               total={orderTotal}
               addressSummary={orderAddressSummary}
             />
+            {!authenticated && (
+              <div className="mx-auto max-w-xl mt-6 mb-16 rounded-2xl border border-charcoal/10 bg-cream-dark p-6 text-center">
+                <p className="text-sm font-medium text-charcoal">Save this order to an account</p>
+                <p className="mt-1 text-xs text-ink-muted">
+                  Create a free account to track this and future orders in one place.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setAuthOpen(true)}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-olive text-cream px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
+                >
+                  Create Account
+                </button>
+              </div>
+            )}
           </div>
         </main>
         <ShopFooter />
-      </>
-    );
-  }
-
-  if (status !== "authenticated") {
-    return (
-      <>
-        <Header />
-        <main>
-          <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-            <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Checkout" }]} />
-          </div>
-          <div className="flex flex-col items-center text-center py-20 px-4">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-cream-dark">
-              <UserCircle2 size={38} className="text-olive/40" strokeWidth={1.5} />
-            </div>
-            <h1 className="mt-6 font-serif text-2xl text-charcoal">
-              Sign in to check out
-            </h1>
-            <p className="mt-2 text-sm text-ink-muted max-w-sm">
-              We use your account to keep your order confirmation and order
-              history in one place.
-            </p>
-            <button
-              type="button"
-              onClick={() => setAuthOpen(true)}
-              className="mt-7 inline-flex items-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors"
-            >
-              Sign In
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </main>
-        <ShopFooter />
-        <AccountAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+        <AccountAuthModal
+          open={authOpen}
+          onClose={() => setAuthOpen(false)}
+          initialMode="signup"
+          initialName={guestAddress?.name ?? ""}
+          initialEmail={guestEmail}
+        />
       </>
     );
   }
@@ -459,13 +501,54 @@ export function CheckoutPageClient() {
                     : "Where should we deliver your gifts?"
                 }
               >
+                {!authenticated && (
+                  <div className="mb-4 space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <label className="block">
+                        <span className="text-xs font-medium text-charcoal">
+                          Email (for order updates) <span className="text-terracotta-dark">*</span>
+                        </span>
+                        <input
+                          type="email"
+                          required
+                          value={guestEmail}
+                          onChange={(e) => setGuestEmail(e.target.value)}
+                          placeholder="you@example.com"
+                          className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="text-xs font-medium text-charcoal">
+                          Mobile Number (for order updates) <span className="text-terracotta-dark">*</span>
+                        </span>
+                        <input
+                          type="tel"
+                          required
+                          value={guestPhone}
+                          onChange={(e) => setGuestPhone(e.target.value)}
+                          placeholder="+91 98765 43210"
+                          className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+                        />
+                      </label>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAuthOpen(true)}
+                      className="text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors"
+                    >
+                      Have an account? Sign in for faster checkout
+                    </button>
+                  </div>
+                )}
                 <AddressStep
-                  addresses={addresses}
+                  addresses={visibleAddresses}
                   selectedId={selectedAddressId}
                   onSelect={setSelectedAddressId}
                   onAdd={handleAddAddress}
                   onEdit={handleEditAddress}
                   onDelete={handleDeleteAddress}
+                  canContinue={authenticated || (isValidEmail(guestEmail) && isValidPhone(guestPhone))}
+                  defaultPhone={!authenticated ? guestPhone : undefined}
                   isGift={isGift}
                   onToggleGift={setIsGift}
                   giftNote={giftNote}
@@ -674,12 +757,16 @@ export function CheckoutPageClient() {
                 onApplyCoupon={handleApplyCoupon}
                 onRemoveCoupon={handleRemoveCoupon}
                 couponError={couponError}
+                couponApplying={couponApplying}
+                authenticated={authenticated}
+                onSignInClick={() => setAuthOpen(true)}
               />
             </div>
           </div>
         </div>
       </main>
       <ShopFooter />
+      <AccountAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 }

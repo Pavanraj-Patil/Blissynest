@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { paiseToRupees } from "@/lib/currency";
 import type { Prisma, UserRole } from "@/generated/prisma/client";
 
 export type AdminUserListItem = {
@@ -13,14 +14,16 @@ export type AdminUserListItem = {
 
 export async function getUsersForAdmin(params: {
   q?: string;
+  role?: UserRole;
   page: number;
   pageSize: number;
 }): Promise<{ users: AdminUserListItem[]; total: number }> {
-  const { q, page, pageSize } = params;
+  const { q, role, page, pageSize } = params;
 
-  const where: Prisma.UserWhereInput = q
-    ? { OR: [{ name: { contains: q } }, { email: { contains: q } }] }
-    : {};
+  const where: Prisma.UserWhereInput = {
+    ...(q && { OR: [{ name: { contains: q } }, { email: { contains: q } }] }),
+    ...(role && { role }),
+  };
 
   const [users, total] = await Promise.all([
     db.user.findMany({
@@ -52,7 +55,7 @@ export async function getUsersForAdmin(params: {
       return {
         ...u,
         orderCount: stats?._count._all ?? 0,
-        totalSpent: Math.round((stats?._sum.total ?? 0) / 100),
+        totalSpent: paiseToRupees(stats?._sum.total ?? 0),
       };
     }),
     total,
@@ -104,10 +107,10 @@ export async function getUserForAdmin(id: string): Promise<AdminUserDetail | nul
       id: o.id,
       orderNumber: o.orderNumber,
       status: o.status,
-      total: Math.round(o.total / 100),
+      total: paiseToRupees(o.total),
       createdAt: o.createdAt,
     })),
-    totalSpent: Math.round(user.orders.reduce((sum, o) => sum + o.total, 0) / 100),
+    totalSpent: paiseToRupees(user.orders.reduce((sum, o) => sum + o.total, 0)),
   };
 }
 

@@ -145,6 +145,7 @@ export function SearchPageClient({
                     price={p.price}
                     rating={p.rating}
                     reviews={p.reviews}
+                    inStock={p.inStock}
                     image={p.image}
                     href={`/product/${p.slug}`}
                     layout={view}

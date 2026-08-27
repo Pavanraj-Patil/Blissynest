@@ -1,8 +1,5 @@
 import { db } from "@/lib/db";
-
-function toRupees(paise: number): number {
-  return Math.round(paise / 100);
-}
+import { paiseToRupees as toRupees } from "@/lib/currency";
 
 // null means "can't compute a meaningful percentage" (previous period was
 // zero) — the UI shows "New" instead of a bogus infinite/undefined swing.

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `ContentBlock` MODIFY `type` ENUM('TEXT', 'IMAGE', 'IMAGE_RESPONSIVE', 'LINK', 'LIST', 'NESTED_LIST') NOT NULL;

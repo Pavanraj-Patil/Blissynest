@@ -20,6 +20,7 @@ export const adminProductSchema = z.object({
   images: z.array(z.string().trim().min(1)).min(1, "At least one image URL is required"),
   stockQuantity: z.coerce.number().int().min(0),
   featured: z.boolean().default(false),
+  sortRank: z.coerce.number().int().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   description: z.string().trim().min(1, "Description is required"),
   materials: z.string().trim().optional(),

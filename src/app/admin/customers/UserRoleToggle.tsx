@@ -40,23 +40,22 @@ export function UserRoleToggle({
     router.refresh();
   }
 
-  if (error) {
-    return <p className="text-[11px] text-terracotta-dark">{error}</p>;
-  }
-
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setConfirming(true)}
-        disabled={isSelf}
-        title={isSelf ? "You can't change your own role" : undefined}
-        className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-          role === "ADMIN" ? "bg-olive/10 text-olive-dark" : "bg-charcoal/10 text-charcoal-light"
-        } ${!isSelf && "hover:opacity-75"}`}
-      >
-        {role}
-      </button>
+      <div className="flex items-center justify-end gap-2">
+        {error && <p className="max-w-[10rem] text-right text-[11px] text-terracotta-dark">{error}</p>}
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          disabled={isSelf}
+          title={isSelf ? "You can't change your own role" : undefined}
+          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+            role === "ADMIN" ? "bg-olive/10 text-olive-dark" : "bg-charcoal/10 text-charcoal-light"
+          } ${!isSelf && "hover:opacity-75"}`}
+        >
+          {role}
+        </button>
+      </div>
 
       <ConfirmDialog
         open={confirming}

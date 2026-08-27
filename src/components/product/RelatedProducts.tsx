@@ -6,6 +6,7 @@ type RelatedProduct = {
   price: number;
   rating: number;
   reviews: number;
+  inStock: boolean;
   image: string;
 };
 
@@ -23,6 +24,7 @@ export function RelatedProducts({ products }: { products: RelatedProduct[] }) {
             price={p.price}
             rating={p.rating}
             reviews={p.reviews}
+            inStock={p.inStock}
             image={p.image}
             href={`/product/${p.slug}`}
           />

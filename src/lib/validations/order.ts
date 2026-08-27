@@ -13,6 +13,11 @@ export const shippingAddressSchema = z.object({
 
 export const paymentMethodSchema = z.enum(["card", "upi", "netbanking", "cod"]);
 
+export const guestCartItemSchema = z.object({
+  slug: z.string().trim().min(1),
+  quantity: z.number().int().min(1).max(20),
+});
+
 export const createOrderSchema = z.object({
   shippingAddress: shippingAddressSchema,
   paymentMethod: paymentMethodSchema,
@@ -20,10 +25,19 @@ export const createOrderSchema = z.object({
   giftNote: z.string().trim().max(500).optional(),
   hidePricesOnSlip: z.boolean().default(false),
   couponCode: z.string().trim().optional(),
+  // Guest-only — optional here since Zod has no auth context; the route
+  // handler (via resolveCartSourceForRequest) requires these when there's
+  // no session.
+  guestEmail: z.string().trim().email().optional(),
+  guestPhone: z.string().trim().min(1).optional(),
+  guestItems: z.array(guestCartItemSchema).max(50).optional(),
 });
 
 export const razorpayCheckoutSessionSchema = z.object({
   couponCode: z.string().trim().optional(),
+  guestEmail: z.string().trim().email().optional(),
+  guestPhone: z.string().trim().min(1).optional(),
+  guestItems: z.array(guestCartItemSchema).max(50).optional(),
 });
 
 export const razorpayVerifySchema = createOrderSchema.extend({

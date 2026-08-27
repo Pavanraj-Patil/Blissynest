@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { verifyAndCreateOrder } from "@/lib/order-service";
+import { verifyAndCreateOrder, resolveCartSourceForRequest } from "@/lib/order-service";
 import { razorpayVerifySchema } from "@/lib/validations/order";
 
 // POST /api/checkout/razorpay/verify — called from the client's Razorpay
 // Checkout.js success handler. Verifies the payment signature and only then
-// creates the real order.
+// creates the real order (signed-in user or guest).
 export async function POST(request: Request) {
   const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   const body = await request.json().catch(() => null);
   const parsed = razorpayVerifySchema.safeParse(body);
@@ -23,7 +20,12 @@ export async function POST(request: Request) {
 
   const { razorpayOrderId, razorpayPaymentId, razorpaySignature, ...orderInput } = parsed.data;
 
-  const result = await verifyAndCreateOrder(session.user.id, orderInput, {
+  const source = resolveCartSourceForRequest(session, orderInput);
+  if ("error" in source) {
+    return NextResponse.json({ error: source.error }, { status: source.status });
+  }
+
+  const result = await verifyAndCreateOrder(source, orderInput, {
     orderId: razorpayOrderId,
     paymentId: razorpayPaymentId,
     signature: razorpaySignature,

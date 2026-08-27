@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { RepeatingListField } from "@/components/admin/RepeatingListField";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 
 export type ProductFormInitial = {
   id?: string;
@@ -23,6 +24,7 @@ export type ProductFormInitial = {
   images: string[];
   stockQuantity: number;
   featured: boolean;
+  sortRank: number | "";
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   description: string;
   materials: string;
@@ -82,6 +84,7 @@ export const emptyProductForm: ProductFormInitial = {
   images: [""],
   stockQuantity: 0,
   featured: false,
+  sortRank: "",
   status: "DRAFT",
   description: "",
   materials: "",
@@ -147,6 +150,7 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
       images: values.images.map((i) => i.trim()).filter(Boolean),
       stockQuantity: values.stockQuantity,
       featured: values.featured,
+      sortRank: values.sortRank === "" ? undefined : values.sortRank,
       status: values.status,
       description: values.description,
       materials: values.materials || undefined,
@@ -374,6 +378,20 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           </label>
         </div>
 
+        <label className="block max-w-[14rem]">
+          <span className={labelClass}>Sort Priority (optional)</span>
+          <input
+            type="number"
+            value={values.sortRank}
+            onChange={(e) => set("sortRank", e.target.value === "" ? "" : Number(e.target.value))}
+            placeholder="Leave blank for normal order"
+            className={inputClass}
+          />
+          <span className="mt-1 block text-xs text-ink-muted">
+            Lower numbers show first on shop/audience listings. Leave blank for no manual pin.
+          </span>
+        </label>
+
         <label className="flex items-center gap-2.5 cursor-pointer">
           <input
             type="checkbox"
@@ -388,19 +406,29 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
       </Section>
 
       <Section title="Images">
+        <div>
+          <span className={labelClass}>Product images (first is the thumbnail)</span>
+          <div className="mt-1.5">
+            <ImageUploader
+              images={values.images.map((i) => i.trim()).filter(Boolean)}
+              onChange={(imgs) => set("images", imgs)}
+            />
+          </div>
+        </div>
+
         <label className="block">
-          <span className={labelClass}>Image URLs, one per line (first is the thumbnail)</span>
+          <span className={labelClass}>Or paste image URLs / local paths, one per line</span>
           <textarea
             required
             rows={3}
             value={values.images.join("\n")}
             onChange={(e) => set("images", e.target.value.split("\n"))}
-            placeholder="https://..."
+            placeholder="https://... or /products/candle.jpg"
             className={`${inputClass} resize-none`}
           />
           <span className="mt-1 block text-[11px] text-ink-muted">
-            No image upload is wired up yet (no Cloudinary account configured) — paste real image
-            URLs here.
+            Uploads above go to Cloudinary once it&rsquo;s configured (see .env) — until then, a
+            local path under /public (e.g. /products/candle.jpg) works fine for testing.
           </span>
         </label>
       </Section>

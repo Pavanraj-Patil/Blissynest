@@ -14,6 +14,7 @@ import { PdpWishlistButton } from "./PdpWishlistButton";
 import { ReviewsSection } from "./ReviewsSection";
 import { MobileStickyCTA } from "./MobileStickyCTA";
 import { RelatedProducts } from "./RelatedProducts";
+import { AddedToCartModal } from "./AddedToCartModal";
 import type { StandaloneProduct } from "@/lib/product-mock-data";
 import type { RelatedProduct } from "@/lib/product-adapters";
 import type { ApprovedReview } from "@/lib/review-service";
@@ -32,6 +33,7 @@ export function StandalonePDP({
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [cartModalOpen, setCartModalOpen] = useState(false);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(
     () =>
       Object.fromEntries(
@@ -47,6 +49,7 @@ export function StandalonePDP({
     );
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
+    setCartModalOpen(true);
   }
 
   function handleBuyNow() {
@@ -91,6 +94,11 @@ export function StandalonePDP({
               ₹{product.price.toLocaleString("en-IN")}
             </p>
             <p className="text-xs text-ink-muted -mt-1">Inclusive of all taxes</p>
+            {!product.inStock && (
+              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-terracotta-dark">
+                Out of Stock
+              </p>
+            )}
 
             {product.tagline && (
               <p className="mt-4 text-sm text-charcoal-light leading-relaxed max-w-md">
@@ -154,14 +162,16 @@ export function StandalonePDP({
             <div className="mt-6 hidden lg:flex gap-3 lg:sticky lg:bottom-4 lg:z-10 lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-cream/95 lg:backdrop-blur lg:p-4 lg:shadow-lg">
               <button
                 onClick={handleAddToCart}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors"
+                disabled={!product.inStock}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors disabled:opacity-40 disabled:pointer-events-none"
               >
                 {added ? <Check size={15} /> : <ShoppingBag size={15} />}
                 {added ? "Added" : "Add to Cart"}
               </button>
               <button
                 onClick={handleBuyNow}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors"
+                disabled={!product.inStock}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
               >
                 <Zap size={15} />
                 Buy Now
@@ -175,12 +185,26 @@ export function StandalonePDP({
           <ReviewsSection reviews={reviews} />
         </div>
 
-        <MobileStickyCTA onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} added={added} />
+        <MobileStickyCTA
+          onAddToCart={handleAddToCart}
+          onBuyNow={handleBuyNow}
+          added={added}
+          disabled={!product.inStock}
+        />
       </div>
 
       <div className="mt-14">
         <RelatedProducts products={related} />
       </div>
+
+      <AddedToCartModal
+        open={cartModalOpen}
+        onClose={() => setCartModalOpen(false)}
+        name={product.name}
+        image={product.images[0]}
+        price={product.price}
+        quantity={quantity}
+      />
     </div>
   );
 }

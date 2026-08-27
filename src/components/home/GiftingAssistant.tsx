@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, CalendarHeart, Gift, ArrowRight } from "lucide-react";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
-import { whoOptions, occasionOptions, budgetOptions } from "@/lib/gifting-assistant-data";
+import { whoOptions, whoToAudience, occasionOptions, budgetOptions } from "@/lib/gifting-assistant-data";
 
 const fields = [
   { key: "who", label: "Who are you gifting?", placeholder: "Who", icon: User, options: whoOptions },
@@ -24,11 +24,12 @@ export function GiftingAssistant() {
 
   function handleFindGift() {
     const params = new URLSearchParams();
-    if (selections.who) params.set("who", selections.who);
     if (selections.occasion) params.set("occasion", selections.occasion);
     if (selections.budget) params.set("budget", selections.budget);
     const query = params.toString();
-    router.push(`/gifting-assistant${query ? `?${query}` : ""}`);
+    const audience = selections.who ? whoToAudience[selections.who] : null;
+    const base = audience ? `/shop/${audience}` : "/shop";
+    router.push(`${base}${query ? `?${query}` : ""}`);
   }
 
   return (
@@ -44,6 +45,7 @@ export function GiftingAssistant() {
               <SelectDropdown
                 key={field.key}
                 compact
+                portal
                 placeholder={field.placeholder}
                 icon={field.icon}
                 options={field.options}

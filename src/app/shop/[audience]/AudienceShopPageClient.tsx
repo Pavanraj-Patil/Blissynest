@@ -19,6 +19,7 @@ import {
   audienceShopContent,
   type AudienceSlug,
 } from "@/lib/shop-mock-data";
+import { budgetToRange } from "@/lib/gifting-assistant-data";
 import type { ListProduct } from "@/lib/product-adapters";
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
@@ -41,12 +42,23 @@ export function AudienceShopPageClient({
       ? categoryParam
       : null;
 
+  const occasionParam = searchParams.get("occasion");
+  const validOccasionParam =
+    occasionParam && shopOccasions.includes(occasionParam) ? occasionParam : null;
+
+  const budgetParam = searchParams.get("budget");
+  const budgetRangeParam = budgetParam ? budgetToRange[budgetParam] : null;
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     validCategoryParam ? [validCategoryParam] : []
   );
-  const [priceMin, setPriceMin] = useState(PRICE_BOUNDS.min);
-  const [priceMax, setPriceMax] = useState(PRICE_BOUNDS.max);
-  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
+  const [priceMin, setPriceMin] = useState(budgetRangeParam ? budgetRangeParam[0] : PRICE_BOUNDS.min);
+  const [priceMax, setPriceMax] = useState(
+    budgetRangeParam ? Math.min(budgetRangeParam[1], PRICE_BOUNDS.max) : PRICE_BOUNDS.max
+  );
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>(
+    validOccasionParam ? [validOccasionParam] : []
+  );
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("best-selling");
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -117,8 +129,11 @@ export function AudienceShopPageClient({
     safePage * ITEMS_PER_PAGE
   );
 
+  // Category is chosen via the always-visible pill row, not the Filters
+  // drawer/sidebar (no Category section lives there) — counting it here
+  // would show a "1" on the Filter button for something that drawer can't
+  // display or let you clear.
   const activeFilterCount =
-    selectedCategories.length +
     selectedOccasions.length +
     selectedRecipients.length +
     (priceMin > PRICE_BOUNDS.min || priceMax < PRICE_BOUNDS.max ? 1 : 0);
@@ -129,9 +144,11 @@ export function AudienceShopPageClient({
       setSelectedCategories([]);
       return;
     }
-    setSelectedCategories((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]
-    );
+    // CategoryPillRow is a single-select control (one active pill at a
+    // time) — replace the selection rather than toggling it into a list,
+    // so picking a new category doesn't leave a previous one silently
+    // still selected. Clicking the already-active pill again clears it.
+    setSelectedCategories((prev) => (prev.length === 1 && prev[0] === slug ? [] : [slug]));
   }
 
   function toggleOccasion(label: string) {
@@ -239,6 +256,7 @@ export function AudienceShopPageClient({
                       price={p.price}
                       rating={p.rating}
                       reviews={p.reviews}
+                      inStock={p.inStock}
                       image={p.image}
                       href={`/product/${p.id}`}
                       layout={view}

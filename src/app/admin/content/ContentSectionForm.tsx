@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Check, AlertCircle } from "lucide-react";
 import { RepeatingListField } from "@/components/admin/RepeatingListField";
 import { NestedListField } from "@/components/admin/NestedListField";
-import type { SectionSchema } from "@/lib/content-schema";
+import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
+import type { ResponsiveImageValue, SectionSchema } from "@/lib/content-schema";
 
 const inputClass =
   "mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive";
@@ -82,23 +83,30 @@ export function ContentSectionForm({
         if (descriptor.type === "IMAGE") {
           const src = typeof value === "string" ? value : "";
           return (
-            <label key={key} className="block">
+            <div key={key}>
+              <SingleImageUploader label={descriptor.label} value={src} onChange={(url) => set(key, url)} />
+            </div>
+          );
+        }
+
+        if (descriptor.type === "IMAGE_RESPONSIVE") {
+          const responsive = (value as ResponsiveImageValue | undefined) ?? { desktop: "", mobile: "" };
+          return (
+            <div key={key} className="space-y-3">
               <span className={labelClass}>{descriptor.label}</span>
-              <input
-                value={src}
-                onChange={(e) => set(key, e.target.value)}
-                placeholder="https://..."
-                className={inputClass}
-              />
-              {src && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={src}
-                  alt=""
-                  className="mt-2 h-20 w-20 rounded-lg border border-charcoal/10 object-cover"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <SingleImageUploader
+                  label="Desktop"
+                  value={responsive.desktop}
+                  onChange={(url) => set(key, { ...responsive, desktop: url })}
                 />
-              )}
-            </label>
+                <SingleImageUploader
+                  label="Mobile (optional — falls back to Desktop)"
+                  value={responsive.mobile ?? ""}
+                  onChange={(url) => set(key, { ...responsive, mobile: url })}
+                />
+              </div>
+            </div>
           );
         }
 

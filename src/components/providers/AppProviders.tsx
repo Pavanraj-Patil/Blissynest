@@ -5,19 +5,25 @@ import { SessionProvider } from "next-auth/react";
 import type { Session } from "next-auth";
 import { CartProvider } from "@/lib/cart-context";
 import { WishlistProvider } from "@/lib/wishlist-context";
+import { SiteContentProvider } from "@/lib/site-content-context";
+import type { ResponsiveImageValue } from "@/lib/content-schema";
 
 export function AppProviders({
   children,
   session,
+  shopGiftBannerImage,
 }: {
   children: ReactNode;
   session: Session | null;
+  shopGiftBannerImage: ResponsiveImageValue;
 }) {
   return (
     <SessionProvider session={session}>
-      <CartProvider>
-        <WishlistProvider>{children}</WishlistProvider>
-      </CartProvider>
+      <SiteContentProvider value={{ shopGiftBannerImage }}>
+        <CartProvider>
+          <WishlistProvider>{children}</WishlistProvider>
+        </CartProvider>
+      </SiteContentProvider>
     </SessionProvider>
   );
 }

@@ -16,6 +16,7 @@ type ProductCardProps = {
   layout?: "grid" | "list";
   priority?: boolean;
   badge?: string;
+  inStock?: boolean;
 };
 
 export function ProductCard({
@@ -28,6 +29,7 @@ export function ProductCard({
   layout = "grid",
   priority = false,
   badge,
+  inStock = true,
 }: ProductCardProps) {
   const { isWishlisted, toggleItem } = useWishlist();
   const slug = href.replace(/^\/product\//, "");
@@ -81,7 +83,10 @@ export function ProductCard({
             src={image}
             alt={name}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className={cn(
+              "object-cover transition-transform duration-300 group-hover:scale-105",
+              !inStock && "opacity-50"
+            )}
             sizes="112px"
           />
         </Link>
@@ -95,6 +100,11 @@ export function ProductCard({
           <p className="mt-1 text-sm font-semibold text-charcoal">
             ₹{price.toLocaleString("en-IN")}
           </p>
+          {!inStock && (
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-terracotta-dark">
+              Out of Stock
+            </p>
+          )}
           {stars}
         </div>
         {wishlistButton}
@@ -111,15 +121,24 @@ export function ProductCard({
             alt={name}
             fill
             priority={priority}
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className={cn(
+              "object-cover transition-transform duration-300 group-hover:scale-105",
+              !inStock && "opacity-50"
+            )}
             sizes="(min-width: 1024px) 19vw, 45vw"
           />
         </Link>
         <div className="absolute top-3 right-3">{wishlistButton}</div>
-        {badge && (
-          <span className="absolute bottom-3 left-3 rounded-full bg-charcoal/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-cream">
-            {badge}
+        {!inStock ? (
+          <span className="absolute bottom-3 left-3 rounded-full bg-terracotta-dark px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-cream">
+            Out of Stock
           </span>
+        ) : (
+          badge && (
+            <span className="absolute bottom-3 left-3 rounded-full bg-charcoal/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-cream">
+              {badge}
+            </span>
+          )
         )}
       </div>
       <div className="mt-3">

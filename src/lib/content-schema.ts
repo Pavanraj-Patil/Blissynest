@@ -7,7 +7,11 @@ import {
   communityPhotos,
   corporateChecklist,
   footerLinks,
+  heroImage,
+  heroImageMobile,
 } from "@/lib/mock-data";
+import { curatedCollections } from "@/lib/corporate-data";
+import { collectionContent } from "@/lib/collection-mock-data";
 import { contentIconOptions } from "@/lib/content-icons";
 
 const occasionIconDefaults = ["Cake", "Heart", "Gem", "Home", "Mail", "Sparkles", "Flame"];
@@ -21,13 +25,18 @@ const corporateChecklistIconDefaults = ["Users", "Briefcase", "PartyPopper", "Pa
 // admin has ever saved a ContentBlock row for it (see content-service.ts
 // getPageContent) — no backfill/seed script needed when a new key is
 // added here.
-export type ContentFieldType = "TEXT" | "IMAGE" | "LINK" | "LIST" | "NESTED_LIST";
+export type ContentFieldType = "TEXT" | "IMAGE" | "IMAGE_RESPONSIVE" | "LINK" | "LIST" | "NESTED_LIST";
 
 export type LinkValue = { label: string; href: string };
 
-type FieldDescriptor =
+// Mobile falls back to desktop when unset — most banners don't need a
+// separate crop, so admin isn't forced to upload two images for every one.
+export type ResponsiveImageValue = { desktop: string; mobile?: string };
+
+export type FieldDescriptor =
   | { type: "TEXT"; label: string; default: string }
   | { type: "IMAGE"; label: string; default: string }
+  | { type: "IMAGE_RESPONSIVE"; label: string; default: ResponsiveImageValue }
   | { type: "LINK"; label: string; default: LinkValue }
   | {
       type: "LIST";
@@ -72,6 +81,11 @@ export const contentSchema: Record<string, PageSchema> = {
     hero: {
       title: "Hero",
       fields: {
+        image: {
+          type: "IMAGE_RESPONSIVE",
+          label: "Hero Image",
+          default: { desktop: heroImage, mobile: heroImageMobile },
+        },
         primaryCta: {
           type: "LINK",
           label: "Primary Button",
@@ -601,11 +615,41 @@ export const contentSchema: Record<string, PageSchema> = {
         // special CTA card, not real content — neither is safe to
         // freely add/remove/reorder.
         collectionWelcomeKitsTitle: { type: "TEXT", label: "Welcome Kits — Title", default: "New Employee Welcome Kits" },
+        collectionWelcomeKitsImage: {
+          type: "IMAGE",
+          label: "Welcome Kits — Image",
+          default: curatedCollections.find((c) => c.slug === "welcome-kits")!.image,
+        },
         collectionDiwaliTitle: { type: "TEXT", label: "Diwali Gifts — Title", default: "Diwali Gifts" },
+        collectionDiwaliImage: {
+          type: "IMAGE",
+          label: "Diwali Gifts — Image",
+          default: curatedCollections.find((c) => c.slug === "diwali")!.image,
+        },
         collectionWorkAnniversaryTitle: { type: "TEXT", label: "Work Anniversary — Title", default: "Work Anniversary" },
+        collectionWorkAnniversaryImage: {
+          type: "IMAGE",
+          label: "Work Anniversary — Image",
+          default: curatedCollections.find((c) => c.slug === "work-anniversary")!.image,
+        },
         collectionWomensDayTitle: { type: "TEXT", label: "Women's Day — Title", default: "Women's Day Gifts" },
+        collectionWomensDayImage: {
+          type: "IMAGE",
+          label: "Women's Day — Image",
+          default: curatedCollections.find((c) => c.slug === "womens-day")!.image,
+        },
         collectionHolidayTitle: { type: "TEXT", label: "Holiday — Title", default: "Holiday Gifts" },
+        collectionHolidayImage: {
+          type: "IMAGE",
+          label: "Holiday — Image",
+          default: curatedCollections.find((c) => c.slug === "holiday")!.image,
+        },
         collectionClientAppreciationTitle: { type: "TEXT", label: "Client Appreciation — Title", default: "Client Appreciation" },
+        collectionClientAppreciationImage: {
+          type: "IMAGE",
+          label: "Client Appreciation — Image",
+          default: curatedCollections.find((c) => c.slug === "client-appreciation")!.image,
+        },
       },
     },
     "final-cta": {
@@ -629,6 +673,54 @@ export const contentSchema: Record<string, PageSchema> = {
   // the same 14-file page.tsx migration all over again for a few words of
   // structural nav-category text. Not worth repeating that for this.
   layout: {
+    "shop-gift-banner": {
+      title: "Shop Gift Banner",
+      fields: {
+        // Shared across /shop, /occasions, /occasions/[occasion],
+        // /collections, and /collections/[collection] — one banner, one image.
+        image: {
+          type: "IMAGE_RESPONSIVE",
+          label: "Banner Image",
+          default: {
+            desktop:
+              "https://placehold.co/1200x480/e3d3bd/2a2621.png?text=Blissynest+Gift+Box&font=playfair-display",
+          },
+        },
+      },
+    },
+    "collection-banners": {
+      title: "Collection Page Banners",
+      fields: {
+        // Fixed-position, one per collection slug — collections themselves
+        // aren't a LIST an admin can add/remove (they're a hardcoded
+        // catalog in collection-mock-data.ts), so neither are their banners.
+        selfCareBanner: {
+          type: "IMAGE",
+          label: "Self-Care Edit — Banner",
+          default: collectionContent["self-care"].bannerImage,
+        },
+        cozyBanner: {
+          type: "IMAGE",
+          label: "Cozy Edit — Banner",
+          default: collectionContent.cozy.bannerImage,
+        },
+        minimalistBanner: {
+          type: "IMAGE",
+          label: "Minimalist Edit — Banner",
+          default: collectionContent.minimalist.bannerImage,
+        },
+        celebrationBanner: {
+          type: "IMAGE",
+          label: "Celebration Edit — Banner",
+          default: collectionContent.celebration.bannerImage,
+        },
+        luxuryBanner: {
+          type: "IMAGE",
+          label: "Luxury Edit — Banner",
+          default: collectionContent.luxury.bannerImage,
+        },
+      },
+    },
     topbar: {
       title: "Top Bar Links",
       fields: {

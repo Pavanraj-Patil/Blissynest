@@ -2,7 +2,7 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { User, CalendarHeart, Gift, LayoutGrid, List } from "lucide-react";
+import { User, CalendarHeart, Gift, Tag, LayoutGrid, List } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
@@ -13,6 +13,7 @@ import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
 import type { ListProduct } from "@/lib/product-adapters";
+import { shopCategories } from "@/lib/shop-mock-data";
 import {
   whoOptions,
   whoToAudience,
@@ -27,6 +28,12 @@ const fields = [
   { key: "who" as const, label: "Who are you gifting?", icon: User, options: whoOptions },
   { key: "occasion" as const, label: "What's the occasion?", icon: CalendarHeart, options: occasionOptions },
   { key: "budget" as const, label: "Your budget?", icon: Gift, options: budgetOptions },
+  {
+    key: "category" as const,
+    label: "Category",
+    icon: Tag,
+    options: shopCategories.map((c) => ({ value: c.slug, label: c.label })),
+  },
 ];
 
 function GiftingAssistantContent({ initialProducts }: { initialProducts: ListProduct[] }) {
@@ -35,15 +42,17 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
   const [who, setWho] = useState(searchParams.get("who") ?? "");
   const [occasion, setOccasion] = useState(searchParams.get("occasion") ?? "");
   const [budget, setBudget] = useState(searchParams.get("budget") ?? "");
+  const [category, setCategory] = useState(searchParams.get("category") ?? "");
   const [sort, setSort] = useState<SortOption>("best-selling");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const selections: Record<string, string> = { who, occasion, budget };
+  const selections: Record<string, string> = { who, occasion, budget, category };
   const setters: Record<string, (v: string) => void> = {
     who: setWho,
     occasion: setOccasion,
     budget: setBudget,
+    category: setCategory,
   };
 
   const filteredProducts = useMemo(() => {
@@ -53,9 +62,10 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
       if (audience && p.audience !== audience) return false;
       if (occasion && !p.occasions.includes(occasion)) return false;
       if (range && (p.price < range[0] || p.price > range[1])) return false;
+      if (category && p.category !== category) return false;
       return true;
     });
-  }, [who, occasion, budget, initialProducts]);
+  }, [who, occasion, budget, category, initialProducts]);
 
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
@@ -80,12 +90,14 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
     safePage * ITEMS_PER_PAGE
   );
 
-  const activeFilterCount = (who ? 1 : 0) + (occasion ? 1 : 0) + (budget ? 1 : 0);
+  const activeFilterCount =
+    (who ? 1 : 0) + (occasion ? 1 : 0) + (budget ? 1 : 0) + (category ? 1 : 0);
 
   function clearAll() {
     setWho("");
     setOccasion("");
     setBudget("");
+    setCategory("");
     setCurrentPage(1);
   }
 
@@ -203,6 +215,7 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
                   price={p.price}
                   rating={p.rating}
                   reviews={p.reviews}
+                  inStock={p.inStock}
                   image={p.image}
                   href={`/product/${p.id}`}
                   layout={view}

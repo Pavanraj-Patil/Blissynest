@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Playfair_Display, Work_Sans } from "next/font/google";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { auth } from "@/auth";
+import { getPageContent } from "@/lib/content-service";
+import type { ResponsiveImageValue } from "@/lib/content-schema";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -23,7 +25,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const session = await auth();
+  const [session, layoutContent] = await Promise.all([auth(), getPageContent("layout")]);
+  const shopGiftBannerImage = layoutContent["shop-gift-banner"].image as ResponsiveImageValue;
 
   return (
     <html
@@ -31,7 +34,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${playfair.variable} ${workSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-charcoal font-sans">
-        <AppProviders session={session}>{children}</AppProviders>
+        <AppProviders session={session} shopGiftBannerImage={shopGiftBannerImage}>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

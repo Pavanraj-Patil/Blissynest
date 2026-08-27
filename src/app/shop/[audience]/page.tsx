@@ -39,7 +39,7 @@ export default async function AudienceShopPage({ params }: Props) {
 
   const rows = await db.product.findMany({
     where: { status: "PUBLISHED", audience: audienceSlugToEnum[audience] as Audience },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   });
 
   return (

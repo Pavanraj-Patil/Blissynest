@@ -65,27 +65,8 @@ export const paymentMethods: PaymentMethod[] = [
   },
 ];
 
-export type Coupon = {
-  code: string;
-  type: "percent" | "flat";
-  value: number;
-  label: string;
-};
-
-export const coupons: Coupon[] = [
-  { code: "WELCOME10", type: "percent", value: 10, label: "10% off your order" },
-  { code: "FLAT200", type: "flat", value: 200, label: "₹200 off orders above ₹1,500" },
-];
-
 export const FREE_SHIPPING_THRESHOLD = 999;
 export const STANDARD_SHIPPING_FEE = 99;
-
-export function calculateDiscount(coupon: Coupon | null, subtotal: number): number {
-  if (!coupon) return 0;
-  if (coupon.code === "FLAT200" && subtotal < 1500) return 0;
-  if (coupon.type === "percent") return Math.round((subtotal * coupon.value) / 100);
-  return Math.min(coupon.value, subtotal);
-}
 
 export function generateOrderNumber(): string {
   const random = Math.floor(1000 + Math.random() * 9000);

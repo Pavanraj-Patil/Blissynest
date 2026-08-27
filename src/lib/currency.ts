@@ -15,6 +15,10 @@ export function rupeesToPaise(rupees: number): number {
   return Math.round(rupees * 100);
 }
 
+export function paiseToRupees(paise: number): number {
+  return Math.round(paise / 100);
+}
+
 export function discountPercent(basePrice: number, compareAtPrice: number): number {
   return Math.round(((compareAtPrice - basePrice) / compareAtPrice) * 100);
 }

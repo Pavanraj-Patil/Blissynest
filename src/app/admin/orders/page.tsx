@@ -2,18 +2,10 @@ import Link from "next/link";
 import { Search, PackageX } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { getOrdersForAdmin } from "@/lib/admin/order-service";
+import { orderStatusStyles as statusStyles } from "@/lib/admin/order-status-styles";
 import { OrderRow } from "./OrderRow";
 
 const PAGE_SIZE = 20;
-
-const statusStyles: Record<string, string> = {
-  PLACED: "bg-gold/15 text-charcoal",
-  CONFIRMED: "bg-terracotta/10 text-terracotta-dark",
-  PACKED: "bg-terracotta/10 text-terracotta-dark",
-  SHIPPED: "bg-olive/10 text-olive-dark",
-  DELIVERED: "bg-olive/15 text-olive-dark",
-  CANCELLED: "bg-charcoal/10 text-charcoal-light",
-};
 
 const paymentStatusStyles: Record<string, string> = {
   PAID: "bg-olive/10 text-olive-dark",

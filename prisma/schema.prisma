@@ -126,7 +126,13 @@ model Product {
 
   relatedSlugs Json          @default("[]") // string[]
   featured     Boolean       @default(false)
-  status       ProductStatus @default(PUBLISHED)
+  // Manual merchandising override for catalogue listings (shop/audience/
+  // collection/occasion pages) — lower shows first, null falls back to
+  // normal (createdAt) order. Deliberately separate from `featured` (which
+  // drives the homepage carousel) so pinning a product to the top of its
+  // own audience page doesn't also pull it into the homepage curation.
+  sortRank Int?
+  status   ProductStatus @default(PUBLISHED)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -417,9 +423,10 @@ model Review {
   id          String       @id @default(cuid())
   productId   String
   product     Product      @relation(fields: [productId], references: [id])
-  userId      String
-  user        User         @relation(fields: [userId], references: [id])
-  orderId     String // the delivered order that makes this a verified purchase
+  userId      String? // null for admin-authored reviews (no real account backs them)
+  user        User?        @relation(fields: [userId], references: [id])
+  orderId     String? // the order that makes this a verified purchase; null for admin-authored reviews
+  authorName  String? // display name for admin-authored reviews, typed freely (not tied to a User)
   rating      Int // 1-5
   comment     String       @db.Text
   photos      Json         @default("[]") // string[]
@@ -474,6 +481,10 @@ model ContactMessage {
   email     String
   subject   String
   message   String   @db.Text
+  // No triage workflow exists for contact messages (unlike Review/
+  // CorporateLead's status enums) — this is a plain inbox-style read flag,
+  // cleared the moment an admin opens the Contact Messages list.
+  read      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 
@@ -533,6 +544,7 @@ model SiteSettings {
 enum ContentBlockType {
   TEXT
   IMAGE
+  IMAGE_RESPONSIVE
   LINK
   LIST
   NESTED_LIST

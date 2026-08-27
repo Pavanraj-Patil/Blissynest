@@ -13,7 +13,7 @@ export function TestimonialCarousel({ testimonials }: { testimonials: Testimonia
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || testimonials.length === 0) return;
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % testimonials.length);
     }, INTERVAL_MS);
@@ -21,6 +21,8 @@ export function TestimonialCarousel({ testimonials }: { testimonials: Testimonia
   }, [paused, testimonials.length]);
 
   const active = testimonials[index];
+
+  if (!active) return null;
 
   return (
     <div

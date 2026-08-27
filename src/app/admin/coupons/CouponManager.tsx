@@ -164,6 +164,7 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const editingCoupon = coupons.find((c) => c.id === editingId);
   const deletingCoupon = coupons.find((c) => c.id === deletingId);
@@ -206,9 +207,12 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
   }
 
   async function handleDelete(id: string) {
-    setCoupons((prev) => prev.filter((c) => c.id !== id));
-    setDeletingId(null);
+    if (deleting) return;
+    setDeleting(true);
     await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
+    setCoupons((prev) => prev.filter((c) => c.id !== id));
+    setDeleting(false);
+    setDeletingId(null);
   }
 
   async function handleToggleActive(id: string, active: boolean) {
@@ -339,6 +343,7 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
         open={deletingCoupon !== undefined}
         title="Delete this coupon?"
         description={`Code "${deletingCoupon?.code}" will be permanently deleted and stop working immediately, including for anyone who already has it saved.`}
+        submitting={deleting}
         onConfirm={() => deletingId && handleDelete(deletingId)}
         onCancel={() => setDeletingId(null)}
       />

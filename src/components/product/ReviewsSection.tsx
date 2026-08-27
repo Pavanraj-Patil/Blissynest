@@ -32,7 +32,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
           <p className="mt-3 text-sm text-charcoal">No reviews yet</p>
           <p className="mt-1 text-xs text-ink-muted max-w-xs">
             Be the first to share what you thought — reviews from customers who bought this
-            show up here once approved.
+            show up here.
           </p>
         </div>
       ) : (

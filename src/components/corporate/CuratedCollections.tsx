@@ -21,7 +21,12 @@ export function CuratedCollections({ content }: { content: Record<string, unknow
   const scrollRef = useRef<HTMLDivElement>(null);
   const collections = curatedCollections.map((c) => {
     const prefix = slugToFieldPrefix[c.slug];
-    return prefix ? { ...c, title: (content[`${prefix}Title`] as string) ?? c.title } : c;
+    if (!prefix) return c;
+    return {
+      ...c,
+      title: (content[`${prefix}Title`] as string) ?? c.title,
+      image: (content[`${prefix}Image`] as string) ?? c.image,
+    };
   });
 
   function scroll(direction: 1 | -1) {

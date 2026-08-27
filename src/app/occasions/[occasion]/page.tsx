@@ -34,7 +34,7 @@ export default async function OccasionPage({ params }: Props) {
 
   const rows = await db.product.findMany({
     where: { status: "PUBLISHED", occasionTags: { array_contains: content.label } },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   });
 
   return (

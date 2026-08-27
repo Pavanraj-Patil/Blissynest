@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { paiseToRupees } from "@/lib/currency";
 import type { Prisma, OrderStatus, PaymentStatus } from "@/generated/prisma/client";
 
 export type AdminOrderListItem = {
@@ -56,7 +57,7 @@ export async function getOrdersForAdmin(params: {
       paymentMethod: o.paymentMethod,
       paymentStatus: o.paymentStatus,
       status: o.status,
-      total: Math.round(o.total / 100),
+      total: paiseToRupees(o.total),
       createdAt: o.createdAt,
     })),
     total,
@@ -75,14 +76,14 @@ export async function getOrderForAdmin(id: string) {
 
   return {
     ...order,
-    subtotal: Math.round(order.subtotal / 100),
-    discount: Math.round(order.discount / 100),
-    shippingCost: Math.round(order.shippingCost / 100),
-    gstAmount: Math.round(order.gstAmount / 100),
-    total: Math.round(order.total / 100),
+    subtotal: paiseToRupees(order.subtotal),
+    discount: paiseToRupees(order.discount),
+    shippingCost: paiseToRupees(order.shippingCost),
+    gstAmount: paiseToRupees(order.gstAmount),
+    total: paiseToRupees(order.total),
     items: order.items.map((item) => ({
       ...item,
-      unitPrice: Math.round(item.unitPrice / 100),
+      unitPrice: paiseToRupees(item.unitPrice),
     })),
   };
 }

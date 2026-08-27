@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function GiftingAssistantPage() {
   const rows = await db.product.findMany({
     where: { status: "PUBLISHED" },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   });
 
   return (

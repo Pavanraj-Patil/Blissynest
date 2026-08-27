@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function PersonalisedPage() {
   const rows = await db.product.findMany({
     where: { status: "PUBLISHED", category: "personalised" },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   });
 
   return (

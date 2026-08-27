@@ -1,15 +1,13 @@
 import { db } from "@/lib/db";
 import { slugify } from "@/lib/slugify";
+import { rupeesToPaise } from "@/lib/currency";
 import type { AdminProductInput } from "@/lib/validations/admin-product";
-import type { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 
 type ErrorResult = { error: string; status: number };
 
-// The form collects prices in plain rupees (what an admin naturally
-// types); this is the one place that gets converted to paise before
-// touching the database, matching every other paise-boundary in this app.
 function toPaise(rupees: number | undefined): number | undefined {
-  return rupees === undefined ? undefined : Math.round(rupees * 100);
+  return rupees === undefined ? undefined : rupeesToPaise(rupees);
 }
 
 function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput {
@@ -32,6 +30,7 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
     stockQuantity: input.stockQuantity,
     inStock: input.stockQuantity > 0,
     featured: input.featured,
+    sortRank: input.sortRank ?? null,
     status: input.status,
     productDetails: {
       description: input.description,
@@ -111,16 +110,20 @@ export async function deleteProduct(id: string): Promise<ErrorResult | { success
   try {
     await db.product.delete({ where: { id } });
     return { success: true };
-  } catch {
-    // Prisma throws on the FK constraint if this product is referenced by
-    // a real Order/CartItem/Wishlist/RestockRequest row — which is exactly
-    // the case a hard delete should refuse (never break order history).
-    // Archiving (status = ARCHIVED, via the edit form) is the real answer
-    // once a product has any real activity against it.
-    return {
-      error:
-        "Can't delete this product — it's referenced by real orders, carts, or wishlists. Archive it instead (edit → Status → Archived).",
-      status: 409,
-    };
+  } catch (err) {
+    // P2003 is Prisma's FK-constraint-violation code — the specific,
+    // expected case where this product is referenced by a real
+    // Order/CartItem/Wishlist/RestockRequest row (a hard delete should
+    // refuse that; archiving is the real answer once a product has any
+    // real activity against it). Anything else (a dropped connection, an
+    // unrelated bug) is a real failure and shouldn't be reported as this.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
+      return {
+        error:
+          "Can't delete this product — it's referenced by real orders, carts, or wishlists. Archive it instead (edit → Status → Archived).",
+        status: 409,
+      };
+    }
+    return { error: "Something went wrong deleting this product. Please try again.", status: 500 };
   }
 }

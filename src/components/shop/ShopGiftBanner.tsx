@@ -1,19 +1,30 @@
+"use client";
+
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-
-const bannerImage =
-  "https://placehold.co/1200x480/e3d3bd/2a2621.png?text=Blissynest+Gift+Box&font=playfair-display";
+import { useSiteContent } from "@/lib/site-content-context";
 
 export function ShopGiftBanner() {
+  const { shopGiftBannerImage } = useSiteContent();
+  const desktopImage = shopGiftBannerImage.desktop;
+  const mobileImage = shopGiftBannerImage.mobile || shopGiftBannerImage.desktop;
+
   return (
     <div className="relative h-[260px] sm:h-[240px] md:h-[280px] w-full overflow-hidden rounded-3xl">
       <Image
-        src={bannerImage}
+        src={mobileImage}
         alt="A Blissynest gift box with a candle, mug, and dried flowers"
         fill
-        className="object-cover object-[72%_center]"
-        sizes="(min-width: 1024px) 1200px, 100vw"
+        className="object-cover object-[72%_center] sm:hidden"
+        sizes="100vw"
+      />
+      <Image
+        src={desktopImage}
+        alt="A Blissynest gift box with a candle, mug, and dried flowers"
+        fill
+        className="hidden object-cover object-[72%_center] sm:block"
+        sizes="1200px"
       />
 
       {/* Scrim: opaque cream on the left for text legibility, fading out to reveal the photo on the right */}

@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { createRazorpayCheckoutSession } from "@/lib/order-service";
+import { createRazorpayCheckoutSession, resolveCartSourceForRequest } from "@/lib/order-service";
 import { razorpayCheckoutSessionSchema } from "@/lib/validations/order";
 
-// POST /api/checkout/razorpay/create — prices the signed-in user's cart and
-// opens a Razorpay order for that amount. Nothing is persisted to our Order
-// table here; see verify/route.ts.
+// POST /api/checkout/razorpay/create — prices the cart (signed-in user's
+// server cart, or a guest's submitted items) and opens a Razorpay order for
+// that amount. Nothing is persisted to our Order table here; see
+// verify/route.ts.
 export async function POST(request: Request) {
   const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   const body = await request.json().catch(() => ({}));
   const parsed = razorpayCheckoutSessionSchema.safeParse(body);
@@ -21,7 +19,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await createRazorpayCheckoutSession(session.user.id, parsed.data.couponCode);
+  const source = resolveCartSourceForRequest(session, parsed.data);
+  if ("error" in source) {
+    return NextResponse.json({ error: source.error }, { status: source.status });
+  }
+
+  const result = await createRazorpayCheckoutSession(source, parsed.data.couponCode);
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }

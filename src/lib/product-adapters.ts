@@ -32,6 +32,7 @@ export type ListProduct = {
   price: number;
   rating: number;
   reviews: number;
+  inStock: boolean;
   image: string;
   category: string;
   audience: AudienceSlug | null;
@@ -49,6 +50,7 @@ export function toListProduct(p: Product): ListProduct {
     price: toRupees(p.basePrice),
     rating: p.rating,
     reviews: p.reviewCount,
+    inStock: p.inStock,
     image: (p.images as string[])[0],
     category: p.category,
     audience: p.audience ? audienceEnumToSlug[p.audience] : null,
@@ -87,6 +89,7 @@ export function toProductDetail(p: Product): ProductDetail {
     tagline: p.tagline ?? undefined,
     rating: p.rating,
     reviews: p.reviewCount,
+    inStock: p.inStock,
     price: toRupees(p.basePrice),
     images: p.images as string[],
     breadcrumbCategory: p.breadcrumbCategory ?? p.category,
@@ -135,6 +138,7 @@ export type RelatedProduct = {
   price: number;
   rating: number;
   reviews: number;
+  inStock: boolean;
   image: string;
 };
 
@@ -145,6 +149,7 @@ export function toRelatedProduct(p: Product): RelatedProduct {
     price: toRupees(p.basePrice),
     rating: p.rating,
     reviews: p.reviewCount,
+    inStock: p.inStock,
     image: (p.images as string[])[0],
   };
 }

@@ -4,6 +4,7 @@ import { Star, MessageSquareOff } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { getReviewsForAdmin } from "@/lib/review-service";
 import { ReviewActions } from "./ReviewActions";
+import { ReviewProductFilter } from "./ReviewProductFilter";
 
 const statusFilters = [
   { label: "Pending", value: "PENDING" },
@@ -31,14 +32,16 @@ function Stars({ value }: { value: number }) {
 export default async function AdminReviewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; product?: string }>;
 }) {
   await requireAdmin();
-  const { status } = await searchParams;
+  const { status, product } = await searchParams;
   const activeStatus = statusFilters.some((f) => f.value === status) ? (status as string) : "PENDING";
+  const productQuery = (product ?? "").trim();
 
   const reviews = await getReviewsForAdmin(
-    activeStatus ? (activeStatus as "PENDING" | "APPROVED" | "REJECTED") : undefined
+    activeStatus ? (activeStatus as "PENDING" | "APPROVED" | "REJECTED") : undefined,
+    productQuery || undefined
   );
 
   return (
@@ -50,11 +53,13 @@ export default async function AdminReviewsPage({
         </p>
       </div>
 
+      <ReviewProductFilter defaultValue={productQuery} />
+
       <div className="flex items-center gap-1.5">
         {statusFilters.map((f) => (
           <Link
             key={f.value}
-            href={f.value ? `/admin/reviews?status=${f.value}` : "/admin/reviews?status="}
+            href={`/admin/reviews?status=${f.value}${productQuery ? `&product=${encodeURIComponent(productQuery)}` : ""}`}
             className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
               activeStatus === f.value
                 ? "bg-olive text-cream"
@@ -90,7 +95,13 @@ export default async function AdminReviewsPage({
                       {r.productName}
                     </Link>
                     <p className="text-xs text-ink-muted mt-0.5">
-                      {r.customerName} · {r.customerEmail}
+                      {r.customerName}
+                      {r.customerEmail && ` · ${r.customerEmail}`}
+                      {r.isAdminAuthored && (
+                        <span className="ml-1.5 rounded-full bg-charcoal/10 px-1.5 py-0.5 text-[10px] font-semibold text-charcoal-light">
+                          Admin
+                        </span>
+                      )}
                     </p>
                     <div className="mt-1.5">
                       <Stars value={r.rating} />
@@ -108,7 +119,7 @@ export default async function AdminReviewsPage({
                 <p className="text-xs text-ink-muted">
                   {r.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                 </p>
-                {r.status === "PENDING" && <ReviewActions reviewId={r.id} />}
+                <ReviewActions reviewId={r.id} showModeration={r.status === "PENDING"} />
               </div>
             </div>
           ))}

@@ -42,7 +42,9 @@ function AddressForm({
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">Address Label</span>
+          <span className="text-xs font-medium text-charcoal">
+            Address Label <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             value={values.label}
@@ -52,7 +54,9 @@ function AddressForm({
           />
         </label>
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">Full Name</span>
+          <span className="text-xs font-medium text-charcoal">
+            Full Name <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             value={values.name}
@@ -63,7 +67,9 @@ function AddressForm({
       </div>
 
       <label className="block">
-        <span className="text-xs font-medium text-charcoal">Address Line 1</span>
+        <span className="text-xs font-medium text-charcoal">
+          Address Line 1 <span className="text-terracotta-dark">*</span>
+        </span>
         <input
           required
           value={values.line1}
@@ -74,7 +80,9 @@ function AddressForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">City</span>
+          <span className="text-xs font-medium text-charcoal">
+            City <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             value={values.city}
@@ -83,7 +91,9 @@ function AddressForm({
           />
         </label>
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">State</span>
+          <span className="text-xs font-medium text-charcoal">
+            State <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             value={values.state}
@@ -92,7 +102,9 @@ function AddressForm({
           />
         </label>
         <label className="block">
-          <span className="text-xs font-medium text-charcoal">Pincode</span>
+          <span className="text-xs font-medium text-charcoal">
+            Pincode <span className="text-terracotta-dark">*</span>
+          </span>
           <input
             required
             maxLength={6}
@@ -104,7 +116,9 @@ function AddressForm({
       </div>
 
       <label className="block max-w-xs">
-        <span className="text-xs font-medium text-charcoal">Phone</span>
+        <span className="text-xs font-medium text-charcoal">
+          Phone <span className="text-terracotta-dark">*</span>
+        </span>
         <input
           required
           value={values.phone}

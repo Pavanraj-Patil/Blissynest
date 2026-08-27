@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { contentSchema } from "@/lib/content-schema";
 import { getPageContent } from "@/lib/content-service";
 import { ContentSectionForm } from "./ContentSectionForm";
+import { ContentSidebar, type ContentPageGroup } from "./ContentSidebar";
 
 const pageLabels: Record<string, string> = {
   home: "Homepage",
@@ -14,7 +14,7 @@ const pageLabels: Record<string, string> = {
   contact: "Contact",
   "track-order": "Track Order",
   corporate: "Corporate Gifting",
-  layout: "Site-Wide (Header / Footer)",
+  layout: "Site-Wide",
 };
 
 export default async function AdminContentPage({
@@ -34,6 +34,12 @@ export default async function AdminContentPage({
   const pageContent = await getPageContent(activePage);
   const schema = activeSection ? contentSchema[activePage][activeSection] : undefined;
 
+  const groups: ContentPageGroup[] = pages.map((p) => ({
+    slug: p,
+    label: pageLabels[p] ?? p,
+    sections: Object.entries(contentSchema[p]).map(([key, s]) => ({ key, title: s.title })),
+  }));
+
   return (
     <div className="max-w-[1000px] mx-auto space-y-5">
       <div>
@@ -43,31 +49,8 @@ export default async function AdminContentPage({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-5">
-        <div className="rounded-2xl border border-charcoal/10 bg-white p-3 space-y-4 h-fit">
-          {pages.map((p) => (
-            <div key={p}>
-              <p className="px-2 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
-                {pageLabels[p] ?? p}
-              </p>
-              <div className="mt-1 space-y-0.5">
-                {Object.entries(contentSchema[p]).map(([sectionKey, sectionSchema]) => (
-                  <Link
-                    key={sectionKey}
-                    href={`/admin/content?page=${p}&section=${sectionKey}`}
-                    className={`block rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
-                      p === activePage && sectionKey === activeSection
-                        ? "bg-olive text-cream"
-                        : "text-charcoal-light hover:bg-cream-dark"
-                    }`}
-                  >
-                    {sectionSchema.title}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-5">
+        <ContentSidebar groups={groups} activePage={activePage} activeSection={activeSection} />
 
         {schema && activeSection ? (
           <ContentSectionForm

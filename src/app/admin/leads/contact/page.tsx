@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Mail } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { getContactMessagesForAdmin } from "@/lib/admin/lead-service";
+import { db } from "@/lib/db";
+import { RefreshSidebarCounts } from "./RefreshSidebarCounts";
 
 const PAGE_SIZE = 20;
 
@@ -17,8 +19,18 @@ export default async function AdminContactMessagesPage({
   const { messages, total } = await getContactMessagesForAdmin({ page, pageSize: PAGE_SIZE });
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
+  // Inbox-style: opening this list is what clears the sidebar's unread
+  // badge, matching how Reviews/CorporateLeads clear theirs (an explicit
+  // admin action) — the closest available equivalent here, since contact
+  // messages have no real triage workflow to hang a "seen" moment off of.
+  const { count: newlyRead } = await db.contactMessage.updateMany({
+    where: { read: false },
+    data: { read: true },
+  });
+
   return (
     <div className="max-w-[900px] mx-auto space-y-5">
+      {newlyRead > 0 && <RefreshSidebarCounts />}
       <div>
         <h1 className="font-serif text-2xl text-charcoal">Contact Messages</h1>
         <p className="mt-1 text-sm text-ink-muted">

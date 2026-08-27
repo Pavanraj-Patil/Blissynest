@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Tag, X, Info, Truck, PackageCheck, Clock, Heart } from "lucide-react";
 import type { CartItem } from "@/lib/cart-context";
-import type { Coupon } from "@/lib/checkout-data";
+
+type AppliedCoupon = { code: string; discount: number };
 
 const trustItems = [
   { icon: Truck, title: "Free Delivery", subtitle: "On orders above ₹999" },
@@ -20,10 +21,15 @@ type OrderSummarySidebarProps = {
   discount: number;
   shipping: number;
   total: number;
-  appliedCoupon: Coupon | null;
+  appliedCoupon: AppliedCoupon | null;
   onApplyCoupon: (code: string) => void;
   onRemoveCoupon: () => void;
   couponError: string | null;
+  couponApplying?: boolean;
+  // Coupons are an account-only perk — guests see a sign-in prompt instead
+  // of the apply form.
+  authenticated: boolean;
+  onSignInClick: () => void;
 };
 
 export function OrderSummarySidebar({
@@ -36,6 +42,9 @@ export function OrderSummarySidebar({
   onApplyCoupon,
   onRemoveCoupon,
   couponError,
+  couponApplying = false,
+  authenticated,
+  onSignInClick,
 }: OrderSummarySidebarProps) {
   const [couponInput, setCouponInput] = useState("");
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -140,29 +149,48 @@ export function OrderSummarySidebar({
           <Tag size={15} className="text-terracotta" />
           Have a coupon code?
         </p>
-        <p className="text-xs text-ink-muted mt-1">Apply your code and save on your order.</p>
-        <div className="mt-3 flex gap-2">
-          <input
-            type="text"
-            value={couponInput}
-            onChange={(e) => setCouponInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && couponInput.trim()) {
-                onApplyCoupon(couponInput.trim());
-              }
-            }}
-            placeholder="Enter coupon code"
-            className="flex-1 min-w-0 rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive uppercase placeholder:normal-case"
-          />
-          <button
-            type="button"
-            onClick={() => couponInput.trim() && onApplyCoupon(couponInput.trim())}
-            className="shrink-0 rounded-lg bg-olive text-cream px-5 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase hover:bg-olive-dark transition-colors"
-          >
-            Apply
-          </button>
-        </div>
-        {couponError && <p className="mt-2 text-xs text-terracotta-dark">{couponError}</p>}
+        {authenticated ? (
+          <>
+            <p className="text-xs text-ink-muted mt-1">Apply your code and save on your order.</p>
+            <div className="mt-3 flex gap-2">
+              <input
+                type="text"
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && couponInput.trim() && !couponApplying) {
+                    onApplyCoupon(couponInput.trim());
+                  }
+                }}
+                placeholder="Enter coupon code"
+                className="flex-1 min-w-0 rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive uppercase placeholder:normal-case"
+              />
+              <button
+                type="button"
+                disabled={couponApplying}
+                onClick={() => couponInput.trim() && onApplyCoupon(couponInput.trim())}
+                className="shrink-0 rounded-lg bg-olive text-cream px-5 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
+              >
+                {couponApplying ? "Checking…" : "Apply"}
+              </button>
+            </div>
+            {couponError && <p className="mt-2 text-xs text-terracotta-dark">{couponError}</p>}
+          </>
+        ) : (
+          <>
+            <p className="text-xs text-ink-muted mt-1">
+              Coupons are an account perk —{" "}
+              <button
+                type="button"
+                onClick={onSignInClick}
+                className="font-medium text-terracotta-dark hover:text-terracotta transition-colors"
+              >
+                sign in
+              </button>{" "}
+              to apply one.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

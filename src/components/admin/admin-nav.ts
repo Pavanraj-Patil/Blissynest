@@ -14,7 +14,14 @@ import {
   FileText,
 } from "lucide-react";
 
-export type AdminNavItem = { label: string; href: string; icon: LucideIcon };
+// The three nav items that carry a live "needs attention" count, fetched
+// server-side in admin/layout.tsx and matched back to a nav item by this
+// key — kept as a named type (not just `string`) so a typo here is a
+// compile error, not a silently-missing badge.
+export type AdminNavCountKey = "pendingReviews" | "newCorporateLeads" | "unreadContactMessages";
+export type AdminNavCounts = Record<AdminNavCountKey, number>;
+
+export type AdminNavItem = { label: string; href: string; icon: LucideIcon; countKey?: AdminNavCountKey };
 export type AdminNavSection = { title: string; items: AdminNavItem[] };
 
 // Every entry here maps to a real Prisma model — no section exists for
@@ -44,14 +51,14 @@ export const adminNavSections: AdminNavSection[] = [
     title: "Customers",
     items: [
       { label: "Customers", href: "/admin/customers", icon: Users },
-      { label: "Reviews", href: "/admin/reviews", icon: Star },
+      { label: "Reviews", href: "/admin/reviews", icon: Star, countKey: "pendingReviews" },
     ],
   },
   {
     title: "Leads",
     items: [
-      { label: "Corporate Leads", href: "/admin/leads/corporate", icon: Building2 },
-      { label: "Contact Messages", href: "/admin/leads/contact", icon: Mail },
+      { label: "Corporate Leads", href: "/admin/leads/corporate", icon: Building2, countKey: "newCorporateLeads" },
+      { label: "Contact Messages", href: "/admin/leads/contact", icon: Mail, countKey: "unreadContactMessages" },
       { label: "Newsletter", href: "/admin/leads/newsletter", icon: Send },
     ],
   },
