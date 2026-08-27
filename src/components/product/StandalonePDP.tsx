@@ -69,14 +69,16 @@ export function StandalonePDP({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           <div>
             <div className="lg:sticky lg:top-28 lg:flex lg:flex-col lg:gap-4">
-              <Breadcrumb
-                items={[
-                  { label: "Home", href: "/" },
-                  { label: "Shop", href: "/shop" },
-                  { label: breadcrumbCategory },
-                  { label: product.name },
-                ]}
-              />
+              <div className="hidden lg:block">
+                <Breadcrumb
+                  items={[
+                    { label: "Home", href: "/" },
+                    { label: "Shop", href: "/shop" },
+                    { label: breadcrumbCategory },
+                    { label: product.name },
+                  ]}
+                />
+              </div>
               <ProductGallery images={product.images} name={product.name} />
             </div>
           </div>
