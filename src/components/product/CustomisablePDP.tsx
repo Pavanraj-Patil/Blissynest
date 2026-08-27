@@ -299,9 +299,7 @@ export function CustomisablePDP({
           </div>
         </div>
 
-        <div className="mt-14">
-          <ReviewsSection reviews={reviews} />
-        </div>
+        <ReviewsSection reviews={reviews} />
 
         <MobileStickyCTA
           onAddToCart={handleAddToCart}
