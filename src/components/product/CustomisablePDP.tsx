@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ShoppingBag, Zap, Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { ProductGallery } from "./ProductGallery";
+import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { RatingStars } from "./RatingStars";
 import { QuantityStepper } from "./QuantityStepper";
 import { FeatureIconRow } from "./FeatureIconRow";
@@ -33,10 +34,12 @@ export function CustomisablePDP({
   product,
   related,
   reviews,
+  breadcrumbCategory,
 }: {
   product: CustomisableProduct;
   related: RelatedProduct[];
   reviews: ApprovedReview[];
+  breadcrumbCategory: string;
 }) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -75,7 +78,15 @@ export function CustomisablePDP({
       <div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           <div>
-            <div className="lg:sticky lg:top-24">
+            <div className="lg:sticky lg:top-28 lg:flex lg:flex-col lg:gap-4">
+              <Breadcrumb
+                items={[
+                  { label: "Home", href: "/" },
+                  { label: "Shop", href: "/shop" },
+                  { label: breadcrumbCategory },
+                  { label: product.name },
+                ]}
+              />
               <ProductGallery images={product.images} name={product.name} />
             </div>
           </div>

@@ -16,18 +16,30 @@ export function ProductPageClient({
   reviews: ApprovedReview[];
 }) {
   return (
-    <ProductPageShell
-      breadcrumbCategory={product.breadcrumbCategory}
-      productName={product.name}
-    >
+    <ProductPageShell>
       {product.pdpType === "hamper" && (
-        <HamperPDP product={product} related={related} reviews={reviews} />
+        <HamperPDP
+          product={product}
+          related={related}
+          reviews={reviews}
+          breadcrumbCategory={product.breadcrumbCategory}
+        />
       )}
       {product.pdpType === "customisable" && (
-        <CustomisablePDP product={product} related={related} reviews={reviews} />
+        <CustomisablePDP
+          product={product}
+          related={related}
+          reviews={reviews}
+          breadcrumbCategory={product.breadcrumbCategory}
+        />
       )}
       {product.pdpType === "standalone" && (
-        <StandalonePDP product={product} related={related} reviews={reviews} />
+        <StandalonePDP
+          product={product}
+          related={related}
+          reviews={reviews}
+          breadcrumbCategory={product.breadcrumbCategory}
+        />
       )}
     </ProductPageShell>
   );

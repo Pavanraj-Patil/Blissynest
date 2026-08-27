@@ -41,7 +41,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
         </div>
       )}
 
-      <div className="relative flex-1 aspect-square overflow-hidden rounded-2xl bg-cream-dark">
+      <div className="relative flex-1 aspect-square lg:max-h-[calc(100dvh-14rem)] overflow-hidden rounded-2xl bg-cream-dark">
         <Image
           src={images[active]}
           alt={name}
