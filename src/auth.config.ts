@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
+import type { UserRole } from "@/generated/prisma/client";
 
 // Kept separate from src/auth.ts as the shared provider/callback config,
 // with the Prisma adapter added only in auth.ts — a clean separation
@@ -61,7 +62,7 @@ export default {
       // `user` is only present on the initial sign-in (adapter-loaded row).
       if (user) {
         const dbUser = user as unknown as {
-          role: "CUSTOMER" | "ADMIN";
+          role: UserRole;
           twoFactorEnabled: boolean;
         };
         token.role = dbUser.role;

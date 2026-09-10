@@ -11,7 +11,7 @@ export default async function AdminOrderDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("orders");
   const { id } = await params;
   const order = await getOrderForAdmin(id);
   if (!order) notFound();

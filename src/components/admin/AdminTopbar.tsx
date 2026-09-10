@@ -7,9 +7,11 @@ import { Menu, Search, ChevronDown, LogOut, User as UserIcon } from "lucide-reac
 
 export function AdminTopbar({
   adminName,
+  role,
   onOpenSidebar,
 }: {
   adminName: string;
+  role: "ADMIN" | "SUPER_ADMIN";
   onOpenSidebar: () => void;
 }) {
   const router = useRouter();
@@ -79,7 +81,9 @@ export function AdminTopbar({
           </span>
           <span className="hidden sm:block text-left">
             <span className="block text-sm font-medium text-charcoal leading-tight">{adminName}</span>
-            <span className="block text-[11px] text-ink-muted leading-tight">Admin</span>
+            <span className="block text-[11px] text-ink-muted leading-tight">
+              {role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}
+            </span>
           </span>
           <ChevronDown size={15} className="hidden sm:block text-charcoal/40" />
         </button>

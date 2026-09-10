@@ -22,7 +22,7 @@ export default async function AdminContentPage({
 }: {
   searchParams: Promise<{ page?: string; section?: string }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("content");
   const { page: pageParam, section: sectionParam } = await searchParams;
 
   const pages = Object.keys(contentSchema);

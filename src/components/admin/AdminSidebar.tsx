@@ -6,6 +6,13 @@ import { usePathname } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { adminNavSections, dashboardNavItem, type AdminNavItem, type AdminNavCounts } from "./admin-nav";
+import type { AdminAccess } from "@/lib/admin/require-admin";
+
+function canSeeItem(item: AdminNavItem, access: AdminAccess): boolean {
+  if (item.superAdminOnly) return access.role === "SUPER_ADMIN";
+  if (!item.permission) return true;
+  return access.role === "SUPER_ADMIN" || access.permissions.includes(item.permission);
+}
 
 function NavLink({ item, active, count }: { item: AdminNavItem; active: boolean; count?: number }) {
   return (
@@ -37,11 +44,16 @@ function isActive(pathname: string, href: string): boolean {
 export function AdminSidebar({
   onNavigate,
   counts,
+  access,
 }: {
   onNavigate?: () => void;
   counts?: AdminNavCounts;
+  access: AdminAccess;
 }) {
   const pathname = usePathname();
+  const visibleSections = adminNavSections
+    .map((section) => ({ ...section, items: section.items.filter((item) => canSeeItem(item, access)) }))
+    .filter((section) => section.items.length > 0);
 
   return (
     <div className="flex h-full flex-col bg-cream-dark" onClick={onNavigate}>
@@ -58,7 +70,7 @@ export function AdminSidebar({
           <NavLink item={dashboardNavItem} active={isActive(pathname, dashboardNavItem.href)} />
         </div>
 
-        {adminNavSections.map((section) => (
+        {visibleSections.map((section) => (
           <div key={section.title}>
             <p className="px-3 pb-1.5 text-[10px] font-semibold tracking-[0.12em] uppercase text-ink-muted">
               {section.title}

@@ -6,7 +6,7 @@ import { createAdminReviewSchema } from "@/lib/validations/review";
 // POST /api/admin/reviews — admin writing a review directly (any display
 // name, no real customer/order behind it). Goes straight to APPROVED.
 export async function POST(request: Request) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("reviews");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }

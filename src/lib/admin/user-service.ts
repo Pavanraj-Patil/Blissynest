@@ -1,12 +1,18 @@
 import { db } from "@/lib/db";
 import { paiseToRupees } from "@/lib/currency";
 import type { Prisma, UserRole } from "@/generated/prisma/client";
+import { isAdminPermission, type AdminPermission } from "./permissions";
+
+function toPermissionList(value: unknown): AdminPermission[] {
+  return Array.isArray(value) ? value.filter(isAdminPermission) : [];
+}
 
 export type AdminUserListItem = {
   id: string;
   name: string | null;
   email: string;
   role: UserRole;
+  adminPermissions: AdminPermission[];
   createdAt: Date;
   orderCount: number;
   totalSpent: number; // rupees
@@ -14,7 +20,7 @@ export type AdminUserListItem = {
 
 export async function getUsersForAdmin(params: {
   q?: string;
-  role?: UserRole;
+  role?: UserRole | UserRole[];
   page: number;
   pageSize: number;
 }): Promise<{ users: AdminUserListItem[]; total: number }> {
@@ -22,7 +28,7 @@ export async function getUsersForAdmin(params: {
 
   const where: Prisma.UserWhereInput = {
     ...(q && { OR: [{ name: { contains: q } }, { email: { contains: q } }] }),
-    ...(role && { role }),
+    ...(role && { role: Array.isArray(role) ? { in: role } : role }),
   };
 
   const [users, total] = await Promise.all([
@@ -31,7 +37,7 @@ export async function getUsersForAdmin(params: {
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: { id: true, name: true, email: true, role: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, adminPermissions: true, createdAt: true },
     }),
     db.user.count({ where }),
   ]);
@@ -54,6 +60,7 @@ export async function getUsersForAdmin(params: {
       const stats = statsByUserId.get(u.id);
       return {
         ...u,
+        adminPermissions: toPermissionList(u.adminPermissions),
         orderCount: stats?._count._all ?? 0,
         totalSpent: paiseToRupees(stats?._sum.total ?? 0),
       };
@@ -75,6 +82,7 @@ export type AdminUserDetail = {
   name: string | null;
   email: string;
   role: UserRole;
+  adminPermissions: AdminPermission[];
   createdAt: Date;
   orders: AdminUserOrder[];
   totalSpent: number; // rupees
@@ -88,6 +96,7 @@ export async function getUserForAdmin(id: string): Promise<AdminUserDetail | nul
       name: true,
       email: true,
       role: true,
+      adminPermissions: true,
       createdAt: true,
       orders: {
         orderBy: { createdAt: "desc" },
@@ -102,6 +111,7 @@ export async function getUserForAdmin(id: string): Promise<AdminUserDetail | nul
     name: user.name,
     email: user.email,
     role: user.role,
+    adminPermissions: toPermissionList(user.adminPermissions),
     createdAt: user.createdAt,
     orders: user.orders.map((o) => ({
       id: o.id,
@@ -114,17 +124,37 @@ export async function getUserForAdmin(id: string): Promise<AdminUserDetail | nul
   };
 }
 
-export async function setUserRole(
+// Only ever called from a super-admin-gated route (requireSuperAdminApi) —
+// this is the one place a user's admin role/permissions actually change.
+export async function setUserRoleAndPermissions(
   id: string,
   role: UserRole,
+  adminPermissions: AdminPermission[],
   requestingAdminId: string
 ): Promise<{ error: string; status: number } | { success: true }> {
-  if (id === requestingAdminId && role !== "ADMIN") {
-    return { error: "You can't remove your own admin access.", status: 400 };
+  if (id === requestingAdminId && role !== "SUPER_ADMIN") {
+    return { error: "You can't remove your own super admin access.", status: 400 };
   }
+
   const user = await db.user.findUnique({ where: { id } });
   if (!user) return { error: "User not found.", status: 404 };
 
-  await db.user.update({ where: { id }, data: { role } });
+  if (user.role === "SUPER_ADMIN" && role !== "SUPER_ADMIN") {
+    const otherSuperAdmins = await db.user.count({
+      where: { role: "SUPER_ADMIN", id: { not: id } },
+    });
+    if (otherSuperAdmins === 0) {
+      return { error: "There must be at least one super admin.", status: 400 };
+    }
+  }
+
+  await db.user.update({
+    where: { id },
+    // Permissions are only meaningful for a plain ADMIN — SUPER_ADMIN
+    // implicitly has everything and CUSTOMER has nothing, so both clear the
+    // field rather than leaving a stale list an admin could be re-promoted
+    // into later.
+    data: { role, adminPermissions: role === "ADMIN" ? adminPermissions : [] },
+  });
   return { success: true };
 }

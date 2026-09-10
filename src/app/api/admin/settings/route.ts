@@ -4,7 +4,7 @@ import { updateSiteSettings } from "@/lib/admin/settings-service";
 import { siteSettingsSchema } from "@/lib/validations/admin-settings";
 
 export async function PATCH(request: Request) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("settings");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }

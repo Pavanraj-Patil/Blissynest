@@ -3,7 +3,7 @@ import { getSiteSettings } from "@/lib/site-settings";
 import { SettingsForm } from "./SettingsForm";
 
 export default async function AdminSettingsPage() {
-  await requireAdmin();
+  await requireAdmin("settings");
   const settings = await getSiteSettings();
 
   return (

@@ -34,7 +34,7 @@ export default async function AdminReviewsPage({
 }: {
   searchParams: Promise<{ status?: string; product?: string }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("reviews");
   const { status, product } = await searchParams;
   const activeStatus = statusFilters.some((f) => f.value === status) ? (status as string) : "PENDING";
   const productQuery = (product ?? "").trim();

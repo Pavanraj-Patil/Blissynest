@@ -29,7 +29,7 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string; audience?: string; category?: string; page?: string }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("products");
   const { q, status, audience, category, page: pageParam } = await searchParams;
   const query = (q ?? "").trim();
   const page = Math.max(1, Number(pageParam) || 1);

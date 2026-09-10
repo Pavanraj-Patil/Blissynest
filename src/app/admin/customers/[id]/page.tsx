@@ -4,14 +4,13 @@ import { ArrowLeft, Mail, CalendarDays, ShoppingBag, IndianRupee } from "lucide-
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { getUserForAdmin } from "@/lib/admin/user-service";
 import { orderStatusStyles as statusStyles } from "@/lib/admin/order-status-styles";
-import { UserRoleToggle } from "../UserRoleToggle";
 
 export default async function AdminCustomerDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await requireAdmin();
+  const session = await requireAdmin("customers");
   const { id } = await params;
   const customer = await getUserForAdmin(id);
   if (!customer) notFound();
@@ -36,12 +35,6 @@ export default async function AdminCustomerDetailPage({
             {customer.email}
           </p>
         </div>
-        <UserRoleToggle
-          userId={customer.id}
-          userEmail={customer.email}
-          role={customer.role}
-          isSelf={customer.id === session.user.id}
-        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

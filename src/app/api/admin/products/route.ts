@@ -4,7 +4,7 @@ import { createProduct } from "@/lib/admin/product-service";
 import { adminProductSchema } from "@/lib/validations/admin-product";
 
 export async function POST(request: Request) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("products");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }

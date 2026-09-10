@@ -70,7 +70,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ page: string; section: string }> }
 ) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("content");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }

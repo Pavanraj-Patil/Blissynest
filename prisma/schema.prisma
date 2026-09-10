@@ -60,6 +60,13 @@ model User {
   image            String?
   passwordHash     String?
   role             UserRole   @default(CUSTOMER)
+  // Delegable admin capabilities (see src/lib/admin/permissions.ts) —
+  // string[] of AdminPermission keys. Only meaningful when role=ADMIN;
+  // SUPER_ADMIN implicitly holds every permission (never reads this field)
+  // and CUSTOMER never reads it either. Not itself a grantable permission —
+  // admin management is exclusively a super-admin capability, so an ADMIN
+  // can never escalate their own or anyone else's access.
+  adminPermissions Json       @default("[]")
   twoFactorSecret  String?
   twoFactorEnabled Boolean    @default(false)
   createdAt        DateTime   @default(now())
@@ -379,6 +386,10 @@ enum ProductBadge {
 enum UserRole {
   CUSTOMER
   ADMIN
+  // Full, unscoped access — the only role that can manage other admins'
+  // roles/permissions (see requireSuperAdmin in src/lib/admin/require-admin.ts).
+  // A plain ADMIN's actual access is whatever's in their adminPermissions.
+  SUPER_ADMIN
 }
 
 enum OrderStatus {

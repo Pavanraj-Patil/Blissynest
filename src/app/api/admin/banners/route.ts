@@ -5,7 +5,7 @@ import { bannerInputSchema } from "@/lib/validations/banner";
 
 // POST /api/admin/banners — create a new homepage promo banner.
 export async function POST(request: Request) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("banners");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }

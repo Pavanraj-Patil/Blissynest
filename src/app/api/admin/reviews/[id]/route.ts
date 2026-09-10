@@ -8,7 +8,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("reviews");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }
@@ -35,7 +35,7 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("reviews");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }

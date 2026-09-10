@@ -27,7 +27,7 @@ export default async function AdminCorporateLeadsPage({
 }: {
   searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("leads");
   const { status, page: pageParam } = await searchParams;
   const activeStatus = statusFilters.some((f) => f.value === status) ? (status as string) : "";
   const page = Math.max(1, Number(pageParam) || 1);

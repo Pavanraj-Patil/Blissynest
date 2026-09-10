@@ -3,7 +3,7 @@ import { getAllBannersForAdmin } from "@/lib/banner-service";
 import { BannerManager } from "./BannerManager";
 
 export default async function AdminBannersPage() {
-  await requireAdmin();
+  await requireAdmin("banners");
   const banners = await getAllBannersForAdmin();
 
   return (

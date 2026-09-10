@@ -2,7 +2,7 @@ import { requireAdmin } from "@/lib/admin/require-admin";
 import { ProductForm } from "../ProductForm";
 
 export default async function AdminNewProductPage() {
-  await requireAdmin();
+  await requireAdmin("products");
 
   return (
     <div className="max-w-[900px] mx-auto space-y-5">

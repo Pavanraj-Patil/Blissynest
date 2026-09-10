@@ -10,7 +10,7 @@ const MAX_BYTES = 8 * 1024 * 1024; // 8MB
 // instead of a confusing crash, and the admin form's URL/local-path textarea
 // remains a working fallback (see BACKEND_TODO.md).
 export async function POST(request: Request) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("products");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }

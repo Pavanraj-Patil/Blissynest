@@ -4,7 +4,7 @@ import { createCoupon } from "@/lib/admin/coupon-service";
 import { adminCouponSchema } from "@/lib/validations/admin-coupon";
 
 export async function POST(request: Request) {
-  const check = await requireAdminApi();
+  const check = await requireAdminApi("coupons");
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }

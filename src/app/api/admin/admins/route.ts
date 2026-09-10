@@ -3,24 +3,25 @@ import { z } from "zod";
 import { requireSuperAdminApi } from "@/lib/admin/require-admin";
 import { setUserRoleAndPermissions } from "@/lib/admin/user-service";
 import { ADMIN_PERMISSIONS } from "@/lib/admin/permissions";
+import { db } from "@/lib/db";
 
-// Managing another user's admin role/permissions is exclusively a
-// super-admin action — see the comment on requireSuperAdmin.
+// POST /api/admin/admins — promotes an existing account (found by email) to
+// ADMIN/SUPER_ADMIN with the given permissions. Deliberately doesn't create
+// a new user — someone has to have signed up first, same as the original
+// "sign up, then flip role in the DB" bootstrap story this app has always
+// used, just done through the UI instead of Prisma Studio from here on.
 const bodySchema = z.object({
-  role: z.enum(["CUSTOMER", "ADMIN", "SUPER_ADMIN"]),
+  email: z.string().trim().toLowerCase().email(),
+  role: z.enum(["ADMIN", "SUPER_ADMIN"]),
   adminPermissions: z.array(z.enum(ADMIN_PERMISSIONS)).default([]),
 });
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request) {
   const check = await requireSuperAdminApi();
   if ("error" in check) {
     return NextResponse.json({ error: check.error }, { status: check.status });
   }
 
-  const { id } = await params;
   const body = await request.json().catch(() => null);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
@@ -30,8 +31,19 @@ export async function PATCH(
     );
   }
 
+  const user = await db.user.findUnique({ where: { email: parsed.data.email } });
+  if (!user) {
+    return NextResponse.json(
+      { error: "No account with that email — they need to sign up first." },
+      { status: 404 }
+    );
+  }
+  if (user.role !== "CUSTOMER") {
+    return NextResponse.json({ error: "That account already has admin access." }, { status: 409 });
+  }
+
   const result = await setUserRoleAndPermissions(
-    id,
+    user.id,
     parsed.data.role,
     parsed.data.adminPermissions,
     check.session.user.id!
@@ -39,5 +51,5 @@ export async function PATCH(
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
-  return NextResponse.json(result);
+  return NextResponse.json(result, { status: 201 });
 }

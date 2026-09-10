@@ -13,7 +13,7 @@ export default async function AdminEditProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("products");
   const { id } = await params;
 
   const product = await db.product.findUnique({ where: { id } });

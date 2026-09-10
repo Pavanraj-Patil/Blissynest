@@ -3,7 +3,7 @@ import { getAllCouponsForAdmin } from "@/lib/admin/coupon-service";
 import { CouponManager } from "./CouponManager";
 
 export default async function AdminCouponsPage() {
-  await requireAdmin();
+  await requireAdmin("coupons");
   const coupons = await getAllCouponsForAdmin();
 
   return (
