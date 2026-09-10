@@ -50,7 +50,7 @@ export function CollectionPageClient({
     () =>
       content.categories.map((cat) => ({
         ...cat,
-        count: content.products.filter((p) => p.category === cat.slug).length,
+        count: content.products.filter((p) => p.category.includes(cat.slug)).length,
       })),
     [content]
   );
@@ -75,7 +75,7 @@ export function CollectionPageClient({
 
   const filteredProducts = useMemo(() => {
     return content.products.filter((p) => {
-      if (selectedCategory && p.category !== selectedCategory) return false;
+      if (selectedCategory && !p.category.includes(selectedCategory)) return false;
       if (
         selectedAttributes.length > 0 &&
         !(p.attribute && selectedAttributes.includes(p.attribute))

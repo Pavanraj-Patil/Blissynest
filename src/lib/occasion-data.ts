@@ -9,7 +9,6 @@ import {
   User,
   HeartHandshake,
   Users,
-  Briefcase,
   Baby,
   type LucideIcon,
 } from "lucide-react";
@@ -109,7 +108,6 @@ export const audiencePillLabels: Record<AudienceSlug, string> = {
   parents: "For Parents",
   couples: "For Couples",
   friends: "For Friends",
-  colleagues: "For Colleagues",
 };
 
 export const audiencePillIcons: Record<AudienceSlug, LucideIcon> = {
@@ -118,7 +116,6 @@ export const audiencePillIcons: Record<AudienceSlug, LucideIcon> = {
   parents: Home,
   couples: HeartHandshake,
   friends: Users,
-  colleagues: Briefcase,
 };
 
 export type OccasionPillFilter = {
@@ -146,14 +143,14 @@ export const recipientPillIcons: Record<string, LucideIcon> = {
  * - Birthday & Just Because apply broadly across relationships, so they keep
  *   most/all audiences. Birthday also adds "For Kids" (recipient-type, see
  *   above) since kids' birthdays are one of the most common real cases.
- * - Anniversary & Wedding are inherently couple-centric — Friends/Colleagues
- *   pills are dropped (their products still show under "All" if tagged, just
- *   not offered as a dedicated quick filter).
+ * - Anniversary & Wedding are inherently couple-centric — the Friends pill
+ *   is dropped (its products still show under "All" if tagged, just not
+ *   offered as a dedicated quick filter).
  * - Housewarming is about the *space*, not the relationship, so it swaps to
  *   product-type categories (Home & Living, Self Care, Personalised) instead
  *   of audiences.
- * - Thank You & Festivals skew toward Friends/Colleagues/Family, matching how
- *   those occasions are actually gifted.
+ * - Thank You & Festivals skew toward Friends/Family, matching how those
+ *   occasions are actually gifted.
  * Every pill maps to a real, existing product field (audience, category, or
  * recipient tag) — nothing here is a fabricated bucket with fake counts.
  */
@@ -164,7 +161,6 @@ export const occasionPills: Record<OccasionSlug, OccasionPillFilter[]> = {
     { type: "recipient", value: "kids", label: "For Kids" },
     { type: "audience", value: "friends", label: "For Friends" },
     { type: "audience", value: "parents", label: "For Parents" },
-    { type: "audience", value: "colleagues", label: "For Colleagues" },
     { type: "category", value: "luxury-edit", label: "Luxury Edit" },
   ],
   anniversary: [
@@ -193,7 +189,6 @@ export const occasionPills: Record<OccasionSlug, OccasionPillFilter[]> = {
   ],
   "thank-you": [
     { type: "audience", value: "friends", label: "For Friends" },
-    { type: "audience", value: "colleagues", label: "For Colleagues" },
     { type: "audience", value: "her", label: "For Her" },
     { type: "audience", value: "him", label: "For Him" },
     { type: "category", value: "personalised", label: "Personalised" },
@@ -205,12 +200,10 @@ export const occasionPills: Record<OccasionSlug, OccasionPillFilter[]> = {
     { type: "audience", value: "parents", label: "For Parents" },
     { type: "audience", value: "couples", label: "For Couples" },
     { type: "audience", value: "friends", label: "For Friends" },
-    { type: "audience", value: "colleagues", label: "For Colleagues" },
   ],
   festivals: [
     { type: "audience", value: "parents", label: "For Parents" },
     { type: "audience", value: "friends", label: "For Friends" },
-    { type: "audience", value: "colleagues", label: "For Colleagues" },
     { type: "audience", value: "her", label: "For Her" },
     { type: "audience", value: "him", label: "For Him" },
     { type: "category", value: "add-ons", label: "Add-ons" },

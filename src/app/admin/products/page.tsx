@@ -15,14 +15,13 @@ const statusStyles: Record<string, string> = {
   ARCHIVED: "bg-charcoal/10 text-charcoal-light",
 };
 
-const audienceValues = ["HER", "HIM", "PARENTS", "COUPLES", "FRIENDS", "COLLEAGUES"] as const;
+const audienceValues = ["HER", "HIM", "PARENTS", "COUPLES", "FRIENDS"] as const;
 const audienceLabels: Record<string, string> = {
   HER: "Her",
   HIM: "Him",
   PARENTS: "Parents",
   COUPLES: "Couples",
   FRIENDS: "Friends",
-  COLLEAGUES: "Colleagues",
 };
 
 export default async function AdminProductsPage({
@@ -38,10 +37,14 @@ export default async function AdminProductsPage({
   const where: Prisma.ProductWhereInput = {
     ...(query && { name: { contains: query } }),
     ...(status && ["PUBLISHED", "DRAFT", "ARCHIVED"].includes(status) && { status: status as never }),
-    ...(audience && (audienceValues as readonly string[]).includes(audience) && { audience: audience as never }),
-    ...(category && { category }),
+    ...(audience && (audienceValues as readonly string[]).includes(audience) && { audience: { array_contains: audience } }),
+    ...(category && { category: { array_contains: category } }),
   };
 
+  // `category` is a JSON array now, so there's no SQL-level DISTINCT over it
+  // (MySQL doesn't support comparing/ordering JSON columns) — pull every
+  // row's category list and flatten+dedupe in JS instead. Catalogue is only
+  // a few hundred rows, so this is cheap.
   const [products, total, categoryRows] = await Promise.all([
     db.product.findMany({
       where,
@@ -50,13 +53,11 @@ export default async function AdminProductsPage({
       take: PAGE_SIZE,
     }),
     db.product.count({ where }),
-    db.product.findMany({
-      distinct: ["category"],
-      select: { category: true },
-      orderBy: { category: "asc" },
-    }),
+    db.product.findMany({ select: { category: true } }),
   ]);
-  const categories = categoryRows.map((r) => r.category);
+  const categories = Array.from(
+    new Set(categoryRows.flatMap((r) => r.category as string[]))
+  ).sort();
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -220,7 +221,18 @@ export default async function AdminProductsPage({
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 px-3 text-charcoal-light">{p.category}</td>
+                    <td className="py-2.5 px-3 text-charcoal-light">
+                      <div className="flex flex-wrap gap-1 max-w-[180px]">
+                        {(p.category as string[]).map((c) => (
+                          <span
+                            key={c}
+                            className="rounded-full bg-cream-dark px-2 py-0.5 text-[11px] text-charcoal-light"
+                          >
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
                     <td className="py-2.5 px-3 text-charcoal">
                       ₹{Math.round(p.basePrice / 100).toLocaleString("en-IN")}
                     </td>

@@ -59,8 +59,7 @@ export type AudienceSlug =
   | "him"
   | "parents"
   | "couples"
-  | "friends"
-  | "colleagues";
+  | "friends";
 
 export const audienceSlugs: AudienceSlug[] = [
   "her",
@@ -68,7 +67,6 @@ export const audienceSlugs: AudienceSlug[] = [
   "parents",
   "couples",
   "friends",
-  "colleagues",
 ];
 
 const genericAddOns: ProductSeed[] = [
@@ -401,72 +399,11 @@ const productSeedsByAudience: Record<
     ],
     "add-ons": genericAddOns,
   },
-  colleagues: {
-    "self-care": [
-      { name: "Office Wellness Box", price: 1499 },
-      { name: "Desk Break Self-Care Kit", price: 999 },
-      { name: "Mini Relax Treat Box", price: 749 },
-      { name: "The Work-Life Balance Box", price: 1799 },
-      { name: "Team Appreciation Hamper", price: 2099 },
-      { name: "Post-Meeting Calm Kit", price: 899 },
-      { name: "Everyday Wellness Set", price: 1249 },
-      { name: "Wind-Down Desk Kit", price: 1349 },
-    ],
-    personalised: [
-      { name: "Personalised Desk Nameplate", price: 899 },
-      { name: "Custom Coffee Mug", price: 599 },
-      { name: "Engraved Pen Set", price: 799 },
-      { name: "Personalised Notebook", price: 649 },
-      { name: "Custom Laptop Sleeve", price: 999 },
-      { name: "Engraved Desk Organiser", price: 1099 },
-      { name: "Personalised Planner", price: 749 },
-      { name: "Custom Business Card Holder", price: 849 },
-    ],
-    "luxury-edit": [
-      { name: "The Executive Appreciation Trunk", price: 3999 },
-      { name: "Premium Desk Accessory Set", price: 3499 },
-      { name: "Signature Corporate Hamper", price: 3799 },
-      { name: "Deluxe Office Essentials Box", price: 2999 },
-      { name: "The Leadership Celebration Trunk", price: 4299 },
-      { name: "Luxury Pen & Notebook Set", price: 2599 },
-      { name: "Premium Coffee Ritual Set", price: 2799 },
-      { name: "Gold Accent Desk Trophy Set", price: 2499 },
-    ],
-    "home-living": [
-      { name: "Ceramic Desk Mug Set", price: 799 },
-      { name: "Desk Plant & Pot Set", price: 899 },
-      { name: "Aromatic Desk Diffuser", price: 1099 },
-      { name: "Minimalist Desk Organiser", price: 999 },
-      { name: "Coaster & Notepad Set", price: 649 },
-      { name: "Office Candle Set", price: 1099 },
-      { name: "Desk Décor Bundle", price: 1249 },
-      { name: "Morning Coffee Desk Kit", price: 1349 },
-    ],
-    beauty: [
-      { name: "Desk Hand Care Duo", price: 649 },
-      { name: "Office Freshen-Up Kit", price: 799 },
-      { name: "Everyday Glow Essentials", price: 899 },
-      { name: "Travel-Size Skincare Set", price: 749 },
-      { name: "Refresh & Renew Desk Kit", price: 949 },
-      { name: "Hand Cream & Lip Balm Duo", price: 549 },
-      { name: "Quick Care Trio", price: 699 },
-      { name: "Complete Desk Wellness Bundle", price: 1199 },
-    ],
-    jewellery: [
-      { name: "Minimalist Stud Earring Set", price: 699 },
-      { name: "Classic Chain Bracelet", price: 799 },
-      { name: "Simple Pendant Necklace", price: 899 },
-      { name: "Everyday Ring Set", price: 649 },
-      { name: "Professional Cufflink Set", price: 899 },
-      { name: "Delicate Layered Necklace", price: 999 },
-      { name: "Classic Tie Pin Set", price: 599 },
-      { name: "Minimalist Bangle Set", price: 749 },
-    ],
-    "add-ons": genericAddOns,
-  },
 };
 
-const recipientsByAudience: Record<AudienceSlug, string[]> = {
+// Exported so the admin product form can drive its Recipient Tags checkboxes
+// off the same vocabulary, unioned across whichever Audiences are checked.
+export const recipientsByAudience: Record<AudienceSlug, string[]> = {
   her: ["Wife", "Sister", "Friend", "Mother", "Daughter", "Colleague", "Partner"],
   him: ["Husband", "Brother", "Father", "Son", "Friend", "Colleague", "Partner"],
   parents: [
@@ -492,14 +429,6 @@ const recipientsByAudience: Record<AudienceSlug, string[]> = {
     "College Friend",
     "Neighbour",
     "Colleague",
-  ],
-  colleagues: [
-    "Manager",
-    "Teammate",
-    "Mentor",
-    "New Joinee",
-    "Client",
-    "Retiring Colleague",
   ],
 };
 
@@ -557,7 +486,6 @@ export const shopProductsByAudience: Record<AudienceSlug, ShopProduct[]> = {
   parents: buildProducts("parents"),
   couples: buildProducts("couples"),
   friends: buildProducts("friends"),
-  colleagues: buildProducts("colleagues"),
 };
 
 export type ShopProductWithAudience = ShopProduct & { audience: AudienceSlug };
@@ -606,12 +534,5 @@ export const audienceShopContent: Record<AudienceSlug, AudienceShopContent> = {
     subtitle: "Fun, thoughtful gifts for the friends who feel like family.",
     breadcrumbLabel: "Gifts for Friends",
     recipients: recipientsByAudience.friends,
-  },
-  colleagues: {
-    title: "Gifts for Colleagues",
-    subtitle:
-      "Professional, thoughtful gifts to appreciate the people you work with.",
-    breadcrumbLabel: "Gifts for Colleagues",
-    recipients: recipientsByAudience.colleagues,
   },
 };

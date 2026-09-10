@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import type { Audience } from "@/generated/prisma/client";
 import { toProductDetail, toRelatedProduct } from "@/lib/product-adapters";
 import { getApprovedReviewsForProduct } from "@/lib/review-service";
 import { ProductPageClient } from "./ProductPageClient";
@@ -49,8 +48,13 @@ export default async function ProductPage({ params }: Props) {
           where: {
             status: "PUBLISHED",
             id: { not: product.id },
-            category: product.category,
-            ...(product.audience ? { audience: product.audience as Audience } : {}),
+            // Both sides are arrays now — match anything sharing at least one
+            // category or audience with this product, rather than requiring
+            // an exact single value in common.
+            OR: [
+              ...(product.category as string[]).map((c) => ({ category: { array_contains: c } })),
+              ...(product.audience as string[]).map((a) => ({ audience: { array_contains: a } })),
+            ],
           },
           take: 4,
         });

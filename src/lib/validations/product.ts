@@ -9,10 +9,13 @@ export const audienceSlugToEnum = {
   parents: "PARENTS",
   couples: "COUPLES",
   friends: "FRIENDS",
-  colleagues: "COLLEAGUES",
 } as const;
 
 export type AudienceSlug = keyof typeof audienceSlugToEnum;
+
+export const audienceEnumToSlug = Object.fromEntries(
+  Object.entries(audienceSlugToEnum).map(([slug, enumValue]) => [enumValue, slug])
+) as Record<(typeof audienceSlugToEnum)[AudienceSlug], AudienceSlug>;
 
 export const sortOptions = ["best-selling", "price-asc", "price-desc", "rating", "newest"] as const;
 export type SortOption = (typeof sortOptions)[number];

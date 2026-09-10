@@ -13,8 +13,8 @@ model Product {
   name                String
   tagline             String?
   pdpType             PdpType          @default(STANDALONE)
-  audience            Audience?
-  category            String
+  audience            Json // Audience[] — string[] of Audience enum values, see prisma/schema history re: MySQL has no native array column
+  category            Json // string[] of shopCategories slugs
   collectionSlug      String?
   occasionTags        Json
   recipientTags       Json
@@ -47,7 +47,6 @@ model Product {
   reviews             Review[]
   wishlistedBy        Wishlist[]
 
-  @@index([audience, category])
   @@index([collectionSlug])
   @@index([featured])
   @@index([status])
@@ -364,7 +363,6 @@ enum Audience {
   PARENTS
   COUPLES
   FRIENDS
-  COLLEAGUES
 }
 
 enum ProductStatus {

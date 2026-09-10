@@ -1,18 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { RepeatingListField } from "@/components/admin/RepeatingListField";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { CheckboxGroupField } from "@/components/admin/CheckboxGroupField";
+import { shopCategories, shopOccasions, recipientsByAudience } from "@/lib/shop-mock-data";
+import { collectionContent, isCollectionSlug } from "@/lib/collection-mock-data";
+import { audienceEnumToSlug } from "@/lib/validations/product";
+
+const audienceOptions = [
+  { value: "HER", label: "Her" },
+  { value: "HIM", label: "Him" },
+  { value: "PARENTS", label: "Parents" },
+  { value: "COUPLES", label: "Couples" },
+  { value: "FRIENDS", label: "Friends" },
+];
 
 export type ProductFormInitial = {
   id?: string;
   name: string;
   tagline: string;
   pdpType: "HAMPER" | "STANDALONE" | "CUSTOMISABLE";
-  audience: string;
-  category: string;
+  audience: string[];
+  category: string[];
   collectionSlug: string;
   breadcrumbCategory: string;
   occasionTags: string[];
@@ -71,8 +83,8 @@ export const emptyProductForm: ProductFormInitial = {
   name: "",
   tagline: "",
   pdpType: "STANDALONE",
-  audience: "",
-  category: "",
+  audience: [],
+  category: [],
   collectionSlug: "",
   breadcrumbCategory: "",
   occasionTags: [],
@@ -128,6 +140,49 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
+  // Category's valid vocabulary depends on Collection Slug: unscoped
+  // products (no collection) pick from the 7 shop categories; a product
+  // placed in one of the 5 curated Edits picks from that collection's own
+  // category set instead (e.g. "cozy" -> candles/bath-body/wellness/...) —
+  // see collection-mock-data.ts. A stale category value from before the
+  // Collection Slug changed just won't be in this list, so it silently
+  // stops being checked rather than blocking the form.
+  const categoryOptions = useMemo(() => {
+    if (isCollectionSlug(values.collectionSlug)) {
+      return collectionContent[values.collectionSlug].categories.map((c) => ({
+        value: c.slug,
+        label: c.label,
+      }));
+    }
+    return shopCategories.map((c) => ({ value: c.slug, label: c.label }));
+  }, [values.collectionSlug]);
+
+  // Recipient Tags' options are the union of every checked Audience's own
+  // recipient list (see recipientsByAudience in shop-mock-data.ts) — check
+  // "Her" and "Him" both, and Wife/Sister/... and Husband/Brother/... all
+  // become available to tag this product with.
+  const recipientOptions = useMemo(() => {
+    const slugs = values.audience.map(
+      (a) => audienceEnumToSlug[a as keyof typeof audienceEnumToSlug]
+    );
+    const union = new Set(slugs.flatMap((slug) => recipientsByAudience[slug] ?? []));
+    return Array.from(union).map((r) => ({ value: r, label: r }));
+  }, [values.audience]);
+
+  // Drop any checked Recipient Tag that no longer belongs to any checked
+  // Audience — otherwise it'd keep being submitted invisibly (it wouldn't
+  // render as a checkbox anymore since it's not in recipientOptions above,
+  // but it would still sit in state).
+  function handleAudienceChange(next: string[]) {
+    const slugs = next.map((a) => audienceEnumToSlug[a as keyof typeof audienceEnumToSlug]);
+    const stillValid = new Set(slugs.flatMap((slug) => recipientsByAudience[slug] ?? []));
+    setValues((prev) => ({
+      ...prev,
+      audience: next,
+      recipientTags: prev.recipientTags.filter((r) => stillValid.has(r)),
+    }));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
@@ -137,7 +192,7 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
       name: values.name,
       tagline: values.tagline || undefined,
       pdpType: values.pdpType,
-      audience: values.audience || undefined,
+      audience: values.audience,
       category: values.category,
       collectionSlug: values.collectionSlug || undefined,
       breadcrumbCategory: values.breadcrumbCategory || undefined,
@@ -224,51 +279,52 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           </label>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <label className="block">
-            <span className={labelClass}>Product Type</span>
-            <select
-              value={values.pdpType}
-              disabled={isEdit}
-              onChange={(e) => set("pdpType", e.target.value as ProductFormInitial["pdpType"])}
-              className={`${inputClass} disabled:opacity-60 disabled:cursor-not-allowed`}
-            >
-              <option value="STANDALONE">Standalone</option>
-              <option value="HAMPER">Hamper</option>
-              <option value="CUSTOMISABLE">Customisable</option>
-            </select>
-            {isEdit && (
-              <span className="mt-1 block text-[11px] text-ink-muted">
-                Locked after creation.
-              </span>
-            )}
-          </label>
-          <label className="block">
-            <span className={labelClass}>Audience (optional)</span>
-            <select
+        <label className="block max-w-[16rem]">
+          <span className={labelClass}>Product Type</span>
+          <select
+            value={values.pdpType}
+            disabled={isEdit}
+            onChange={(e) => set("pdpType", e.target.value as ProductFormInitial["pdpType"])}
+            className={`${inputClass} disabled:opacity-60 disabled:cursor-not-allowed`}
+          >
+            <option value="STANDALONE">Standalone</option>
+            <option value="HAMPER">Hamper</option>
+            <option value="CUSTOMISABLE">Customisable</option>
+          </select>
+          {isEdit && (
+            <span className="mt-1 block text-[11px] text-ink-muted">
+              Locked after creation.
+            </span>
+          )}
+        </label>
+
+        <div>
+          <span className={labelClass}>
+            Audience (optional — leave unchecked to show only under Shop → All)
+          </span>
+          <div className="mt-1.5">
+            <CheckboxGroupField
               value={values.audience}
-              onChange={(e) => set("audience", e.target.value)}
-              className={inputClass}
-            >
-              <option value="">None</option>
-              <option value="HER">Her</option>
-              <option value="HIM">Him</option>
-              <option value="PARENTS">Parents</option>
-              <option value="COUPLES">Couples</option>
-              <option value="FRIENDS">Friends</option>
-              <option value="COLLEAGUES">Colleagues</option>
-            </select>
-          </label>
-          <label className="block">
-            <span className={labelClass}>Category</span>
-            <input
-              required
-              value={values.category}
-              onChange={(e) => set("category", e.target.value)}
-              placeholder="home-living"
-              className={inputClass}
+              onChange={handleAudienceChange}
+              options={audienceOptions}
             />
-          </label>
+          </div>
+        </div>
+
+        <div>
+          <span className={labelClass}>Category</span>
+          <div className="mt-1.5">
+            <CheckboxGroupField
+              value={values.category}
+              onChange={(next) => set("category", next)}
+              options={categoryOptions}
+            />
+          </div>
+          <span className="mt-1.5 block text-[11px] text-ink-muted">
+            {values.collectionSlug
+              ? "Showing this collection's own categories."
+              : "Showing shop categories. Set a Collection Slug below to pick from that collection's categories instead."}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -292,25 +348,27 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           </label>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <label className="block">
-            <span className={labelClass}>Occasion Tags (comma-separated)</span>
-            <input
-              value={values.occasionTags.join(", ")}
-              onChange={(e) => set("occasionTags", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-              placeholder="Birthday, Anniversary"
-              className={inputClass}
+        <div>
+          <span className={labelClass}>Occasion Tags</span>
+          <div className="mt-1.5">
+            <CheckboxGroupField
+              value={values.occasionTags}
+              onChange={(next) => set("occasionTags", next)}
+              options={shopOccasions.map((o) => ({ value: o, label: o }))}
             />
-          </label>
-          <label className="block">
-            <span className={labelClass}>Recipient Tags (comma-separated)</span>
-            <input
-              value={values.recipientTags.join(", ")}
-              onChange={(e) => set("recipientTags", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
-              placeholder="Wife, Sister"
-              className={inputClass}
+          </div>
+        </div>
+
+        <div>
+          <span className={labelClass}>Recipient Tags</span>
+          <div className="mt-1.5">
+            <CheckboxGroupField
+              value={values.recipientTags}
+              onChange={(next) => set("recipientTags", next)}
+              options={recipientOptions}
+              emptyHint="Check an Audience above to see relevant recipient tags."
             />
-          </label>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

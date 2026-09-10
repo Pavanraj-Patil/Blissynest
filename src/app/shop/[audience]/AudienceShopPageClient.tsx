@@ -85,7 +85,7 @@ export function AudienceShopPageClient({
 
   const filteredProducts = useMemo(() => {
     return shopProducts.filter((p) => {
-      if (selectedCategories.length > 0 && !selectedCategories.includes(p.category)) {
+      if (selectedCategories.length > 0 && !p.category.some((c) => selectedCategories.includes(c))) {
         return false;
       }
       if (p.price < priceMin) return false;

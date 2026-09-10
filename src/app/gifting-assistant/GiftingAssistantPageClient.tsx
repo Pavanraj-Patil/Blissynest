@@ -59,10 +59,10 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
     const audience = who ? whoToAudience[who] : null;
     const range = budget ? budgetToRange[budget] : null;
     return initialProducts.filter((p) => {
-      if (audience && p.audience !== audience) return false;
+      if (audience && !p.audience.includes(audience)) return false;
       if (occasion && !p.occasions.includes(occasion)) return false;
       if (range && (p.price < range[0] || p.price > range[1])) return false;
-      if (category && p.category !== category) return false;
+      if (category && !p.category.includes(category)) return false;
       return true;
     });
   }, [who, occasion, budget, category, initialProducts]);

@@ -22,12 +22,12 @@ export async function GET(request: Request) {
 
   const where: Prisma.ProductWhereInput = {
     status: "PUBLISHED",
-    ...(audience && { audience: audienceSlugToEnum[audience] }),
-    ...(category && { category }),
-    ...(collection && { collectionSlug: collection }),
     // MySQL wants a bare string for array_contains on a Json array column
     // (Postgres would need it wrapped in an array — not relevant here,
     // this app is MySQL-only, see prisma/schema.prisma's header).
+    ...(audience && { audience: { array_contains: audienceSlugToEnum[audience] } }),
+    ...(category && { category: { array_contains: category } }),
+    ...(collection && { collectionSlug: collection }),
     ...(occasion && { occasionTags: { array_contains: occasion } }),
     ...(recipient && { recipientTags: { array_contains: recipient } }),
     ...((priceMin !== undefined || priceMax !== undefined) && {

@@ -37,12 +37,6 @@ export const audienceCategories = [
     bg: "d6c7a8",
     fg: "2a2621",
   },
-  {
-    label: "Gifts for Colleagues",
-    href: "/shop/colleagues",
-    bg: "cbb896",
-    fg: "2a2621",
-  },
 ].map((c) => ({ ...c, image: ph(320, 380, c.bg, c.fg, c.label) }));
 
 export const occasions = [

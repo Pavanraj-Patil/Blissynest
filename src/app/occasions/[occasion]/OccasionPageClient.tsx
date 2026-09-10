@@ -27,12 +27,12 @@ function pillKey(type: OccasionPillFilter["type"], value: string) {
 }
 
 function productMatchesPill(product: ListProduct, pill: OccasionPillFilter) {
-  if (pill.type === "audience") return product.audience === pill.value;
+  if (pill.type === "audience") return product.audience.includes(pill.value as ListProduct["audience"][number]);
   if (pill.type === "recipient") {
     const tags = recipientPillGroups[pill.value] ?? [];
     return product.recipients.some((r) => tags.includes(r));
   }
-  return product.category === pill.value;
+  return product.category.includes(pill.value);
 }
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };

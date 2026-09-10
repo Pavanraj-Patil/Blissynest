@@ -8,6 +8,7 @@
 import type { CartItem as PrismaCartItem, Product } from "@/generated/prisma/client";
 import type { AudienceSlug } from "@/lib/shop-mock-data";
 import type { ProductDetail } from "@/lib/product-mock-data";
+import { audienceEnumToSlug } from "@/lib/validations/product";
 
 // Shape of CartItem.customization / OrderItem.customization (see
 // prisma/schema.prisma) — set by CustomisablePDP when a personalized
@@ -17,15 +18,6 @@ export type CartItemCustomization = {
   font: string;
   colorHex: string;
   variant?: string;
-};
-
-const audienceEnumToSlug: Record<string, AudienceSlug> = {
-  HER: "her",
-  HIM: "him",
-  PARENTS: "parents",
-  COUPLES: "couples",
-  FRIENDS: "friends",
-  COLLEAGUES: "colleagues",
 };
 
 // Every amount in the DB is paise (see prisma/schema.prisma header); the
@@ -44,8 +36,8 @@ export type ListProduct = {
   reviews: number;
   inStock: boolean;
   image: string;
-  category: string;
-  audience: AudienceSlug | null;
+  category: string[];
+  audience: AudienceSlug[];
   collectionSlug: string | null;
   occasions: string[];
   recipients: string[];
@@ -62,8 +54,8 @@ export function toListProduct(p: Product): ListProduct {
     reviews: p.reviewCount,
     inStock: p.inStock,
     image: (p.images as string[])[0],
-    category: p.category,
-    audience: p.audience ? audienceEnumToSlug[p.audience] : null,
+    category: p.category as string[],
+    audience: (p.audience as string[]).map((a) => audienceEnumToSlug[a as keyof typeof audienceEnumToSlug]),
     collectionSlug: p.collectionSlug,
     occasions: p.occasionTags as string[],
     recipients: p.recipientTags as string[],
@@ -102,7 +94,7 @@ export function toProductDetail(p: Product): ProductDetail {
     inStock: p.inStock,
     price: toRupees(p.basePrice),
     images: p.images as string[],
-    breadcrumbCategory: p.breadcrumbCategory ?? p.category,
+    breadcrumbCategory: p.breadcrumbCategory ?? (p.category as string[])[0],
     benefits: (p.benefits as { icon: string; label: string }[] | null) ?? [],
     productDetails: p.productDetails as ProductDetailsJson,
     relatedSlugs: (p.relatedSlugs as string[]).length ? (p.relatedSlugs as string[]) : undefined,

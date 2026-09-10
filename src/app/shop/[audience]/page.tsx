@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { audienceShopContent, audienceSlugs, type AudienceSlug } from "@/lib/shop-mock-data";
 import { audienceSlugToEnum } from "@/lib/validations/product";
 import { db } from "@/lib/db";
-import type { Audience } from "@/generated/prisma/client";
 import { toListProduct } from "@/lib/product-adapters";
 import { TopBar } from "@/components/layout/TopBar";
 import { AudienceShopPageClient } from "./AudienceShopPageClient";
@@ -38,7 +37,7 @@ export default async function AudienceShopPage({ params }: Props) {
   }
 
   const rows = await db.product.findMany({
-    where: { status: "PUBLISHED", audience: audienceSlugToEnum[audience] as Audience },
+    where: { status: "PUBLISHED", audience: { array_contains: audienceSlugToEnum[audience] } },
     orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   });
 

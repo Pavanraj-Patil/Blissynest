@@ -73,7 +73,7 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
 
   const filteredProducts = useMemo(() => {
     return allShopProducts.filter((p) => {
-      if (selectedCategories.length > 0 && !selectedCategories.includes(p.category)) {
+      if (selectedCategories.length > 0 && !p.category.some((c) => selectedCategories.includes(c))) {
         return false;
       }
       if (p.price < priceMin) return false;

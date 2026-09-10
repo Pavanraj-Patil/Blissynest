@@ -16,10 +16,13 @@ function toRow(p: (typeof source)[number]) {
     slug: p.slug,
     name: p.name,
     tagline: p.tagline ?? null,
-    category: p.breadcrumbCategory
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, ""),
+    audience: [],
+    category: [
+      p.breadcrumbCategory
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, ""),
+    ],
     breadcrumbCategory: p.breadcrumbCategory,
     occasionTags: [],
     recipientTags: [],

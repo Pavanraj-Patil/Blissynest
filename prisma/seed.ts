@@ -22,6 +22,7 @@ import {
 import { bestsellers } from "../src/lib/mock-data";
 import { flagshipProducts } from "./seed-flagship-products";
 import { slugify } from "../src/lib/slugify";
+import { audienceSlugToEnum } from "../src/lib/validations/product";
 
 const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
 const db = new PrismaClient({ adapter });
@@ -37,15 +38,6 @@ const genericBenefits = [
   { icon: "Truck", label: "Delivered with Care" },
   { icon: "ShieldCheck", label: "Happiness Guaranteed" },
 ];
-
-const audienceSlugToEnum = {
-  her: "HER",
-  him: "HIM",
-  parents: "PARENTS",
-  couples: "COUPLES",
-  friends: "FRIENDS",
-  colleagues: "COLLEAGUES",
-} as const;
 
 function titleCase(slug: string): string {
   return slug
@@ -69,11 +61,12 @@ function fromShopProduct(p: ShopProductWithAudience) {
   return {
     slug: p.id,
     name: p.name,
-    audience: audienceSlugToEnum[p.audience],
-    category: p.category,
+    audience: [audienceSlugToEnum[p.audience]],
+    category: [p.category],
     collectionSlug: null,
     occasionTags: p.occasions,
     recipientTags: p.recipients,
+    relatedSlugs: [],
     basePrice: p.price * 100,
     images: [p.image],
     breadcrumbCategory: titleCase(p.category),
@@ -94,10 +87,12 @@ function fromCollectionProduct(slug: CollectionSlug, p: CollectionProduct) {
   return {
     slug: p.id,
     name: p.name,
-    category: p.category,
+    audience: [],
+    category: [p.category],
     collectionSlug: slug,
     occasionTags: p.occasions,
     recipientTags: [],
+    relatedSlugs: [],
     attribute: p.attribute ?? null,
     badge: p.badge ? (p.badge.toUpperCase() as "BESTSELLER" | "NEW") : null,
     basePrice: p.price * 100,
@@ -120,9 +115,11 @@ function fromBestseller(b: (typeof bestsellers)[number]) {
   return {
     slug: slugify(b.name),
     name: b.name,
-    category: "bestsellers",
+    audience: [],
+    category: ["bestsellers"],
     occasionTags: [],
     recipientTags: [],
+    relatedSlugs: [],
     basePrice: b.price * 100,
     images: [b.image],
     breadcrumbCategory: "Bestsellers",

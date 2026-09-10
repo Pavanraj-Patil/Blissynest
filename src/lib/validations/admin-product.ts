@@ -7,8 +7,12 @@ export const adminProductSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   tagline: z.string().trim().optional(),
   pdpType: z.enum(["HAMPER", "STANDALONE", "CUSTOMISABLE"]),
-  audience: z.enum(["HER", "HIM", "PARENTS", "COUPLES", "FRIENDS", "COLLEAGUES", ""]).optional(),
-  category: z.string().trim().min(1, "Category is required"),
+  audience: z.array(z.enum(["HER", "HIM", "PARENTS", "COUPLES", "FRIENDS"])).default([]),
+  // Not a fixed z.enum here: valid values depend on whether collectionSlug is
+  // set (shopCategories' 7 slugs when unset, that collection's own category
+  // list when set — see CheckboxGroupField usage in ProductForm.tsx) so the
+  // UI enforces the right vocabulary rather than this schema.
+  category: z.array(z.string().trim().min(1)).min(1, "Pick at least one category"),
   collectionSlug: z.string().trim().optional(),
   breadcrumbCategory: z.string().trim().optional(),
   occasionTags: z.array(z.string()).default([]),
