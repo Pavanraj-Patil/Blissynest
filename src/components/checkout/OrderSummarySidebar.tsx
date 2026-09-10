@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Tag, X, Info, Truck, PackageCheck, Clock, Heart } from "lucide-react";
+import { ArrowRight, Tag, X, Info, Truck, PackageCheck, Clock, Heart } from "lucide-react";
 import type { CartItem } from "@/lib/cart-context";
 
 type AppliedCoupon = { code: string; discount: number };
@@ -30,6 +30,12 @@ type OrderSummarySidebarProps = {
   // of the apply form.
   authenticated: boolean;
   onSignInClick: () => void;
+  onPlaceOrder: () => void;
+  placingOrder: boolean;
+  placeOrderError: string | null;
+  // Disabled until the Review step is reached — address and payment must
+  // be confirmed first, matching the accordion's own step-gating.
+  canPlaceOrder: boolean;
 };
 
 export function OrderSummarySidebar({
@@ -45,6 +51,10 @@ export function OrderSummarySidebar({
   couponApplying = false,
   authenticated,
   onSignInClick,
+  onPlaceOrder,
+  placingOrder,
+  placeOrderError,
+  canPlaceOrder,
 }: OrderSummarySidebarProps) {
   const [couponInput, setCouponInput] = useState("");
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -192,6 +202,24 @@ export function OrderSummarySidebar({
           </>
         )}
       </div>
+
+      {placeOrderError && (
+        <p className="mt-4 text-sm text-terracotta-dark">{placeOrderError}</p>
+      )}
+
+      {/* Hidden on mobile — CheckoutMobileStickyCTA covers this role there
+          (rendered separately, pinned to the bottom of the screen) so both
+          would otherwise show at once. */}
+      <button
+        type="button"
+        onClick={onPlaceOrder}
+        disabled={!canPlaceOrder || placingOrder}
+        title={!canPlaceOrder ? "Complete the Address and Payment steps first" : undefined}
+        className="mt-4 hidden lg:inline-flex w-full items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-olive"
+      >
+        {placingOrder ? "Placing Order…" : "Place Order"}
+        {!placingOrder && <ArrowRight size={14} />}
+      </button>
     </div>
   );
 }

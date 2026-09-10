@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ShoppingBag, ArrowRight, Trash2, ShieldCheck, Truck, Gift } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
-import { ShopFooter } from "@/components/shop/ShopFooter";
 import { QuantityStepper } from "@/components/product/QuantityStepper";
 import { useCart } from "@/lib/cart-context";
 
@@ -207,7 +206,6 @@ export function CartPageClient() {
           </div>
         )}
       </main>
-      <ShopFooter />
     </>
   );
 }

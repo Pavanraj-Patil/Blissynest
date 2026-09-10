@@ -65,6 +65,16 @@ export const paymentMethods: PaymentMethod[] = [
   },
 ];
 
+// Maps our own payment-method selection to Razorpay Checkout.js's `method`
+// option (COD has no entry — it never reaches Razorpay). Explicitly
+// disabling the other methods, rather than only enabling the chosen one,
+// is what makes Checkout.js skip its method-selection tab entirely.
+export const razorpayMethodFlags: Record<string, { card: string; netbanking: string; upi: string; wallet: string }> = {
+  card: { card: "1", netbanking: "0", upi: "0", wallet: "0" },
+  upi: { card: "0", netbanking: "0", upi: "1", wallet: "0" },
+  netbanking: { card: "0", netbanking: "1", upi: "0", wallet: "0" },
+};
+
 export const FREE_SHIPPING_THRESHOLD = 999;
 export const STANDARD_SHIPPING_FEE = 99;
 

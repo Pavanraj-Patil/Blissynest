@@ -6,7 +6,6 @@ import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
-import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProfileSection } from "@/components/account/ProfileSection";
 import { OrdersSection } from "@/components/account/OrdersSection";
 import { AddressesSection } from "@/components/account/AddressesSection";
@@ -124,7 +123,6 @@ function AccountDashboard({
           </div>
         </div>
       </main>
-      <ShopFooter />
     </>
   );
 }

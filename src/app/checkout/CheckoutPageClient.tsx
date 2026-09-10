@@ -16,17 +16,18 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
-import { ShopFooter } from "@/components/shop/ShopFooter";
 import { AccountAuthModal } from "@/components/layout/AccountAuthModal";
 import { CheckoutStepper, type CheckoutStep } from "@/components/checkout/CheckoutStepper";
 import { AddressStep } from "@/components/checkout/AddressStep";
 import { OrderSummarySidebar } from "@/components/checkout/OrderSummarySidebar";
+import { CheckoutMobileStickyCTA } from "@/components/checkout/CheckoutMobileStickyCTA";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { useCart } from "@/lib/cart-context";
 import { cn } from "@/lib/cn";
 import { loadRazorpayScript } from "@/lib/load-razorpay-script";
 import {
   paymentMethods,
+  razorpayMethodFlags,
   FREE_SHIPPING_THRESHOLD,
   STANDARD_SHIPPING_FEE,
   type Address,
@@ -333,6 +334,7 @@ export function CheckoutPageClient() {
       name: "Blissynest",
       description: "Order payment",
       prefill: { name: selectedAddress.name, contact: selectedAddress.phone },
+      method: razorpayMethodFlags[paymentMethod],
       theme: { color: "#6b7a4f" },
       handler: async (response) => {
         try {
@@ -408,7 +410,6 @@ export function CheckoutPageClient() {
             )}
           </div>
         </main>
-        <ShopFooter />
         <AccountAuthModal
           open={authOpen}
           onClose={() => setAuthOpen(false)}
@@ -448,7 +449,6 @@ export function CheckoutPageClient() {
             </Link>
           </div>
         </main>
-        <ShopFooter />
       </>
     );
   }
@@ -729,24 +729,11 @@ export function CheckoutPageClient() {
                     </div>
                   </div>
 
-                  {placeOrderError && (
-                    <p className="text-sm text-terracotta-dark">{placeOrderError}</p>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={handlePlaceOrder}
-                    disabled={placingOrder}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
-                  >
-                    {placingOrder ? "Placing Order…" : "Place Order"}
-                    {!placingOrder && <ArrowRight size={14} />}
-                  </button>
                 </div>
               </StepSection>
             </div>
 
-            <div>
+            <div id="order-summary">
               <OrderSummarySidebar
                 items={items}
                 subtotal={subtotal}
@@ -755,6 +742,10 @@ export function CheckoutPageClient() {
                 total={total}
                 appliedCoupon={appliedCoupon}
                 onApplyCoupon={handleApplyCoupon}
+                onPlaceOrder={handlePlaceOrder}
+                placingOrder={placingOrder}
+                placeOrderError={placeOrderError}
+                canPlaceOrder={step === 3}
                 onRemoveCoupon={handleRemoveCoupon}
                 couponError={couponError}
                 couponApplying={couponApplying}
@@ -764,8 +755,15 @@ export function CheckoutPageClient() {
             </div>
           </div>
         </div>
+
+        {step === 3 && (
+          <CheckoutMobileStickyCTA
+            total={total}
+            onPlaceOrder={handlePlaceOrder}
+            placingOrder={placingOrder}
+          />
+        )}
       </main>
-      <ShopFooter />
       <AccountAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { PackageCheck, PackageSearch, Truck, Home, CheckCircle2, Ban } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
-import { ShopFooter } from "@/components/shop/ShopFooter";
 import { cn } from "@/lib/cn";
 import type { TrackOrderDTO } from "@/lib/order-service";
 
@@ -183,7 +182,6 @@ export function TrackOrderClient({ content: rawContent }: { content: Record<stri
           )}
         </div>
       </main>
-      <ShopFooter />
     </>
   );
 }

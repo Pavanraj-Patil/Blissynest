@@ -6,7 +6,6 @@ import Link from "next/link";
 import { Heart, ShoppingBag, ArrowRight, X, Star, Check } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
-import { ShopFooter } from "@/components/shop/ShopFooter";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist-context";
 import { useCart } from "@/lib/cart-context";
 
@@ -154,7 +153,6 @@ export function WishlistPageClient() {
           </div>
         )}
       </main>
-      <ShopFooter />
     </>
   );
 }
