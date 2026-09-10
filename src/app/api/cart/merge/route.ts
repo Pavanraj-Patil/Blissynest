@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   for (const item of parsed.data.items) {
     // Unknown/unpublished slugs are skipped rather than failing the whole
     // merge — a stale localStorage entry shouldn't block everything else.
-    await addQuantityToCart(session.user.id, item.slug, item.quantity);
+    await addQuantityToCart(session.user.id, item.slug, item.quantity, item.customization);
   }
 
   return NextResponse.json({ items: await getCartItemsForUser(session.user.id) });

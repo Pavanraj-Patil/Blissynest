@@ -11,20 +11,36 @@ import {
 } from "react";
 import { useSession } from "next-auth/react";
 import { createLocalStore } from "@/lib/local-store";
+import type { CartItemCustomization } from "@/lib/product-adapters";
+
+export type { CartItemCustomization };
 
 export type CartItem = {
+  id: string;
   slug: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
+  customization?: CartItemCustomization;
 };
+
+// Two lines are "the same line" (quantities combine) only when their
+// customization matches exactly — two differently-personalized instances of
+// the same product are genuinely different purchases and must stay separate
+// lines, not silently collapse into one (which would drop one of them).
+function sameLine(a: { slug: string; customization?: CartItemCustomization }, b: typeof a) {
+  return a.slug === b.slug && JSON.stringify(a.customization ?? null) === JSON.stringify(b.customization ?? null);
+}
 
 type CartContextValue = {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
-  removeItem: (slug: string) => void;
-  updateQuantity: (slug: string, quantity: number) => void;
+  addItem: (
+    item: Omit<CartItem, "id" | "quantity">,
+    quantity?: number
+  ) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   count: number;
   subtotal: number;
@@ -69,7 +85,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       ? fetchJson("/api/cart/merge", {
           method: "POST",
           body: JSON.stringify({
-            items: guestItems.map((i) => ({ slug: i.slug, quantity: i.quantity })),
+            items: guestItems.map((i) => ({
+              slug: i.slug,
+              quantity: i.quantity,
+              customization: i.customization,
+            })),
           }),
         }).then((data) => {
           localStore.setState([]);
@@ -82,47 +102,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const items = authenticated ? (serverItems ?? []) : localItems;
 
-  function addItem(item: Omit<CartItem, "quantity">, quantity = 1) {
+  function addItem(item: Omit<CartItem, "id" | "quantity">, quantity = 1) {
     if (authenticated) {
       fetchJson("/api/cart", {
         method: "POST",
-        body: JSON.stringify({ slug: item.slug, quantity }),
+        body: JSON.stringify({ slug: item.slug, quantity, customization: item.customization }),
       }).then((data) => setServerItems(data.items));
       return;
     }
     const current = localStore.getSnapshot();
-    const existing = current.find((i) => i.slug === item.slug);
+    const existing = current.find((i) => sameLine(i, item));
     const next = existing
       ? current.map((i) =>
-          i.slug === item.slug ? { ...i, quantity: i.quantity + quantity } : i
+          i.id === existing.id ? { ...i, quantity: i.quantity + quantity } : i
         )
-      : [...current, { ...item, quantity }];
+      : [...current, { ...item, id: crypto.randomUUID(), quantity }];
     localStore.setState(next);
   }
 
-  function removeItem(slug: string) {
+  function removeItem(id: string) {
     if (authenticated) {
-      fetchJson(`/api/cart?slug=${encodeURIComponent(slug)}`, { method: "DELETE" }).then((data) =>
+      fetchJson(`/api/cart?id=${encodeURIComponent(id)}`, { method: "DELETE" }).then((data) =>
         setServerItems(data.items)
       );
       return;
     }
-    localStore.setState(localStore.getSnapshot().filter((i) => i.slug !== slug));
+    localStore.setState(localStore.getSnapshot().filter((i) => i.id !== id));
   }
 
-  function updateQuantity(slug: string, quantity: number) {
+  function updateQuantity(id: string, quantity: number) {
     if (authenticated) {
       fetchJson("/api/cart", {
         method: "PATCH",
-        body: JSON.stringify({ slug, quantity }),
+        body: JSON.stringify({ id, quantity }),
       }).then((data) => setServerItems(data.items));
       return;
     }
     const current = localStore.getSnapshot();
     localStore.setState(
       quantity <= 0
-        ? current.filter((i) => i.slug !== slug)
-        : current.map((i) => (i.slug === slug ? { ...i, quantity } : i))
+        ? current.filter((i) => i.id !== id)
+        : current.map((i) => (i.id === id ? { ...i, quantity } : i))
     );
   }
 

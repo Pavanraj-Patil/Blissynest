@@ -8,7 +8,6 @@ import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { RatingStars } from "./RatingStars";
 import { QuantityStepper } from "./QuantityStepper";
 import { VariantPills } from "./VariantPills";
-import { DeliveryCheck } from "./DeliveryCheck";
 import { AccordionItem } from "./Accordion";
 import { ShareIconButton } from "./ShareIconButton";
 import { PdpWishlistButton } from "./PdpWishlistButton";
@@ -137,10 +136,6 @@ export function StandalonePDP({
 
             <div className="mt-6">
               <QuantityStepper value={quantity} onChange={setQuantity} />
-            </div>
-
-            <div className="mt-6">
-              <DeliveryCheck />
             </div>
 
             <div className="mt-6">

@@ -208,7 +208,7 @@ export function CheckoutPageClient() {
     return {
       guestEmail,
       guestPhone,
-      guestItems: items.map((i) => ({ slug: i.slug, quantity: i.quantity })),
+      guestItems: items.map((i) => ({ slug: i.slug, quantity: i.quantity, customization: i.customization })),
     };
   }
 
@@ -707,7 +707,7 @@ export function CheckoutPageClient() {
                     </p>
                     <div className="space-y-3">
                       {items.map((item) => (
-                        <div key={item.slug} className="flex items-center gap-3">
+                        <div key={item.id} className="flex items-center gap-3">
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-cream-dark">
                             <Image
                               src={item.image}

@@ -32,7 +32,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await addQuantityToCart(session.user.id, parsed.data.slug, parsed.data.quantity);
+  const result = await addQuantityToCart(
+    session.user.id,
+    parsed.data.slug,
+    parsed.data.quantity,
+    parsed.data.customization
+  );
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 404 });
   }
@@ -40,6 +45,8 @@ export async function POST(request: Request) {
 }
 
 // PATCH /api/cart — set a line item to an exact quantity (0 removes it).
+// Identified by cart-item id (not slug) so two differently-personalized
+// lines of the same product can be edited independently.
 export async function PATCH(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -54,29 +61,23 @@ export async function PATCH(request: Request) {
       { status: 400 }
     );
   }
-  const { slug, quantity } = parsed.data;
+  const { id, quantity } = parsed.data;
 
-  const cart = await db.cart.findUnique({ where: { userId: session.user.id } });
-  if (cart) {
-    const product = await db.product.findUnique({ where: { slug } });
-    if (product) {
-      const existing = await db.cartItem.findFirst({
-        where: { cartId: cart.id, productId: product.id },
-      });
-      if (existing) {
-        if (quantity <= 0) {
-          await db.cartItem.delete({ where: { id: existing.id } });
-        } else {
-          await db.cartItem.update({ where: { id: existing.id }, data: { quantity } });
-        }
-      }
-    }
+  // Scoped by cart.userId so a request can't touch another user's cart item.
+  if (quantity <= 0) {
+    await db.cartItem.deleteMany({ where: { id, cart: { userId: session.user.id } } });
+  } else {
+    await db.cartItem.updateMany({
+      where: { id, cart: { userId: session.user.id } },
+      data: { quantity },
+    });
   }
 
   return NextResponse.json({ items: await getCartItemsForUser(session.user.id) });
 }
 
-// DELETE /api/cart?slug=... — remove one line item entirely.
+// DELETE /api/cart?id=... — remove one line item entirely. No id clears the
+// whole cart (used by checkout completion).
 export async function DELETE(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -84,20 +85,13 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const slug = searchParams.get("slug");
+  const id = searchParams.get("id");
 
-  if (slug) {
-    const cart = await db.cart.findUnique({ where: { userId: session.user.id } });
-    if (cart) {
-      const product = await db.product.findUnique({ where: { slug } });
-      if (product) {
-        await db.cartItem.deleteMany({ where: { cartId: cart.id, productId: product.id } });
-      }
-    }
-  } else {
-    // No slug — clear the whole cart (used by checkout completion).
-    const cart = await db.cart.findUnique({ where: { userId: session.user.id } });
-    if (cart) {
+  const cart = await db.cart.findUnique({ where: { userId: session.user.id } });
+  if (cart) {
+    if (id) {
+      await db.cartItem.deleteMany({ where: { id, cartId: cart.id } });
+    } else {
       await db.cartItem.deleteMany({ where: { cartId: cart.id } });
     }
   }

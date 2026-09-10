@@ -66,7 +66,7 @@ export function OrderSummarySidebar({
 
         <div className="mt-5 space-y-4">
           {items.map((item) => (
-            <div key={item.slug} className="flex items-center gap-3.5">
+            <div key={item.id} className="flex items-center gap-3.5">
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-cream-dark">
                 <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
               </div>

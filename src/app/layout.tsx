@@ -30,6 +30,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const [session, layoutContent] = await Promise.all([auth(), getPageContent("layout")]);
   const shopGiftBannerImage = layoutContent["shop-gift-banner"].image as ResponsiveImageValue;
+  const categoryPillImages = layoutContent["category-pills"] as Record<string, string>;
 
   return (
     <html
@@ -37,7 +38,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${playfair.variable} ${workSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-charcoal font-sans">
-        <AppProviders session={session} shopGiftBannerImage={shopGiftBannerImage}>
+        <AppProviders
+          session={session}
+          shopGiftBannerImage={shopGiftBannerImage}
+          categoryPillImages={categoryPillImages}
+        >
           {children}
         </AppProviders>
       </body>

@@ -86,7 +86,7 @@ export function CartPageClient() {
               <div className="space-y-4">
                 {items.map((item) => (
                   <div
-                    key={item.slug}
+                    key={item.id}
                     className="flex gap-4 rounded-2xl border border-charcoal/10 bg-white p-4"
                   >
                     <Link
@@ -113,7 +113,7 @@ export function CartPageClient() {
                         <button
                           type="button"
                           aria-label="Remove item"
-                          onClick={() => removeItem(item.slug)}
+                          onClick={() => removeItem(item.id)}
                           className="shrink-0 text-charcoal/40 hover:text-terracotta-dark transition-colors"
                         >
                           <Trash2 size={16} />
@@ -123,10 +123,29 @@ export function CartPageClient() {
                         ₹{item.price.toLocaleString("en-IN")} each
                       </p>
 
+                      {item.customization && (
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted">
+                          {item.customization.textLines.filter(Boolean).length > 0 && (
+                            <span>
+                              &ldquo;{item.customization.textLines.filter(Boolean).join(" / ")}&rdquo;
+                            </span>
+                          )}
+                          <span className="inline-flex items-center gap-1.5">
+                            <span
+                              aria-hidden
+                              className="h-3 w-3 rounded-full border border-charcoal/15"
+                              style={{ backgroundColor: item.customization.colorHex }}
+                            />
+                            {item.customization.font}
+                          </span>
+                          {item.customization.variant && <span>{item.customization.variant}</span>}
+                        </div>
+                      )}
+
                       <div className="mt-2 flex items-center justify-between gap-3">
                         <QuantityStepper
                           value={item.quantity}
-                          onChange={(q) => updateQuantity(item.slug, q)}
+                          onChange={(q) => updateQuantity(item.id, q)}
                           max={20}
                         />
                         <p className="text-sm font-semibold text-charcoal">

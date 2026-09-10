@@ -10,7 +10,6 @@ import { RatingStars } from "./RatingStars";
 import { QuantityStepper } from "./QuantityStepper";
 import { FeatureIconRow } from "./FeatureIconRow";
 import { VariantPills } from "./VariantPills";
-import { DeliveryCheck } from "./DeliveryCheck";
 import { AccordionItem } from "./Accordion";
 import { ShareIconButton } from "./ShareIconButton";
 import { PdpWishlistButton } from "./PdpWishlistButton";
@@ -53,11 +52,22 @@ export function CustomisablePDP({
   const [color, setColor] = useState(product.colors[0]?.hex ?? "#2a2621");
   const [variant, setVariant] = useState(product.variantOptions?.[0] ?? "");
 
-  const fontClass = fontClassMap[font] ?? "font-serif";
+  const customization = {
+    textLines: textValues,
+    font,
+    colorHex: color,
+    ...(variant && { variant }),
+  };
 
   function handleAddToCart() {
     addItem(
-      { slug: product.slug, name: product.name, price: product.price, image: product.images[0] },
+      {
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        customization,
+      },
       quantity
     );
     setAdded(true);
@@ -67,7 +77,13 @@ export function CustomisablePDP({
 
   function handleBuyNow() {
     addItem(
-      { slug: product.slug, name: product.name, price: product.price, image: product.images[0] },
+      {
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        customization,
+      },
       quantity
     );
     router.push("/cart");
@@ -130,63 +146,48 @@ export function CustomisablePDP({
               <FeatureIconRow items={product.benefits} />
             </div>
 
-            <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <h2 className="text-sm font-semibold text-charcoal mb-1">
-                  Personalise Your {product.name.replace("Personalised ", "")}
-                </h2>
-                <p className="text-xs text-ink-muted mb-4">
-                  Make it uniquely yours with a name, date, or a short message.
-                </p>
-                <div className="space-y-4">
-                  {product.textLines.map((line, i) => (
-                    <label key={line.label} className="block">
-                      <span className="flex items-center justify-between text-xs text-charcoal-light mb-1.5">
-                        <span>
-                          {line.label}{" "}
-                          {line.required ? (
-                            <span className="text-terracotta">(Required)</span>
-                          ) : (
-                            "(Optional)"
-                          )}
-                        </span>
-                        <span className="text-ink-muted">
-                          {textValues[i].length}/{line.maxLength}
-                        </span>
+            <div className="mt-7">
+              <h2 className="text-sm font-semibold text-charcoal mb-1">
+                Personalise Your {product.name.replace("Personalised ", "")}
+              </h2>
+              <p className="text-xs text-ink-muted mb-4">
+                Make it uniquely yours with a name, date, or a short message.
+              </p>
+              <div className="space-y-4">
+                {product.textLines.map((line, i) => (
+                  <label key={line.label} className="block">
+                    <span className="flex items-center justify-between text-xs text-charcoal-light mb-1.5">
+                      <span>
+                        {line.label}{" "}
+                        {line.required ? (
+                          <span className="text-terracotta">(Required)</span>
+                        ) : (
+                          "(Optional)"
+                        )}
                       </span>
-                      <input
-                        type="text"
-                        maxLength={line.maxLength}
-                        placeholder={line.placeholder}
-                        value={textValues[i]}
-                        onChange={(e) =>
-                          setTextValues((prev) =>
-                            prev.map((v, idx) => (idx === i ? e.target.value : v))
-                          )
-                        }
-                        className="w-full rounded-lg border border-charcoal/15 px-3 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
-                      />
-                    </label>
-                  ))}
-                </div>
-                <p className="mt-3 text-xs text-ink-muted">
-                  Please double-check your text. It will be printed exactly as
-                  entered.
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-sm font-semibold text-charcoal mb-1">Preview</h2>
-                <div className="mt-4 flex h-full min-h-[10rem] items-center justify-center rounded-xl border border-charcoal/15 bg-cream-dark px-4 py-8 text-center">
-                  <p className={cn("leading-relaxed", fontClass)} style={{ color }}>
-                    {product.textLines.map((line, i) => (
-                      <span key={line.label} className="block text-lg">
-                        {textValues[i] || line.placeholder}
+                      <span className="text-ink-muted">
+                        {textValues[i].length}/{line.maxLength}
                       </span>
-                    ))}
-                  </p>
-                </div>
+                    </span>
+                    <input
+                      type="text"
+                      maxLength={line.maxLength}
+                      placeholder={line.placeholder}
+                      value={textValues[i]}
+                      onChange={(e) =>
+                        setTextValues((prev) =>
+                          prev.map((v, idx) => (idx === i ? e.target.value : v))
+                        )
+                      }
+                      className="w-full rounded-lg border border-charcoal/15 px-3 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
+                    />
+                  </label>
+                ))}
               </div>
+              <p className="mt-3 text-xs text-ink-muted">
+                Please double-check your text. It will be printed exactly as
+                entered.
+              </p>
             </div>
 
             <div className="mt-6">
@@ -246,10 +247,6 @@ export function CustomisablePDP({
 
             <div className="mt-6">
               <QuantityStepper value={quantity} onChange={setQuantity} />
-            </div>
-
-            <div className="mt-6">
-              <DeliveryCheck />
             </div>
 
             {product.specs && (

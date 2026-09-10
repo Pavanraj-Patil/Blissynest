@@ -1,6 +1,10 @@
+"use client";
+
+import Image from "next/image";
 import { Gift, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { categoryIcons } from "@/lib/shop-mock-data";
+import { useSiteContent } from "@/lib/site-content-context";
 
 type PillItem = { slug: string; label: string; icon?: LucideIcon };
 
@@ -17,6 +21,8 @@ export function CategoryPillRow({
   onSelect,
   allIcon,
 }: CategoryPillRowProps) {
+  const { categoryPillImages } = useSiteContent();
+
   const items: PillItem[] = [
     { slug: "all", label: "All", icon: allIcon },
     ...categories,
@@ -26,6 +32,7 @@ export function CategoryPillRow({
     <div className="flex gap-5 sm:gap-8 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
       {items.map((item) => {
         const Icon = item.icon ?? categoryIcons[item.slug] ?? Gift;
+        const photo = categoryPillImages[item.slug];
         const isActive =
           item.slug === "all" ? selected === null : selected === item.slug;
         return (
@@ -37,13 +44,17 @@ export function CategoryPillRow({
           >
             <span
               className={cn(
-                "flex h-14 w-14 items-center justify-center rounded-full border transition-colors",
+                "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border transition-colors",
                 isActive
                   ? "border-terracotta text-terracotta bg-terracotta/10"
                   : "border-charcoal/15 text-charcoal-light hover:border-charcoal/30"
               )}
             >
-              <Icon size={22} strokeWidth={1.5} />
+              {photo ? (
+                <Image src={photo} alt="" fill className="object-cover" sizes="56px" />
+              ) : (
+                <Icon size={22} strokeWidth={1.5} />
+              )}
             </span>
             <span
               className={cn(

@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import type { z } from "zod";
 import type { createOrderSchema } from "@/lib/validations/order";
+import type { CartItemCustomization } from "@/lib/product-adapters";
 import {
   isRazorpayConfigured,
   getRazorpayKeyId,
@@ -91,7 +92,11 @@ type ErrorResult = { error: string; status: number };
 // Cart row, or a guest's client-submitted {slug, quantity} list. Keeping
 // this as a discriminated union means the pricing/coupon/shipping/GST math
 // below is written exactly once and shared by both paths.
-export type GuestCartItemInput = { slug: string; quantity: number };
+export type GuestCartItemInput = {
+  slug: string;
+  quantity: number;
+  customization?: CartItemCustomization;
+};
 export type CartSource =
   | { kind: "account"; userId: string }
   | { kind: "guest"; email: string; phone: string; items: GuestCartItemInput[] };
@@ -103,7 +108,7 @@ type ResolvedLineItem = {
   image: string;
   quantity: number;
   unitPrice: number; // paise, always from a live Product row — never client-supplied
-  customization?: unknown;
+  customization?: CartItemCustomization;
 };
 
 type ResolvedCart = {
@@ -154,31 +159,43 @@ async function resolveCartSource(source: CartSource): Promise<ResolveResult> {
         image: (item.product.images as string[])[0],
         quantity: item.quantity,
         unitPrice: item.product.basePrice,
-        customization: item.customization ?? undefined,
+        customization: (item.customization as CartItemCustomization | null) ?? undefined,
       })),
       buyerEmail: user.email,
       cartIdToClear: cart.id,
     };
   }
 
-  // Guest path — collapse duplicate slugs (a hand-crafted request could
-  // repeat one) and drop anything with a non-positive quantity before
-  // ever touching the DB.
-  const qtyBySlug = new Map<string, number>();
-  for (const { slug, quantity } of source.items) {
+  // Guest path — collapse duplicate (slug, customization) pairs (a
+  // hand-crafted request could repeat one) and drop anything with a
+  // non-positive quantity before ever touching the DB. Keyed on
+  // customization too, not just slug — two differently-personalized lines
+  // of the same product are separate purchases and must stay separate.
+  const bySlugAndCustomization = new Map<
+    string,
+    { slug: string; quantity: number; customization?: CartItemCustomization }
+  >();
+  for (const { slug, quantity, customization } of source.items) {
     if (!slug || quantity < 1) continue;
-    qtyBySlug.set(slug, (qtyBySlug.get(slug) ?? 0) + quantity);
+    const key = `${slug}::${JSON.stringify(customization ?? null)}`;
+    const existing = bySlugAndCustomization.get(key);
+    if (existing) {
+      existing.quantity += quantity;
+    } else {
+      bySlugAndCustomization.set(key, { slug, quantity, customization });
+    }
   }
-  if (qtyBySlug.size === 0) {
+  if (bySlugAndCustomization.size === 0) {
     return { error: "Your cart is empty.", status: 400 };
   }
 
+  const slugs = [...new Set([...bySlugAndCustomization.values()].map((v) => v.slug))];
   const products = await db.product.findMany({
-    where: { slug: { in: [...qtyBySlug.keys()] }, status: "PUBLISHED" },
+    where: { slug: { in: slugs }, status: "PUBLISHED" },
   });
   const bySlug = new Map(products.map((p) => [p.slug, p]));
 
-  const missing = [...qtyBySlug.keys()].filter((slug) => !bySlug.has(slug));
+  const missing = slugs.filter((slug) => !bySlug.has(slug));
   if (missing.length > 0) {
     return {
       error: "Some items in your cart are no longer available. Please review your cart and try again.",
@@ -187,7 +204,13 @@ async function resolveCartSource(source: CartSource): Promise<ResolveResult> {
   }
 
   // Fast pre-check — see the matching comment in the account branch above.
-  for (const [slug, quantity] of qtyBySlug) {
+  // Combines quantities across lines of the same product (regardless of
+  // customization) since they all draw from the same stock.
+  const totalQtyBySlug = new Map<string, number>();
+  for (const { slug, quantity } of bySlugAndCustomization.values()) {
+    totalQtyBySlug.set(slug, (totalQtyBySlug.get(slug) ?? 0) + quantity);
+  }
+  for (const [slug, quantity] of totalQtyBySlug) {
     const product = bySlug.get(slug)!;
     if (quantity > product.stockQuantity) {
       return {
@@ -197,17 +220,20 @@ async function resolveCartSource(source: CartSource): Promise<ResolveResult> {
     }
   }
 
-  const items: ResolvedLineItem[] = [...qtyBySlug.entries()].map(([slug, quantity]) => {
-    const product = bySlug.get(slug)!;
-    return {
-      productId: product.id,
-      slug: product.slug,
-      name: product.name,
-      image: (product.images as string[])[0],
-      quantity,
-      unitPrice: product.basePrice,
-    };
-  });
+  const items: ResolvedLineItem[] = [...bySlugAndCustomization.values()].map(
+    ({ slug, quantity, customization }) => {
+      const product = bySlug.get(slug)!;
+      return {
+        productId: product.id,
+        slug: product.slug,
+        name: product.name,
+        image: (product.images as string[])[0],
+        quantity,
+        unitPrice: product.basePrice,
+        customization,
+      };
+    }
+  );
 
   return { items, buyerEmail: source.email };
 }

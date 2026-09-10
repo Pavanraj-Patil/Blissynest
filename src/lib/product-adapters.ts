@@ -9,6 +9,16 @@ import type { CartItem as PrismaCartItem, Product } from "@/generated/prisma/cli
 import type { AudienceSlug } from "@/lib/shop-mock-data";
 import type { ProductDetail } from "@/lib/product-mock-data";
 
+// Shape of CartItem.customization / OrderItem.customization (see
+// prisma/schema.prisma) — set by CustomisablePDP when a personalized
+// product is added to the cart.
+export type CartItemCustomization = {
+  textLines: string[];
+  font: string;
+  colorHex: string;
+  variant?: string;
+};
+
 const audienceEnumToSlug: Record<string, AudienceSlug> = {
   HER: "her",
   HIM: "him",
@@ -155,11 +165,13 @@ export function toRelatedProduct(p: Product): RelatedProduct {
 }
 
 export type CartItemDTO = {
+  id: string;
   slug: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
+  customization?: CartItemCustomization;
 };
 
 // Denormalizes name/price/image from the live Product row rather than
@@ -168,11 +180,13 @@ export type CartItemDTO = {
 // cart too: a cart line always reflects the product's current price.
 export function toCartItemDTO(item: PrismaCartItem & { product: Product }): CartItemDTO {
   return {
+    id: item.id,
     slug: item.product.slug,
     name: item.product.name,
     price: toRupees(item.product.basePrice),
     image: (item.product.images as string[])[0],
     quantity: item.quantity,
+    customization: (item.customization as CartItemCustomization | null) ?? undefined,
   };
 }
 

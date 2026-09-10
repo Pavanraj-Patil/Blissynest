@@ -721,6 +721,25 @@ export const contentSchema: Record<string, PageSchema> = {
         },
       },
     },
+    "category-pills": {
+      title: "Category Quick-Access Photos",
+      fields: {
+        // Keyed directly by the shop category slug (see shopCategories in
+        // shop-mock-data.ts) so CategoryPillRow can look a value up with no
+        // translation step. Empty default (not a placeholder image, unlike
+        // every other IMAGE field on this page) is deliberate: an unset
+        // photo means "show the Lucide icon instead," not "show a broken/
+        // placeholder image" — see CategoryPillRow.tsx.
+        all: { type: "IMAGE", label: "All", default: "" },
+        "self-care": { type: "IMAGE", label: "Self Care", default: "" },
+        personalised: { type: "IMAGE", label: "Personalised", default: "" },
+        "luxury-edit": { type: "IMAGE", label: "Luxury Edit", default: "" },
+        "home-living": { type: "IMAGE", label: "Home & Living", default: "" },
+        beauty: { type: "IMAGE", label: "Beauty", default: "" },
+        jewellery: { type: "IMAGE", label: "Jewellery", default: "" },
+        "add-ons": { type: "IMAGE", label: "Add-ons", default: "" },
+      },
+    },
     topbar: {
       title: "Top Bar Links",
       fields: {
