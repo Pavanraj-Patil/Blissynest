@@ -40,6 +40,7 @@ export async function createReview(
       orderId: input.orderId,
       rating: input.rating,
       comment: input.comment,
+      photos: [],
     },
   });
 
@@ -91,6 +92,7 @@ export async function createAdminReview(input: {
       rating: input.rating,
       comment: input.comment,
       status: "APPROVED",
+      photos: [],
     },
   });
 
