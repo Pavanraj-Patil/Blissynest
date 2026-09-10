@@ -11,7 +11,6 @@ import { OrdersSection } from "@/components/account/OrdersSection";
 import { AddressesSection } from "@/components/account/AddressesSection";
 import { WishlistSection } from "@/components/account/WishlistSection";
 import { SettingsSection } from "@/components/account/SettingsSection";
-import { accountUser } from "@/lib/account-data";
 import type { AccountOrderDTO } from "@/lib/order-service";
 import type { Address } from "@/lib/checkout-data";
 import { cn } from "@/lib/cn";
@@ -30,14 +29,19 @@ function isTabKey(value: string | null): value is TabKey {
   return tabs.some((t) => t.key === value);
 }
 
-type SessionUser = { name: string | null; email: string | null };
+type SessionUser = { name: string | null; email: string | null; phone: string | null };
+type NotificationPrefs = { orders: boolean; promos: boolean; recs: boolean };
 
 function AccountDashboard({
   user,
+  hasPassword,
+  notifications,
   orders,
   addresses,
 }: {
   user: SessionUser;
+  hasPassword: boolean;
+  notifications: NotificationPrefs;
   orders: AccountOrderDTO[];
   addresses: Address[];
 }) {
@@ -47,15 +51,11 @@ function AccountDashboard({
     isTabKey(initialTab) ? initialTab : "profile"
   );
 
-  // Real signed-in name/email, layered over the demo profile's phone/member-
-  // since — those two fields don't exist on the real User model yet (no
-  // phone-collection step anywhere in the app), so they stay placeholder
-  // until that's added.
   const displayName = user.name ?? user.email ?? "Blissynest Member";
   const profileUser = {
-    ...accountUser,
     name: displayName,
-    email: user.email ?? accountUser.email,
+    email: user.email ?? "",
+    phone: user.phone ?? "",
   };
 
   const initials = displayName
@@ -81,10 +81,6 @@ function AccountDashboard({
             <div className="min-w-0 flex-1">
               <h1 className="font-serif text-xl text-charcoal">{displayName}</h1>
               <p className="mt-0.5 text-sm text-ink-muted">{profileUser.email}</p>
-              <p className="mt-1 text-xs text-charcoal-light">
-                Orders and addresses are real. Settings below is still demo
-                data — not yet saved per-account
-              </p>
             </div>
             <button
               type="button"
@@ -119,7 +115,9 @@ function AccountDashboard({
             {activeTab === "orders" && <OrdersSection orders={orders} />}
             {activeTab === "addresses" && <AddressesSection initial={addresses} />}
             {activeTab === "wishlist" && <WishlistSection />}
-            {activeTab === "settings" && <SettingsSection />}
+            {activeTab === "settings" && (
+              <SettingsSection hasPassword={hasPassword} initialNotifications={notifications} />
+            )}
           </div>
         </div>
       </main>
@@ -129,16 +127,26 @@ function AccountDashboard({
 
 export function AccountPageClient({
   user,
+  hasPassword,
+  notifications,
   orders,
   addresses,
 }: {
   user: SessionUser;
+  hasPassword: boolean;
+  notifications: NotificationPrefs;
   orders: AccountOrderDTO[];
   addresses: Address[];
 }) {
   return (
     <Suspense fallback={null}>
-      <AccountDashboard user={user} orders={orders} addresses={addresses} />
+      <AccountDashboard
+        user={user}
+        hasPassword={hasPassword}
+        notifications={notifications}
+        orders={orders}
+        addresses={addresses}
+      />
     </Suspense>
   );
 }

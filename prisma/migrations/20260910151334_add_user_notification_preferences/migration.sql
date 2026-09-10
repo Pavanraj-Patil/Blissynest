@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `notifyOrders` BOOLEAN NOT NULL DEFAULT true,
+    ADD COLUMN `notifyPromos` BOOLEAN NOT NULL DEFAULT true,
+    ADD COLUMN `notifyRecs` BOOLEAN NOT NULL DEFAULT false;

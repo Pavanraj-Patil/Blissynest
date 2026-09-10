@@ -1,0 +1,25 @@
+import { z } from "zod";
+import { passwordField } from "./auth";
+
+export const updateProfileSchema = z.object({
+  name: z.string().trim().min(1, "Name is required"),
+  email: z.string().trim().toLowerCase().email("Enter a valid email address"),
+  phone: z.string().trim().min(1, "Phone number is required"),
+});
+
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Enter your current password"),
+  newPassword: passwordField,
+});
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+export const updateNotificationsSchema = z.object({
+  orders: z.boolean(),
+  promos: z.boolean(),
+  recs: z.boolean(),
+});
+
+export type UpdateNotificationsInput = z.infer<typeof updateNotificationsSchema>;

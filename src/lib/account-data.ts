@@ -5,14 +5,6 @@ export type AccountUser = {
   name: string;
   email: string;
   phone: string;
-  memberSince: string;
-};
-
-export const accountUser: AccountUser = {
-  name: "Meera Kapoor",
-  email: "meera.kapoor@gmail.com",
-  phone: "+91 98765 43210",
-  memberSince: "March 2024",
 };
 
 export type OrderStatus = "Delivered" | "Shipped" | "Processing";

@@ -21,16 +21,39 @@ export default async function AccountPage() {
     redirect("/admin");
   }
 
-  const [orders, addressRows] = await Promise.all([
+  const [orders, addressRows, userRow] = await Promise.all([
     getOrdersForUser(session.user.id),
     db.address.findMany({ where: { userId: session.user.id }, orderBy: { createdAt: "asc" } }),
+    db.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        phone: true,
+        passwordHash: true,
+        notifyOrders: true,
+        notifyPromos: true,
+        notifyRecs: true,
+      },
+    }),
   ]);
 
   return (
     <>
       <TopBar />
       <AccountPageClient
-        user={{ name: session.user.name ?? null, email: session.user.email ?? null }}
+        user={{
+          name: session.user.name ?? null,
+          email: session.user.email ?? null,
+          phone: userRow?.phone ?? null,
+        }}
+        // The hash itself never leaves the server — only whether one
+        // exists, which is what decides whether Settings shows a real
+        // change-password form or a "signed in with Google" notice.
+        hasPassword={Boolean(userRow?.passwordHash)}
+        notifications={{
+          orders: userRow?.notifyOrders ?? true,
+          promos: userRow?.notifyPromos ?? true,
+          recs: userRow?.notifyRecs ?? false,
+        }}
         orders={orders}
         addresses={addressRows.map(toAddressDTO)}
       />
