@@ -11,13 +11,18 @@ import type { ProductDetail } from "@/lib/product-mock-data";
 import { audienceEnumToSlug } from "@/lib/validations/product";
 
 // Shape of CartItem.customization / OrderItem.customization (see
-// prisma/schema.prisma) — set by CustomisablePDP when a personalized
-// product is added to the cart.
+// prisma/schema.prisma). Two unrelated shapes share this one optional
+// object rather than two separate cart-item fields: CustomisablePDP
+// populates textLines/font/colorHex/variant for a personalized product;
+// StandalonePDP populates `variants` (variant-group label -> selected
+// option) for a plain product with color/size-style choices. A single
+// cart line only ever has one shape populated, never both.
 export type CartItemCustomization = {
-  textLines: string[];
-  font: string;
-  colorHex: string;
+  textLines?: string[];
+  font?: string;
+  colorHex?: string;
   variant?: string;
+  variants?: Record<string, string>;
 };
 
 // Every amount in the DB is paise (see prisma/schema.prisma header); the
@@ -131,6 +136,7 @@ export function toProductDetail(p: Product): ProductDetail {
     pdpType: "standalone",
     variants:
       (p.variants as { label: string; options: string[] }[] | null) ?? undefined,
+    variantImages: (p.variantImages as Record<string, string[]> | null) ?? undefined,
   };
 }
 

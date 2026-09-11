@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { customizationSchema } from "./cart";
 
 export const shippingAddressSchema = z.object({
   label: z.string().trim().min(1),
@@ -16,14 +17,7 @@ export const paymentMethodSchema = z.enum(["card", "upi", "netbanking", "cod"]);
 export const guestCartItemSchema = z.object({
   slug: z.string().trim().min(1),
   quantity: z.number().int().min(1).max(20),
-  customization: z
-    .object({
-      textLines: z.array(z.string().max(200)).max(10),
-      font: z.string().min(1),
-      colorHex: z.string().min(1),
-      variant: z.string().optional(),
-    })
-    .optional(),
+  customization: customizationSchema,
 });
 
 export const createOrderSchema = z.object({

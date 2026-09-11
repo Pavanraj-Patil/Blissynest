@@ -73,6 +73,9 @@ export type CustomisableProduct = BaseProduct & {
 export type StandaloneProduct = BaseProduct & {
   pdpType: "standalone";
   variants?: { label: string; options: string[] }[];
+  // Per-variant-option image overrides, keyed by "<variant label>::<option>"
+  // (e.g. "Color::Black") — see prisma/schema.prisma's Product.variantImages.
+  variantImages?: Record<string, string[]>;
 };
 
 export type ProductDetail = HamperProduct | CustomisableProduct | StandaloneProduct;

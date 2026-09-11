@@ -7,7 +7,7 @@ import { RepeatingListField } from "@/components/admin/RepeatingListField";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { CheckboxGroupField } from "@/components/admin/CheckboxGroupField";
 import { shopCategories, shopOccasions, recipientsByAudience } from "@/lib/shop-mock-data";
-import { collectionContent, isCollectionSlug } from "@/lib/collection-mock-data";
+import { collectionContent, collectionSlugs, isCollectionSlug } from "@/lib/collection-mock-data";
 import { audienceEnumToSlug } from "@/lib/validations/product";
 
 const audienceOptions = [
@@ -48,6 +48,9 @@ export type ProductFormInitial = {
   personalNoteLabel: string;
   personalNotePrice: number | "";
   variants: { label: string; options: string[] }[];
+  // Per-variant-option image overrides, keyed by "<label>::<option>" — see
+  // prisma/schema.prisma's Product.variantImages.
+  variantImages: Record<string, string[]>;
   textLines: { label: string; required: boolean; maxLength: number; placeholder: string }[];
   fonts: string[];
   colors: { name: string; hex: string }[];
@@ -108,6 +111,7 @@ export const emptyProductForm: ProductFormInitial = {
   personalNoteLabel: "",
   personalNotePrice: "",
   variants: [],
+  variantImages: {},
   textLines: [],
   fonts: [],
   colors: [],
@@ -157,6 +161,15 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
     return shopCategories.map((c) => ({ value: c.slug, label: c.label }));
   }, [values.collectionSlug]);
 
+  // Attribute only has a fixed vocabulary once a Collection Slug is set —
+  // each collection defines its own filter facet (e.g. self-care's "Scent":
+  // Lavender/Vanilla/...). With no collection, Attribute has no effect on
+  // the storefront at all (see ProductForm's Attribute label), so it stays
+  // free text.
+  const attributeFilter = isCollectionSlug(values.collectionSlug)
+    ? collectionContent[values.collectionSlug].attributeFilter
+    : null;
+
   // Recipient Tags' options are the union of every checked Audience's own
   // recipient list (see recipientsByAudience in shop-mock-data.ts) — check
   // "Her" and "Him" both, and Wife/Sister/... and Husband/Brother/... all
@@ -173,6 +186,24 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
   // Audience — otherwise it'd keep being submitted invisibly (it wouldn't
   // render as a checkbox anymore since it's not in recipientOptions above,
   // but it would still sit in state).
+  // Every "label::option" pair currently defined across all variant groups
+  // — used both to render one image uploader per option and to prune stale
+  // variantImages entries on submit (see handleSubmit).
+  const validVariantImageKeys = useMemo(
+    () =>
+      new Set(
+        values.variants.flatMap((v) => v.options.map((opt) => `${v.label}::${opt}`))
+      ),
+    [values.variants]
+  );
+
+  function setVariantImages(key: string, images: string[]) {
+    setValues((prev) => ({
+      ...prev,
+      variantImages: { ...prev.variantImages, [key]: images },
+    }));
+  }
+
   function handleAudienceChange(next: string[]) {
     const slugs = next.map((a) => audienceEnumToSlug[a as keyof typeof audienceEnumToSlug]);
     const stillValid = new Set(slugs.flatMap((slug) => recipientsByAudience[slug] ?? []));
@@ -220,6 +251,18 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           ? values.personalNotePrice
           : undefined,
       variants: values.pdpType === "STANDALONE" ? values.variants : undefined,
+      // Drop any image entry whose "label::option" no longer matches a
+      // current variant option — stale leftovers from a renamed/removed
+      // option, which would otherwise sit in the DB unreachable by any
+      // selection.
+      variantImages:
+        values.pdpType === "STANDALONE"
+          ? Object.fromEntries(
+              Object.entries(values.variantImages).filter(
+                ([key, imgs]) => validVariantImageKeys.has(key) && imgs.length > 0
+              )
+            )
+          : undefined,
       textLines: values.pdpType === "CUSTOMISABLE" ? values.textLines : undefined,
       fonts: values.pdpType === "CUSTOMISABLE" ? values.fonts : undefined,
       colors: values.pdpType === "CUSTOMISABLE" ? values.colors : undefined,
@@ -330,12 +373,18 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className={labelClass}>Collection Slug (optional)</span>
-            <input
+            <select
               value={values.collectionSlug}
               onChange={(e) => set("collectionSlug", e.target.value)}
-              placeholder="self-care"
               className={inputClass}
-            />
+            >
+              <option value="">None</option>
+              {collectionSlugs.map((slug) => (
+                <option key={slug} value={slug}>
+                  {collectionContent[slug].title}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="block">
             <span className={labelClass}>Breadcrumb Category (optional)</span>
@@ -373,13 +422,37 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
-            <span className={labelClass}>Attribute (optional, collection filter facet)</span>
-            <input
-              value={values.attribute}
-              onChange={(e) => set("attribute", e.target.value)}
-              placeholder="Lavender"
-              className={inputClass}
-            />
+            <span className={labelClass}>
+              Attribute (optional, collection filter facet)
+              {attributeFilter && <span className="text-ink-muted"> — {attributeFilter.label}</span>}
+            </span>
+            {attributeFilter ? (
+              <select
+                value={values.attribute}
+                onChange={(e) => set("attribute", e.target.value)}
+                className={inputClass}
+              >
+                <option value="">None</option>
+                {attributeFilter.values.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+                {/* A value saved under a previous Collection Slug won't be in
+                    this list — keep it selectable rather than silently
+                    dropping it, matching Category's same fallback below. */}
+                {values.attribute && !attributeFilter.values.includes(values.attribute) && (
+                  <option value={values.attribute}>{values.attribute} (not in this collection)</option>
+                )}
+              </select>
+            ) : (
+              <input
+                value={values.attribute}
+                onChange={(e) => set("attribute", e.target.value)}
+                placeholder="Lavender"
+                className={inputClass}
+              />
+            )}
           </label>
           <label className="block">
             <span className={labelClass}>Badge (optional)</span>
@@ -578,6 +651,40 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
             emptyItem={{ label: "", options: [] }}
             addLabel="Add variant"
           />
+
+          {values.variants.some((v) => v.label && v.options.length > 0) && (
+            <div className="space-y-4 border-t border-charcoal/10 pt-4">
+              <div>
+                <span className={labelClass}>Variant Images (optional)</span>
+                <p className="mt-1 text-[11px] text-ink-muted">
+                  Give an option its own photos and the gallery swaps to them when a
+                  shopper picks it — e.g. upload black-product photos under
+                  &ldquo;Color: Black&rdquo;. Leave an option blank to keep showing
+                  the main product images above for it.
+                </p>
+              </div>
+              {values.variants
+                .filter((v) => v.label && v.options.length > 0)
+                .map((v) =>
+                  v.options.map((opt) => {
+                    const key = `${v.label}::${opt}`;
+                    return (
+                      <div key={key}>
+                        <span className={labelClass}>
+                          {v.label}: {opt}
+                        </span>
+                        <div className="mt-1.5">
+                          <ImageUploader
+                            images={values.variantImages[key] ?? []}
+                            onChange={(imgs) => setVariantImages(key, imgs)}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+            </div>
+          )}
         </Section>
       )}
 

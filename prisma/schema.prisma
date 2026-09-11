@@ -33,6 +33,10 @@ model Product {
   personalNotePrice   Int?
   customizationSchema Json?
   variants            Json?
+  // Standalone-only: per-variant-option image overrides, keyed by
+  // "<variant label>::<option>" (e.g. "Color::Black"). A gallery falls back
+  // to `images` for any option with no entry here.
+  variantImages       Json?
   relatedSlugs        Json
   featured            Boolean          @default(false)
   status              ProductStatus    @default(PUBLISHED)

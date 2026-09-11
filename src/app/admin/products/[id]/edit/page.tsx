@@ -72,6 +72,7 @@ export default async function AdminEditProductPage({
     personalNoteLabel: product.personalNoteLabel ?? "",
     personalNotePrice: toRupees(product.personalNotePrice),
     variants: (product.variants as { label: string; options: string[] }[] | null) ?? [],
+    variantImages: (product.variantImages as Record<string, string[]> | null) ?? {},
     textLines: cs?.textLines ?? [],
     fonts: cs?.fonts ?? [],
     colors: cs?.colors ?? [],

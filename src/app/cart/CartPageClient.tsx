@@ -124,20 +124,29 @@ export function CartPageClient() {
 
                       {item.customization && (
                         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted">
-                          {item.customization.textLines.filter(Boolean).length > 0 && (
-                            <span>
-                              &ldquo;{item.customization.textLines.filter(Boolean).join(" / ")}&rdquo;
+                          {item.customization.textLines &&
+                            item.customization.textLines.filter(Boolean).length > 0 && (
+                              <span>
+                                &ldquo;{item.customization.textLines.filter(Boolean).join(" / ")}&rdquo;
+                              </span>
+                            )}
+                          {item.customization.colorHex && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <span
+                                aria-hidden
+                                className="h-3 w-3 rounded-full border border-charcoal/15"
+                                style={{ backgroundColor: item.customization.colorHex }}
+                              />
+                              {item.customization.font}
                             </span>
                           )}
-                          <span className="inline-flex items-center gap-1.5">
-                            <span
-                              aria-hidden
-                              className="h-3 w-3 rounded-full border border-charcoal/15"
-                              style={{ backgroundColor: item.customization.colorHex }}
-                            />
-                            {item.customization.font}
-                          </span>
                           {item.customization.variant && <span>{item.customization.variant}</span>}
+                          {item.customization.variants &&
+                            Object.entries(item.customization.variants).map(([label, value]) => (
+                              <span key={label}>
+                                {label}: {value}
+                              </span>
+                            ))}
                         </div>
                       )}
 

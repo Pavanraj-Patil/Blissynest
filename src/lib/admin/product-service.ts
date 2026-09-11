@@ -56,6 +56,10 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
     ...(input.pdpType === "STANDALONE"
       ? {
           variants: (input.variants ?? []).length > 0 ? input.variants : undefined,
+          variantImages:
+            input.variantImages && Object.keys(input.variantImages).length > 0
+              ? input.variantImages
+              : undefined,
         }
       : {}),
     ...(input.pdpType === "CUSTOMISABLE"

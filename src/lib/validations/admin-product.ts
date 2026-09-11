@@ -42,6 +42,9 @@ export const adminProductSchema = z.object({
   variants: z
     .array(z.object({ label: z.string().min(1), options: z.array(z.string().min(1)) }))
     .optional(),
+  // Standalone-only — per-variant-option image overrides, keyed by
+  // "<label>::<option>" (see prisma/schema.prisma's Product.variantImages).
+  variantImages: z.record(z.string(), z.array(z.string().min(1))).optional(),
   // Customisable-only
   textLines: z
     .array(

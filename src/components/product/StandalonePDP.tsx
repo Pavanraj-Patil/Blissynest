@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingBag, Zap, Check } from "lucide-react";
 import { ProductGallery } from "./ProductGallery";
@@ -44,9 +44,28 @@ export function StandalonePDP({
   );
   const hasVariants = (product.variants?.length ?? 0) > 0;
 
+  // The gallery follows whichever selected variant option has its own
+  // images attached (see admin ProductForm's "Variant Images"); the first
+  // group with a match wins, falling back to the product's own photos when
+  // none of the current selections have an override.
+  const activeImages = useMemo(() => {
+    for (const group of product.variants ?? []) {
+      const selected = selectedVariants[group.label];
+      const override = product.variantImages?.[`${group.label}::${selected}`];
+      if (override && override.length > 0) return override;
+    }
+    return product.images;
+  }, [product.variants, product.variantImages, product.images, selectedVariants]);
+
   function handleAddToCart() {
     addItem(
-      { slug: product.slug, name: product.name, price: product.price, image: product.images[0] },
+      {
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        ...(hasVariants && { customization: { variants: selectedVariants } }),
+      },
       quantity
     );
     setAdded(true);
@@ -56,7 +75,13 @@ export function StandalonePDP({
 
   function handleBuyNow() {
     addItem(
-      { slug: product.slug, name: product.name, price: product.price, image: product.images[0] },
+      {
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        ...(hasVariants && { customization: { variants: selectedVariants } }),
+      },
       quantity
     );
     router.push("/cart");
@@ -78,7 +103,11 @@ export function StandalonePDP({
                   ]}
                 />
               </div>
-              <ProductGallery images={product.images} name={product.name} />
+              {/* Keyed by the image set itself so ProductGallery's internal
+                  "active thumbnail" index resets to 0 when switching to a
+                  variant with a different (or shorter) image set — otherwise
+                  a stale index could point past the end of the new array. */}
+              <ProductGallery key={activeImages.join("|")} images={activeImages} name={product.name} />
             </div>
           </div>
 
