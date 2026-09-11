@@ -117,6 +117,8 @@ export function CheckoutPageClient() {
   const [giftNote, setGiftNote] = useState("");
   const [hidePrices, setHidePrices] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+  const [codEnabled, setCodEnabled] = useState(true);
+  const [codIneligibleSlugs, setCodIneligibleSlugs] = useState<string[]>([]);
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponApplying, setCouponApplying] = useState(false);
@@ -147,6 +149,33 @@ export function CheckoutPageClient() {
     if (orderPlaced) window.scrollTo(0, 0);
   }, [orderPlaced]);
 
+  // Public, auth-agnostic check (works for guest carts too, which never
+  // touch the server otherwise) — the real enforcement is server-side in
+  // order-service.ts; this is only what decides whether the option is
+  // offered at all. Keyed on the slug set (not `items` itself) so it
+  // doesn't refetch on every quantity/customization change; skipped
+  // entirely for an empty cart (nothing to check yet).
+  const cartSlugsKey = [...new Set(items.map((i) => i.slug))].sort().join(",");
+  useEffect(() => {
+    if (!cartSlugsKey) return;
+    fetch(`/api/checkout/cod-eligibility?slugs=${encodeURIComponent(cartSlugsKey)}`)
+      .then((res) => res.json())
+      .then((data: { codEnabled: boolean; ineligibleSlugs: string[] }) => {
+        setCodEnabled(data.codEnabled);
+        setCodIneligibleSlugs(data.ineligibleSlugs);
+      })
+      .catch(() => {});
+  }, [cartSlugsKey]);
+
+  const codAvailableForCart =
+    codEnabled && !items.some((i) => codIneligibleSlugs.includes(i.slug));
+  // Derived rather than synced back into `paymentMethod` via an effect —
+  // if COD stops being offered (cart changed, or the eligibility check just
+  // came back) while it was selected, every place that reads "what's
+  // selected" should stop treating it as chosen, without a render-triggering
+  // effect to reset the underlying state.
+  const effectivePaymentMethod = paymentMethod === "cod" && !codAvailableForCart ? null : paymentMethod;
+
   const discount = appliedCoupon?.discount ?? 0;
   const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
   const total = Math.max(0, subtotal - discount + shipping);
@@ -156,7 +185,10 @@ export function CheckoutPageClient() {
   // snapshotted onto the Order at placement time.
   const visibleAddresses = authenticated ? addresses : guestAddress ? [guestAddress] : [];
   const selectedAddress = visibleAddresses.find((a) => a.id === selectedAddressId) ?? null;
-  const selectedPaymentMethod = paymentMethods.find((m) => m.key === paymentMethod) ?? null;
+  const visiblePaymentMethods = paymentMethods.filter(
+    (pm) => pm.key !== "cod" || codAvailableForCart
+  );
+  const selectedPaymentMethod = paymentMethods.find((m) => m.key === effectivePaymentMethod) ?? null;
 
   async function handleAddAddress(values: Omit<Address, "id">) {
     if (!authenticated) {
@@ -266,18 +298,18 @@ export function CheckoutPageClient() {
   }
 
   async function handlePlaceOrder() {
-    if (!selectedAddress || !paymentMethod) return;
+    if (!selectedAddress || !effectivePaymentMethod) return;
     setPlacingOrder(true);
     setPlaceOrderError(null);
 
-    if (paymentMethod === "cod") {
+    if (effectivePaymentMethod === "cod") {
       try {
         const res = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             shippingAddress: buildShippingAddress(),
-            paymentMethod,
+            paymentMethod: effectivePaymentMethod,
             isGift,
             giftNote: isGift ? giftNote : undefined,
             hidePricesOnSlip: isGift ? hidePrices : false,
@@ -305,7 +337,7 @@ export function CheckoutPageClient() {
   }
 
   async function handleRazorpayPayment() {
-    if (!selectedAddress || !paymentMethod) return;
+    if (!selectedAddress || !effectivePaymentMethod) return;
 
     const createRes = await fetch("/api/checkout/razorpay/create", {
       method: "POST",
@@ -334,7 +366,7 @@ export function CheckoutPageClient() {
       name: "Blissynest",
       description: "Order payment",
       prefill: { name: selectedAddress.name, contact: selectedAddress.phone },
-      method: razorpayMethodFlags[paymentMethod],
+      method: razorpayMethodFlags[effectivePaymentMethod],
       theme: { color: "#6b7a4f" },
       handler: async (response) => {
         try {
@@ -346,7 +378,7 @@ export function CheckoutPageClient() {
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
               shippingAddress: buildShippingAddress(),
-              paymentMethod,
+              paymentMethod: effectivePaymentMethod,
               isGift,
               giftNote: isGift ? giftNote : undefined,
               hidePricesOnSlip: isGift ? hidePrices : false,
@@ -487,8 +519,8 @@ export function CheckoutPageClient() {
             <CheckoutStepper current={step} />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] lg:grid-cols-[1fr_380px] gap-6 lg:gap-8">
+            <div className="min-w-0 space-y-4">
               <StepSection
                 stepNumber={1}
                 currentStep={step}
@@ -572,12 +604,19 @@ export function CheckoutPageClient() {
                 }
               >
                 <div className="space-y-3">
-                  {paymentMethods.map((pm) => (
+                  {codEnabled && !codAvailableForCart && (
+                    <p className="rounded-lg bg-cream-dark px-3.5 py-2.5 text-xs text-ink-muted">
+                      Cash on Delivery isn&rsquo;t available for one or more items in your
+                      cart — choose another payment method, or remove that item to pay on
+                      delivery.
+                    </p>
+                  )}
+                  {visiblePaymentMethods.map((pm) => (
                     <label
                       key={pm.key}
                       className={cn(
                         "flex items-center gap-3 rounded-xl border p-4 cursor-pointer transition-colors",
-                        paymentMethod === pm.key
+                        effectivePaymentMethod === pm.key
                           ? "border-olive bg-olive/5"
                           : "border-charcoal/10 hover:border-charcoal/25"
                       )}
@@ -585,7 +624,7 @@ export function CheckoutPageClient() {
                       <input
                         type="radio"
                         name="payment"
-                        checked={paymentMethod === pm.key}
+                        checked={effectivePaymentMethod === pm.key}
                         onChange={() => setPaymentMethod(pm.key)}
                         className="h-4 w-4 accent-olive shrink-0"
                       />
@@ -600,14 +639,14 @@ export function CheckoutPageClient() {
                   <p className="flex items-start gap-1.5 pt-1 text-xs text-ink-muted">
                     <Lock size={12} className="shrink-0 mt-0.5" />
                     Card, UPI and Net Banking are processed securely by Razorpay
-                    — we never see or store your card or bank details. Cash on
-                    Delivery needs nothing upfront.
+                    — we never see or store your card or bank details.
+                    {codAvailableForCart && " Cash on Delivery needs nothing upfront."}
                   </p>
 
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    disabled={!paymentMethod}
+                    disabled={!effectivePaymentMethod}
                     className="inline-flex items-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
                   >
                     Continue to Review
@@ -733,7 +772,13 @@ export function CheckoutPageClient() {
               </StepSection>
             </div>
 
-            <div id="order-summary">
+            {/* min-w-0 overrides the grid item's default min-width:auto —
+                without it, a grid track sizes to fit its content's
+                min-content width even past its assigned column size, and
+                this sidebar's content (price rows, trust-badge grid) is
+                wide enough to blow out the 340px column and overflow the
+                page horizontally. */}
+            <div id="order-summary" className="min-w-0">
               <OrderSummarySidebar
                 items={items}
                 subtotal={subtotal}

@@ -10,6 +10,7 @@ import {
   verifyPaymentSignature,
 } from "@/lib/razorpay";
 import { createShipmentForOrder } from "@/lib/shipping-service";
+import { getSiteSettings } from "@/lib/site-settings";
 
 type CreateOrderInput = z.infer<typeof createOrderSchema>;
 
@@ -109,6 +110,7 @@ type ResolvedLineItem = {
   quantity: number;
   unitPrice: number; // paise, always from a live Product row — never client-supplied
   customization?: CartItemCustomization;
+  codAvailable: boolean;
 };
 
 type ResolvedCart = {
@@ -160,6 +162,7 @@ async function resolveCartSource(source: CartSource): Promise<ResolveResult> {
         quantity: item.quantity,
         unitPrice: item.product.basePrice,
         customization: (item.customization as CartItemCustomization | null) ?? undefined,
+        codAvailable: item.product.codAvailable,
       })),
       buyerEmail: user.email,
       cartIdToClear: cart.id,
@@ -231,6 +234,7 @@ async function resolveCartSource(source: CartSource): Promise<ResolveResult> {
         quantity,
         unitPrice: product.basePrice,
         customization,
+        codAvailable: product.codAvailable,
       };
     }
   );
@@ -459,10 +463,34 @@ export function resolveCartSourceForRequest(
 }
 
 // Cash on Delivery — no payment gateway involved, order is placed
-// immediately with paymentStatus PENDING (collected on delivery).
+// immediately with paymentStatus PENDING (collected on delivery). COD
+// eligibility is re-checked here server-side (both the site-wide switch and
+// each item's own flag) rather than trusted from the client, same principle
+// as pricing/stock — a disabled option that's merely hidden in the UI isn't
+// actually enforced.
 export async function createOrder(source: CartSource, input: CreateOrderInput): Promise<CreateOrderResult> {
+  if (input.paymentMethod === "cod") {
+    const settings = await getSiteSettings();
+    if (!settings.codEnabled) {
+      return {
+        error: "Cash on Delivery isn't available right now — please choose another payment method.",
+        status: 400,
+      };
+    }
+  }
+
   const pricing = await computeOrderPricing(source, input.couponCode);
   if ("error" in pricing) return pricing;
+
+  if (input.paymentMethod === "cod") {
+    const ineligible = pricing.items.find((item) => !item.codAvailable);
+    if (ineligible) {
+      return {
+        error: `"${ineligible.name}" isn't eligible for Cash on Delivery — please choose another payment method or remove it from your cart.`,
+        status: 400,
+      };
+    }
+  }
 
   return persistOrder({ source, input, pricing, paymentStatus: "PENDING" });
 }

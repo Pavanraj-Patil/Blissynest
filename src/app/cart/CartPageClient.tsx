@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, ArrowRight, Trash2, ShieldCheck, Truck, Gift } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { QuantityStepper } from "@/components/product/QuantityStepper";
-import { useCart } from "@/lib/cart-context";
+import { RemoveFromCartDialog } from "@/components/cart/RemoveFromCartDialog";
+import { useCart, type CartItem } from "@/lib/cart-context";
+import { useWishlist } from "@/lib/wishlist-context";
 
 const FREE_SHIPPING_THRESHOLD = 999;
 
@@ -38,8 +41,38 @@ function EmptyCart() {
 
 export function CartPageClient() {
   const { items, updateQuantity, removeItem, subtotal } = useCart();
+  const { isWishlisted, toggleItem: toggleWishlistItem } = useWishlist();
+  const [removingItem, setRemovingItem] = useState<CartItem | null>(null);
 
   const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+
+  function handleRemove() {
+    if (!removingItem) return;
+    removeItem(removingItem.id);
+    setRemovingItem(null);
+  }
+
+  function handleMoveToWishlist() {
+    if (!removingItem) return;
+    // toggleItem *toggles* — guard so re-removing an already-wishlisted
+    // cart line can't accidentally take it back off the wishlist too.
+    if (!isWishlisted(removingItem.slug)) {
+      toggleWishlistItem({
+        slug: removingItem.slug,
+        name: removingItem.name,
+        price: removingItem.price,
+        image: removingItem.image,
+        // Cart lines don't carry rating/review-count; the signed-in path
+        // ignores these anyway (only `slug` is sent, see wishlist-context's
+        // authenticated toggleItem), and a guest's copy is discarded and
+        // re-resolved from the real product on their next sign-in merge.
+        rating: 0,
+        reviews: 0,
+      });
+    }
+    removeItem(removingItem.id);
+    setRemovingItem(null);
+  }
 
   return (
     <>
@@ -81,8 +114,8 @@ export function CartPageClient() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">
-              <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] lg:grid-cols-[1fr_360px] gap-6 md:gap-8 lg:gap-10">
+              <div className="min-w-0 space-y-4">
                 {items.map((item) => (
                   <div
                     key={item.id}
@@ -112,7 +145,7 @@ export function CartPageClient() {
                         <button
                           type="button"
                           aria-label="Remove item"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => setRemovingItem(item)}
                           className="shrink-0 text-charcoal/40 hover:text-terracotta-dark transition-colors"
                         >
                           <Trash2 size={16} />
@@ -165,7 +198,7 @@ export function CartPageClient() {
                 ))}
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <div className="rounded-3xl border border-charcoal/10 bg-white p-6">
                   <h2 className="font-serif text-lg text-charcoal">Order Summary</h2>
 
@@ -215,6 +248,14 @@ export function CartPageClient() {
           </div>
         )}
       </main>
+
+      <RemoveFromCartDialog
+        open={removingItem !== null}
+        item={removingItem}
+        onClose={() => setRemovingItem(null)}
+        onRemove={handleRemove}
+        onMoveToWishlist={handleMoveToWishlist}
+      />
     </>
   );
 }

@@ -39,12 +39,12 @@ export function ShopToolbar({
   activeFilterCount,
 }: ShopToolbarProps) {
   return (
-    <div className="flex items-center justify-between gap-4 py-4 border-b border-charcoal/10">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-2 sm:gap-x-4 py-4 border-b border-charcoal/10">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <button
           type="button"
           onClick={onOpenFilters}
-          className="lg:hidden inline-flex items-center gap-2 rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal"
+          className="lg:hidden inline-flex items-center gap-1.5 rounded-lg border border-charcoal/15 px-3 py-2.5 text-sm text-charcoal"
         >
           <SlidersHorizontal size={15} />
           Filter
@@ -54,13 +54,13 @@ export function ShopToolbar({
             </span>
           )}
         </button>
-        <p className="text-sm text-ink-muted">
+        <p className="text-sm text-ink-muted whitespace-nowrap">
           <span className="hidden sm:inline">{resultCount} products</span>
           <span className="sm:hidden">{resultCount} results</span>
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <SelectDropdown
           compact
           showPlaceholderOption={false}
@@ -70,7 +70,7 @@ export function ShopToolbar({
             value: key,
             label: sortLabels[key],
           }))}
-          triggerClassName="max-w-[7.5rem] sm:max-w-none"
+          triggerClassName="max-w-[9rem] sm:max-w-none"
           panelClassName="right-0 left-auto"
         />
 

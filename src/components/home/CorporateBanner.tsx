@@ -55,7 +55,7 @@ export async function CorporateBanner() {
                       href={item.href}
                       className="flex items-center gap-3 text-sm text-cream/85 hover:text-cream transition-colors"
                     >
-                      <Icon size={16} className="text-gold-light" strokeWidth={1.5} />
+                      {Icon && <Icon size={16} className="text-gold-light" strokeWidth={1.5} />}
                       {item.label}
                     </Link>
                   </li>

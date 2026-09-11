@@ -18,7 +18,7 @@ export function MobileStickyCTA({
   disabled = false,
 }: MobileStickyCTAProps) {
   return (
-    <div className="lg:hidden sticky bottom-0 z-30 -mx-4 mt-8 flex gap-3 border-t border-charcoal/10 bg-cream/95 backdrop-blur px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+    <div className="md:hidden sticky bottom-0 z-30 -mx-4 mt-8 flex gap-3 border-t border-charcoal/10 bg-cream/95 backdrop-blur px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
       <button
         type="button"
         onClick={onAddToCart}

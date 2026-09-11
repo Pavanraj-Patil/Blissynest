@@ -215,7 +215,7 @@ export function OrderSummarySidebar({
         onClick={onPlaceOrder}
         disabled={!canPlaceOrder || placingOrder}
         title={!canPlaceOrder ? "Complete the Address and Payment steps first" : undefined}
-        className="mt-4 hidden lg:inline-flex w-full items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-olive"
+        className="mt-4 hidden md:inline-flex w-full items-center justify-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-olive"
       >
         {placingOrder ? "Placing Order…" : "Place Order"}
         {!placingOrder && <ArrowRight size={14} />}

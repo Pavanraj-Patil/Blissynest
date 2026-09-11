@@ -35,6 +35,7 @@ export type ProductFormInitial = {
   compareAtPrice: number | "";
   images: string[];
   stockQuantity: number;
+  codAvailable: boolean;
   featured: boolean;
   sortRank: number | "";
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
@@ -98,6 +99,7 @@ export const emptyProductForm: ProductFormInitial = {
   compareAtPrice: "",
   images: [""],
   stockQuantity: 0,
+  codAvailable: true,
   featured: false,
   sortRank: "",
   status: "DRAFT",
@@ -235,6 +237,7 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
       compareAtPrice: values.compareAtPrice === "" ? undefined : values.compareAtPrice,
       images: values.images.map((i) => i.trim()).filter(Boolean),
       stockQuantity: values.stockQuantity,
+      codAvailable: values.codAvailable,
       featured: values.featured,
       sortRank: values.sortRank === "" ? undefined : values.sortRank,
       status: values.status,
@@ -532,6 +535,21 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           />
           <span className="text-sm text-charcoal">
             Featured (shows in the homepage &ldquo;Loved by many&rdquo; carousel)
+          </span>
+        </label>
+
+        <label className="flex items-center gap-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={values.codAvailable}
+            onChange={(e) => set("codAvailable", e.target.checked)}
+            className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+          />
+          <span className="text-sm text-charcoal">
+            Allow Cash on Delivery
+            <span className="block text-xs text-ink-muted">
+              Uncheck to exclude this product from COD even while it&rsquo;s enabled store-wide.
+            </span>
           </span>
         </label>
       </Section>

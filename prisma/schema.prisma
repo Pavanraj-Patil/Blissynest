@@ -24,6 +24,10 @@ model Product {
   breadcrumbCategory  String?
   inStock             Boolean          @default(true)
   stockQuantity       Int              @default(0)
+  // Lets an admin exclude a specific product from Cash on Delivery (e.g.
+  // high-value or easily-misused items) even while COD stays enabled
+  // site-wide (SiteSettings.codEnabled).
+  codAvailable        Boolean          @default(true)
   rating              Float            @default(0)
   reviewCount         Int              @default(0)
   benefits            Json?
@@ -331,6 +335,9 @@ model SiteSettings {
   gstRatePercent        Int      @default(0)
   freeShippingThreshold Int      @default(99900)
   standardShippingFee   Int      @default(9900)
+  // Store-wide Cash on Delivery kill switch. A product can also be excluded
+  // individually via Product.codAvailable, independent of this flag.
+  codEnabled            Boolean  @default(true)
   updatedAt             DateTime @updatedAt
 }
 

@@ -44,7 +44,7 @@ export default async function CollectionsPage() {
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">
-          <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
             {tiles.map((c) => (
               <CollectionCard
                 key={c.slug}
@@ -53,6 +53,7 @@ export default async function CollectionsPage() {
                 image={c.image}
                 href={`/collections/${c.slug}`}
                 dark={c.dark}
+                fullWidthOnMobile
               />
             ))}
           </div>

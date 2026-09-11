@@ -10,7 +10,12 @@ const labelClass = "text-xs font-medium text-charcoal";
 export function SettingsForm({
   initial,
 }: {
-  initial: { gstRatePercent: number; freeShippingThreshold: number; standardShippingFee: number };
+  initial: {
+    gstRatePercent: number;
+    freeShippingThreshold: number;
+    standardShippingFee: number;
+    codEnabled: boolean;
+  };
 }) {
   const [values, setValues] = useState(initial);
   const [saving, setSaving] = useState(false);
@@ -82,6 +87,22 @@ export function SettingsForm({
           onChange={(e) => setValues((v) => ({ ...v, standardShippingFee: Number(e.target.value) }))}
           className={inputClass}
         />
+      </label>
+
+      <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+        <input
+          type="checkbox"
+          checked={values.codEnabled}
+          onChange={(e) => setValues((v) => ({ ...v, codEnabled: e.target.checked }))}
+          className="mt-0.5 h-4 w-4 rounded border-charcoal/25 accent-olive"
+        />
+        <span>
+          <span className="block text-sm text-charcoal">Enable Cash on Delivery</span>
+          <span className="block text-[11px] text-ink-muted">
+            Turns off COD as a checkout payment option store-wide. Individual
+            products can also be excluded from COD from their own edit page.
+          </span>
+        </span>
       </label>
 
       <button

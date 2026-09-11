@@ -13,5 +13,6 @@ export async function getSiteSettings() {
     gstRatePercent: settings.gstRatePercent,
     freeShippingThreshold: Math.round(settings.freeShippingThreshold / 100),
     standardShippingFee: Math.round(settings.standardShippingFee / 100),
+    codEnabled: settings.codEnabled,
   };
 }

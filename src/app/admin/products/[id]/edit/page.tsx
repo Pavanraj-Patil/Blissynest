@@ -54,6 +54,7 @@ export default async function AdminEditProductPage({
     compareAtPrice: toRupees(product.compareAtPrice),
     images: (product.images as string[]).length > 0 ? (product.images as string[]) : [""],
     stockQuantity: product.stockQuantity,
+    codAvailable: product.codAvailable,
     featured: product.featured,
     sortRank: product.sortRank ?? "",
     status: product.status,

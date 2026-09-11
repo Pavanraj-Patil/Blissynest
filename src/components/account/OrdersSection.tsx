@@ -126,44 +126,49 @@ function OrderItemRow({
   const reviewed = item.reviewed || justReviewed;
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-cream-dark">
-        <Image src={item.image} alt={item.name} fill className="object-cover" sizes="56px" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm text-charcoal">{item.name}</p>
-        <p className="text-xs text-ink-muted">Qty: {item.qty}</p>
-      </div>
-      {item.productId &&
-        (reviewed ? (
-          <span className="flex items-center gap-1 text-xs font-medium text-olive-dark shrink-0">
-            <Check size={13} />
-            Reviewed
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors shrink-0"
-          >
-            Write a Review
-          </button>
-        ))}
-      {open && !reviewed && (
-        <div className="w-full">
-          <ReviewForm
-            onSubmit={handleSubmit}
-            onCancel={() => setOpen(false)}
-            submitting={submitting}
-            error={error}
-          />
+    <div>
+      <div className="flex items-center gap-3">
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-cream-dark">
+          <Image src={item.image} alt={item.name} fill className="object-cover" sizes="56px" />
         </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm text-charcoal">{item.name}</p>
+          <p className="text-xs text-ink-muted">Qty: {item.qty}</p>
+        </div>
+        {item.productId &&
+          (reviewed ? (
+            <span className="flex items-center gap-1 text-xs font-medium text-olive-dark shrink-0">
+              <Check size={13} />
+              Reviewed
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors shrink-0"
+            >
+              Write a Review
+            </button>
+          ))}
+      </div>
+      {/* A separate block below the row, not a flex sibling of the
+          thumbnail/button above — inside that flex row, `w-full` only
+          filled whatever horizontal space was left over next to the
+          thumbnail instead of wrapping onto its own row, squeezing the
+          form into a thin cropped sliver, worst on mobile. */}
+      {open && !reviewed && (
+        <ReviewForm
+          onSubmit={handleSubmit}
+          onCancel={() => setOpen(false)}
+          submitting={submitting}
+          error={error}
+        />
       )}
     </div>
   );
 }
 
-export function OrdersSection({ orders }: { orders: AccountOrderDTO[] }) {
+export function OrdersSection({ orders, email }: { orders: AccountOrderDTO[]; email: string }) {
   if (orders.length === 0) {
     return (
       <div className="flex flex-col items-center rounded-2xl border border-charcoal/10 bg-white px-6 py-16 text-center">
@@ -231,14 +236,16 @@ export function OrdersSection({ orders }: { orders: AccountOrderDTO[] }) {
             ))}
           </div>
 
-          <div className="mt-3 flex justify-end border-t border-charcoal/10 pt-3">
-            <Link
-              href="/track-order"
-              className="text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors"
-            >
-              Track this order
-            </Link>
-          </div>
+          {order.status !== "Delivered" && (
+            <div className="mt-3 flex justify-end border-t border-charcoal/10 pt-3">
+              <Link
+                href={`/track-order?orderNumber=${encodeURIComponent(order.orderNumber)}&email=${encodeURIComponent(email)}`}
+                className="text-xs font-medium text-terracotta-dark hover:text-terracotta transition-colors"
+              >
+                Track this order
+              </Link>
+            </div>
+          )}
         </div>
       ))}
     </div>

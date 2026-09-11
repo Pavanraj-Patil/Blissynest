@@ -212,7 +212,13 @@ export function AddressStep({
     <div className="space-y-5">
       {mode === "list" && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* lg (not sm) — below lg, checkout's own layout has already split
+              into a form column + order-summary sidebar (see
+              CheckoutPageClient's md:grid-cols-[1fr_340px]), so the form
+              column itself is much narrower than the full viewport in the
+              768-1023 range; a viewport-relative sm: 2-up here would
+              squeeze two address cards into that narrow column. */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {addresses.map((addr) => (
               <label
                 key={addr.id}

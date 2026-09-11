@@ -112,7 +112,9 @@ function AccountDashboard({
 
           <div className="mt-6">
             {activeTab === "profile" && <ProfileSection user={profileUser} />}
-            {activeTab === "orders" && <OrdersSection orders={orders} />}
+            {activeTab === "orders" && (
+              <OrdersSection orders={orders} email={profileUser.email} />
+            )}
             {activeTab === "addresses" && <AddressesSection initial={addresses} />}
             {activeTab === "wishlist" && <WishlistSection />}
             {activeTab === "settings" && (

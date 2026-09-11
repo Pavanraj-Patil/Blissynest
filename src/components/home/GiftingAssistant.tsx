@@ -40,20 +40,28 @@ export function GiftingAssistant() {
           <span className="text-terracotta">✦</span> Not sure what to gift?
         </p>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none min-w-0 flex-1">
-            {fields.map((field) => (
-              <SelectDropdown
-                key={field.key}
-                compact
-                portal
-                placeholder={field.placeholder}
-                icon={field.icon}
-                options={field.options}
-                value={selections[field.key]}
-                onChange={(v) => setSelections((prev) => ({ ...prev, [field.key]: v }))}
-                triggerClassName="bg-cream/60 shrink-0"
-              />
-            ))}
+          <div className="relative min-w-0 flex-1">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+              {fields.map((field) => (
+                <SelectDropdown
+                  key={field.key}
+                  compact
+                  portal
+                  placeholder={field.placeholder}
+                  icon={field.icon}
+                  options={field.options}
+                  value={selections[field.key]}
+                  onChange={(v) => setSelections((prev) => ({ ...prev, [field.key]: v }))}
+                  triggerClassName="bg-cream/60 shrink-0"
+                />
+              ))}
+            </div>
+            {/* Fades the trailing edge so a partially-scrolled-off dropdown
+                doesn't look like it's just crammed against the CTA button. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white to-transparent"
+            />
           </div>
           <button
             type="button"

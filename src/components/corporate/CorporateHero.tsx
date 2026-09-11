@@ -44,7 +44,9 @@ export function CorporateHero({ content }: { content: Record<string, unknown> })
               const Icon = getContentIcon(point.icon);
               return (
                 <div key={point.title} className="flex items-start gap-2.5">
-                  <Icon size={20} strokeWidth={1.5} className="mt-0.5 shrink-0 text-terracotta" />
+                  {Icon && (
+                    <Icon size={20} strokeWidth={1.5} className="mt-0.5 shrink-0 text-terracotta" />
+                  )}
                   <div>
                     <h3 className="text-xs font-semibold text-charcoal leading-tight">
                       {point.title}

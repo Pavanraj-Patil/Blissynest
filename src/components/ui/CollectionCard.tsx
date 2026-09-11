@@ -7,6 +7,12 @@ type CollectionCardProps = {
   image: string;
   href: string;
   dark?: boolean;
+  // Callers that lay mobile out as a horizontal-scroll row need a fixed
+  // card width (so cards don't collapse to fill the scroll container);
+  // callers that lay mobile out as a grid need the card to fill its cell
+  // instead. Defaults to the scroll-row behavior, matching this
+  // component's original/only caller.
+  fullWidthOnMobile?: boolean;
 };
 
 export function CollectionCard({
@@ -15,11 +21,12 @@ export function CollectionCard({
   image,
   href,
   dark,
+  fullWidthOnMobile,
 }: CollectionCardProps) {
   return (
     <Link
       href={href}
-      className="group relative block shrink-0 w-[170px] sm:w-auto aspect-[4/5] overflow-hidden rounded-2xl"
+      className={`group relative block ${fullWidthOnMobile ? "w-full" : "shrink-0 w-[170px]"} sm:w-auto aspect-[4/5] overflow-hidden rounded-2xl`}
     >
       <Image
         src={image}

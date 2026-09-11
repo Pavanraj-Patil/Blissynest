@@ -75,7 +75,7 @@ export function ContactPageClient({ content }: { content: Record<string, unknown
                     className="flex items-center gap-3.5 rounded-2xl border border-charcoal/10 bg-white p-5"
                   >
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cream-dark">
-                      <Icon size={18} className="text-terracotta" strokeWidth={1.5} />
+                      {Icon && <Icon size={18} className="text-terracotta" strokeWidth={1.5} />}
                     </div>
                     <div>
                       <p className="text-xs text-ink-muted">{c.label}</p>

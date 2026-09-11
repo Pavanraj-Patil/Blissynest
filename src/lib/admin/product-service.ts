@@ -30,6 +30,7 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
     images: input.images,
     stockQuantity: input.stockQuantity,
     inStock: input.stockQuantity > 0,
+    codAvailable: input.codAvailable,
     featured: input.featured,
     sortRank: input.sortRank ?? null,
     status: input.status,

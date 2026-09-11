@@ -78,14 +78,14 @@ export function MobileNav() {
         type="button"
         aria-label="Open menu"
         onClick={() => setOpen(true)}
-        className="text-charcoal lg:hidden"
+        className="text-charcoal md:hidden"
       >
         <Menu size={22} />
       </button>
 
       {open &&
         createPortal(
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 z-50 md:hidden">
             <div
               className="absolute inset-0 bg-charcoal/50"
               onClick={close}

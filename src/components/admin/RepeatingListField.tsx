@@ -78,6 +78,12 @@ export function RepeatingListField<T extends Record<string, unknown>>({
                       onChange={(e) => updateItem(i, field.key, e.target.value)}
                       className={inputClass}
                     >
+                      {/* Every current use of "select" is an icon picker
+                          (see content-schema.ts / ProductForm's spec icon),
+                          and "no icon here" is a legitimate choice the form
+                          had no way to express before — see
+                          getContentIcon's "" handling. */}
+                      <option value="">None</option>
                       {field.options.map((opt) => (
                         <option key={opt} value={opt}>
                           {opt}

@@ -23,6 +23,7 @@ export const adminProductSchema = z.object({
   compareAtPrice: z.coerce.number().int().min(0).optional(),
   images: z.array(z.string().trim().min(1)).min(1, "At least one image URL is required"),
   stockQuantity: z.coerce.number().int().min(0),
+  codAvailable: z.boolean().default(true),
   featured: z.boolean().default(false),
   sortRank: z.coerce.number().int().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),

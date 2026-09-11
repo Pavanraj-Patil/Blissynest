@@ -90,10 +90,10 @@ export function StandalonePDP({
   return (
     <div>
       <div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-          <div>
-            <div className="lg:sticky lg:top-28 lg:flex lg:flex-col lg:gap-4">
-              <div className="hidden lg:block">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-16">
+          <div className="min-w-0">
+            <div className="md:sticky md:top-28 md:flex md:flex-col md:gap-4">
+              <div className="hidden md:block">
                 <Breadcrumb
                   items={[
                     { label: "Home", href: "/" },
@@ -111,7 +111,7 @@ export function StandalonePDP({
             </div>
           </div>
 
-          <div>
+          <div className="min-w-0">
             <div className="flex items-start justify-between gap-3">
               <h1 className="font-serif text-2xl sm:text-3xl text-charcoal">
                 {product.name}
@@ -196,7 +196,7 @@ export function StandalonePDP({
               </AccordionItem>
             </div>
 
-            <div className="mt-6 hidden lg:flex gap-3 lg:sticky lg:bottom-4 lg:z-10 lg:rounded-2xl lg:border lg:border-charcoal/10 lg:bg-cream/95 lg:backdrop-blur lg:p-4 lg:shadow-lg">
+            <div className="mt-6 hidden md:flex gap-3 md:sticky md:bottom-4 md:z-10 md:rounded-2xl md:border md:border-charcoal/10 md:bg-cream/95 md:backdrop-blur md:p-4 md:shadow-lg">
               <button
                 onClick={handleAddToCart}
                 disabled={!product.inStock}
@@ -214,7 +214,7 @@ export function StandalonePDP({
                 Buy Now
               </button>
             </div>
-            <div aria-hidden className="hidden lg:block lg:h-24" />
+            <div aria-hidden className="hidden md:block md:h-24" />
           </div>
         </div>
 

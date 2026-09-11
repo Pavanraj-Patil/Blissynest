@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { PackageCheck, PackageSearch, Truck, Home, CheckCircle2, Ban } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -18,35 +19,68 @@ type TrackOrderContent = { eyebrow: string; heading: string; subcopy: string };
 
 export function TrackOrderClient({ content: rawContent }: { content: Record<string, unknown> }) {
   const content = rawContent as TrackOrderContent;
+  const searchParams = useSearchParams();
+  // Arriving from the account page's "Track this order" link, both are
+  // already known — the account already has this order and the signed-in
+  // user's own email, so re-asking for them here would just be redundant.
+  const prefillOrderNumber = searchParams.get("orderNumber") ?? "";
+  const prefillEmail = searchParams.get("email") ?? "";
+
   const [result, setResult] = useState<TrackOrderDTO | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Starts true when we're about to auto-run a lookup on mount, so there's
+  // no gap where the form briefly looks idle before that fetch resolves.
+  const [loading, setLoading] = useState(() => Boolean(prefillOrderNumber && prefillEmail));
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const orderNumber = String(formData.get("orderNumber") ?? "").trim();
-    const email = String(formData.get("email") ?? "").trim();
-    if (!orderNumber || !email) return;
-
-    setLoading(true);
-    setError(null);
-    setResult(null);
+  // Pure data fetch, no state-setting of its own — callers (the mount
+  // effect and the submit handler) each apply the result in their own
+  // `.then()`, which is what keeps a setState call from ever running
+  // synchronously inside an effect body.
+  async function lookupOrder(
+    orderNumber: string,
+    email: string
+  ): Promise<{ order: TrackOrderDTO } | { error: string }> {
     try {
       const res = await fetch(
         `/api/orders/track?orderNumber=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(email)}`
       );
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "We couldn't find that order.");
-        return;
+        return { error: data.error ?? "We couldn't find that order." };
       }
-      setResult(data.order);
+      return { order: data.order };
     } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
+      return { error: "Something went wrong. Please try again." };
     }
+  }
+
+  useEffect(() => {
+    if (!prefillOrderNumber || !prefillEmail) return;
+    lookupOrder(prefillOrderNumber, prefillEmail).then((outcome) => {
+      if ("error" in outcome) setError(outcome.error);
+      else setResult(outcome.order);
+      setLoading(false);
+    });
+    // Intentionally only on mount — this is a one-time "arrived with known
+    // details" lookup, not something that should re-run if the user then
+    // edits the form fields (which don't feed back into the URL).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const orderNumber = String(formData.get("orderNumber") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    if (!orderNumber || !email) return;
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    lookupOrder(orderNumber, email).then((outcome) => {
+      if ("error" in outcome) setError(outcome.error);
+      else setResult(outcome.order);
+      setLoading(false);
+    });
   }
 
   return (
@@ -76,6 +110,7 @@ export function TrackOrderClient({ content: rawContent }: { content: Record<stri
                 required
                 name="orderNumber"
                 type="text"
+                defaultValue={prefillOrderNumber}
                 placeholder="BN-2026-XXXXXX"
                 className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
               />
@@ -86,6 +121,7 @@ export function TrackOrderClient({ content: rawContent }: { content: Record<stri
                 required
                 name="email"
                 type="email"
+                defaultValue={prefillEmail}
                 placeholder="you@example.com"
                 className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
               />

@@ -70,6 +70,32 @@ body {
   -ms-overflow-style: none;
 }
 
+/* Continuous logo/strip marquee — the track renders its children twice
+   back to back and scrolls exactly one copy's width (-50%), so the seam
+   between the end of copy 1 and the start of copy 2 is invisible and the
+   loop reads as endless. Pauses on hover/focus so a reader can actually
+   read a name, and sits still for anyone who's asked for less motion. */
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee-scroll 28s linear infinite;
+}
+.marquee-track:hover,
+.marquee-track:focus-within {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* Dual-handle price range slider thumbs */
 .range-thumb {
   pointer-events: none;

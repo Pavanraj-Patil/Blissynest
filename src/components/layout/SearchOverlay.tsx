@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Search, X, ArrowRight, SearchX, TrendingUp } from "lucide-react";
+import { ArrowLeft, Search, X, ArrowRight, SearchX, TrendingUp, Loader2 } from "lucide-react";
 import type { RelatedProduct } from "@/lib/product-adapters";
 
 const popularSearches = [
@@ -26,6 +26,14 @@ export function SearchOverlay({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<RelatedProduct[]>([]);
   const [total, setTotal] = useState(0);
+  // The query `results`/`total` actually correspond to — compared against
+  // the live `query` below to derive "still fetching" without a separate
+  // loading flag to keep synced. Before this, there was a gap between
+  // typing and the debounced fetch resolving where the UI had no way to
+  // distinguish "still searching" from "confirmed zero matches", so it
+  // showed the "No results" empty state for every query in that window —
+  // real matches would still be one API round-trip away.
+  const [searchedQuery, setSearchedQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -38,6 +46,7 @@ export function SearchOverlay({
         .then((data: { items: RelatedProduct[]; total: number }) => {
           setResults(data.items);
           setTotal(data.total);
+          setSearchedQuery(q);
         })
         .catch((err) => {
           if (err.name !== "AbortError") console.error(err);
@@ -50,8 +59,9 @@ export function SearchOverlay({
   }, [query]);
 
   const hasQuery = query.trim().length > 0;
-  const visibleResults = hasQuery ? results : [];
-  const hasMore = hasQuery && total > visibleResults.length;
+  const isSearching = hasQuery && searchedQuery !== query.trim();
+  const visibleResults = hasQuery && !isSearching ? results : [];
+  const hasMore = hasQuery && !isSearching && total > visibleResults.length;
 
   useEffect(() => {
     if (!open) return;
@@ -161,7 +171,14 @@ export function SearchOverlay({
               </div>
             )}
 
-            {hasQuery && visibleResults.length === 0 && (
+            {hasQuery && isSearching && (
+              <div className="flex flex-col items-center text-center px-6 py-14">
+                <Loader2 size={24} className="animate-spin text-charcoal/25" />
+                <p className="mt-3 text-sm text-ink-muted">Searching…</p>
+              </div>
+            )}
+
+            {hasQuery && !isSearching && visibleResults.length === 0 && (
               <div className="flex flex-col items-center text-center px-6 py-14">
                 <SearchX size={32} className="text-charcoal/20" strokeWidth={1.5} />
                 <p className="mt-3 text-sm text-charcoal">

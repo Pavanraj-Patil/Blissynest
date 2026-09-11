@@ -12,7 +12,7 @@ export function WhatsInsideList({ items }: WhatsInsideListProps) {
         return (
           <li key={item.name} className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream-dark text-terracotta">
-              <Icon size={18} strokeWidth={1.5} />
+              {Icon && <Icon size={18} strokeWidth={1.5} />}
             </span>
             <span className="flex-1 min-w-0">
               <span className="block text-sm font-medium text-charcoal">

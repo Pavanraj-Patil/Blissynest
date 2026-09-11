@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { TopBar } from "@/components/layout/TopBar";
 import { getPageContent } from "@/lib/content-service";
 import { TrackOrderClient } from "./TrackOrderClient";
@@ -14,7 +15,9 @@ export default async function TrackOrderPage() {
   return (
     <>
       <TopBar />
-      <TrackOrderClient content={content.hero} />
+      <Suspense fallback={null}>
+        <TrackOrderClient content={content.hero} />
+      </Suspense>
     </>
   );
 }

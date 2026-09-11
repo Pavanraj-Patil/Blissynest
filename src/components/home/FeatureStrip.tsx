@@ -14,7 +14,7 @@ export async function FeatureStrip() {
           const Icon = getContentIcon(f.icon);
           return (
             <div key={f.title} className="flex items-start gap-3">
-              <Icon size={24} strokeWidth={1.5} className="text-terracotta shrink-0" />
+              {Icon && <Icon size={24} strokeWidth={1.5} className="text-terracotta shrink-0" />}
               <div>
                 <h3 className="text-sm font-semibold text-charcoal">
                   {f.title}

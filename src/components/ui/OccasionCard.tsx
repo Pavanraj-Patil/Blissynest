@@ -5,7 +5,7 @@ import { LucideIcon } from "lucide-react";
 type OccasionCardProps = {
   label: string;
   image: string;
-  icon: LucideIcon;
+  icon: LucideIcon | null;
   href?: string;
   dark?: boolean;
 };
@@ -34,7 +34,7 @@ export function OccasionCard({
           dark ? "text-cream" : "text-charcoal"
         }`}
       >
-        <Icon size={20} strokeWidth={1.5} />
+        {Icon && <Icon size={20} strokeWidth={1.5} />}
         <span className="text-xs font-medium">{label}</span>
       </div>
     </Link>

@@ -45,7 +45,7 @@ export default async function HelpPage() {
                   className="group flex items-start gap-4 rounded-2xl border border-charcoal/10 bg-white p-5 hover:border-olive/40 transition-colors"
                 >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cream-dark">
-                    <Icon size={18} className="text-terracotta" strokeWidth={1.5} />
+                    {Icon && <Icon size={18} className="text-terracotta" strokeWidth={1.5} />}
                   </div>
                   <div className="min-w-0 flex-1">
                     <h2 className="text-sm font-semibold text-charcoal">{link.title}</h2>

@@ -11,7 +11,7 @@ export function FeatureIconRow({ items }: FeatureIconRowProps) {
         const Icon = getIcon(item.icon);
         return (
           <div key={item.label} className="flex items-center gap-2">
-            <Icon size={18} strokeWidth={1.5} className="text-terracotta shrink-0" />
+            {Icon && <Icon size={18} strokeWidth={1.5} className="text-terracotta shrink-0" />}
             <span className="text-xs text-charcoal-light leading-tight">
               {item.label}
             </span>
