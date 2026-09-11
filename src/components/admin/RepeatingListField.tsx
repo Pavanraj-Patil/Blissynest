@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 export type ListFieldDef<T> =
   | { key: keyof T; label: string; kind: "text"; placeholder?: string }
@@ -28,8 +30,16 @@ export function RepeatingListField<T extends Record<string, unknown>>({
   emptyItem: T;
   addLabel: string;
 }) {
+  const [removingIndex, setRemovingIndex] = useState<number | null>(null);
+
   function updateItem(index: number, key: keyof T, fieldValue: unknown) {
     onChange(value.map((item, i) => (i === index ? { ...item, [key]: fieldValue } : item)));
+  }
+
+  function confirmRemove() {
+    if (removingIndex === null) return;
+    onChange(value.filter((_, idx) => idx !== removingIndex));
+    setRemovingIndex(null);
   }
 
   return (
@@ -161,7 +171,7 @@ export function RepeatingListField<T extends Record<string, unknown>>({
 
           <button
             type="button"
-            onClick={() => onChange(value.filter((_, idx) => idx !== i))}
+            onClick={() => setRemovingIndex(i)}
             aria-label="Remove"
             className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark hover:text-terracotta-dark"
           >
@@ -176,6 +186,15 @@ export function RepeatingListField<T extends Record<string, unknown>>({
       >
         <Plus size={13} /> {addLabel}
       </button>
+
+      <ConfirmDialog
+        open={removingIndex !== null}
+        title="Remove this entry?"
+        description="It'll be gone from the list right away — nothing is written to the site until you save this section, so you can still back out by leaving without saving."
+        confirmLabel="Remove"
+        onConfirm={confirmRemove}
+        onCancel={() => setRemovingIndex(null)}
+      />
     </div>
   );
 }

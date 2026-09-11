@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { RepeatingListField, type ListFieldDef } from "./RepeatingListField";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-charcoal/15 px-3 py-2 text-sm font-medium text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive";
@@ -32,8 +34,16 @@ export function NestedListField<G extends Record<string, unknown>>({
   emptyItem: any;
   emptyGroup: G;
 }) {
+  const [removingIndex, setRemovingIndex] = useState<number | null>(null);
+
   function updateGroup(index: number, patch: Partial<G>) {
     onChange(value.map((g, i) => (i === index ? { ...g, ...patch } : g)));
+  }
+
+  function confirmRemove() {
+    if (removingIndex === null) return;
+    onChange(value.filter((_, idx) => idx !== removingIndex));
+    setRemovingIndex(null);
   }
 
   return (
@@ -52,7 +62,7 @@ export function NestedListField<G extends Record<string, unknown>>({
             </label>
             <button
               type="button"
-              onClick={() => onChange(value.filter((_, idx) => idx !== i))}
+              onClick={() => setRemovingIndex(i)}
               aria-label="Remove category"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-charcoal-light hover:bg-cream-dark hover:text-terracotta-dark"
             >
@@ -75,6 +85,15 @@ export function NestedListField<G extends Record<string, unknown>>({
       >
         <Plus size={13} /> {groupLabel}
       </button>
+
+      <ConfirmDialog
+        open={removingIndex !== null}
+        title="Remove this category?"
+        description="Its whole list of entries goes with it. Nothing is written to the site until you save this section, so you can still back out by leaving without saving."
+        confirmLabel="Remove"
+        onConfirm={confirmRemove}
+        onCancel={() => setRemovingIndex(null)}
+      />
     </div>
   );
 }
