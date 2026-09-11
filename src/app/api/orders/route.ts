@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getOrdersForUser, createOrder, resolveCartSourceForRequest } from "@/lib/order-service";
 import { createOrderSchema } from "@/lib/validations/order";
+import { checkRateLimit, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 // GET /api/orders — the signed-in user's order history.
 export async function GET() {
@@ -17,6 +18,14 @@ export async function GET() {
 // cart (see resolveCartSourceForRequest).
 export async function POST(request: Request) {
   const session = await auth();
+
+  // Keyed by user id when signed in, by IP for guest checkout — caps
+  // automated order spam / repeated checkout submissions either way.
+  const limitKey = session?.user?.id
+    ? `orders-create:user:${session.user.id}`
+    : `orders-create:ip:${getClientIp(request)}`;
+  const limit = checkRateLimit(limitKey, 10, 10 * 60 * 1000);
+  if (!limit.allowed) return tooManyRequestsResponse(limit.retryAfterSeconds!);
 
   const body = await request.json().catch(() => null);
   const parsed = createOrderSchema.safeParse(body);

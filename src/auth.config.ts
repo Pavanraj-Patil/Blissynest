@@ -3,7 +3,15 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import type { UserRole } from "@/generated/prisma/client";
+
+// Keyed by the attempted email (blocks brute-forcing one specific account
+// regardless of how many IPs an attacker rotates through) and separately by
+// IP (blocks one attacker spraying many emails from a single source) — a
+// request is only allowed through when both checks pass.
+const LOGIN_ATTEMPT_LIMIT = 5;
+const LOGIN_ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
 
 // Kept separate from src/auth.ts as the shared provider/callback config,
 // with the Prisma adapter added only in auth.ts — a clean separation
@@ -28,10 +36,15 @@ export default {
       id: "password",
       name: "Email and Password",
       credentials: { email: {}, password: {} },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const email = typeof credentials?.email === "string" ? credentials.email.toLowerCase() : undefined;
         const password = typeof credentials?.password === "string" ? credentials.password : undefined;
         if (!email || !password) return null;
+
+        const ip = getClientIp(request);
+        const byEmail = checkRateLimit(`login-email:${email}`, LOGIN_ATTEMPT_LIMIT, LOGIN_ATTEMPT_WINDOW_MS);
+        const byIp = checkRateLimit(`login-ip:${ip}`, LOGIN_ATTEMPT_LIMIT * 4, LOGIN_ATTEMPT_WINDOW_MS);
+        if (!byEmail.allowed || !byIp.allowed) return null;
 
         const user = await db.user.findUnique({ where: { email } });
         if (!user?.passwordHash) return null; // no password ever set (e.g. Google-only account)

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { toRelatedProduct } from "@/lib/product-adapters";
 import { searchQuerySchema } from "@/lib/validations/search";
+import { checkRateLimit, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 // GET /api/search — backs both the header's live-typing search overlay and
 // the full /search results page. A plain `contains` filter (no `mode`
@@ -9,6 +10,11 @@ import { searchQuerySchema } from "@/lib/validations/search";
 // it's already case-insensitive under the default collation) is enough at
 // this catalogue size; swap for real full-text search once it isn't.
 export async function GET(request: Request) {
+  // Generous window — this backs live-typing search, which fires on every
+  // keystroke — sized to stop scripted scraping/DoS, not real typing.
+  const rateLimit = checkRateLimit(`search:${getClientIp(request)}`, 60, 60 * 1000);
+  if (!rateLimit.allowed) return tooManyRequestsResponse(rateLimit.retryAfterSeconds!);
+
   const { searchParams } = new URL(request.url);
   const parsed = searchQuerySchema.safeParse(Object.fromEntries(searchParams));
   if (!parsed.success) {
