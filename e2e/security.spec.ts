@@ -71,6 +71,32 @@ test.describe("Rate limiting", () => {
   });
 });
 
+test.describe("Rate limiting cannot be bypassed by spoofing X-Forwarded-For", () => {
+  test("varying the client-supplied (leftmost) hop still hits the same limit", async ({
+    request,
+  }) => {
+    // Real client IP, as the trusted reverse proxy would append it, stays
+    // fixed; only the attacker-controlled leftmost hop changes each request.
+    // If getClientIp() ever trusted the leftmost hop again, this would never
+    // trip 429 — each request would look like a fresh, unlimited client.
+    let sawTooManyRequests = false;
+
+    for (let i = 0; i < 20; i++) {
+      const response = await request.get(
+        `/api/orders/track?orderNumber=BLS-SPOOF-${i}&email=nobody@example.com`,
+        { headers: { "x-forwarded-for": `10.0.0.${i}, 203.0.113.9` } }
+      );
+      if (response.status() === 429) {
+        sawTooManyRequests = true;
+        break;
+      }
+      expect(response.status()).toBe(404);
+    }
+
+    expect(sawTooManyRequests).toBe(true);
+  });
+});
+
 test.describe("Upload endpoint authorization", () => {
   test("uploading an image without an admin session is rejected", async ({ request }) => {
     const response = await request.post("/api/admin/upload-image", {

@@ -18,7 +18,7 @@
     "cloudinary": "^2.10.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.33.0",
-    "mariadb": "^3.5.3",
+    "mariadb": "^3.5.4",
     "next": "16.3.5",
     "next-auth": "^5.0.0-beta.32",
     "prisma": "^7.10.0",
@@ -40,6 +40,13 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.12",
     "typescript": "^5"
+  },
+  "overrides": {
+    "mysql2": "^3.24.4",
+    "@prisma/adapter-mariadb": {
+      "mariadb": "^3.5.4"
+    },
+    "deepmerge-ts": "^8.0.2"
   },
   "allowScripts": {
     "prisma@7.9.1": true,

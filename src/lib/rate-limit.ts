@@ -51,10 +51,23 @@ export function checkRateLimit(key: string, limit: number, windowMs: number): Ra
   return { allowed: true };
 }
 
+// X-Forwarded-For is a comma-separated hop chain that each proxy *appends*
+// to (nginx's default `proxy_set_header X-Forwarded-For
+// $proxy_add_x_forwarded_for` behavior) rather than replaces — so with
+// exactly one trusted reverse proxy in front of this app (the deployment
+// target, per prisma/schema.prisma's comments), the LAST entry is the one
+// the proxy itself observed and is not attacker-controlled, while the
+// FIRST entry is whatever the client sent and can be freely spoofed to
+// rotate past IP-based rate limits. Taking the first entry (the original
+// bug here) let a client bypass every limiter in this file just by setting
+// its own X-Forwarded-For header. This still assumes a single proxy hop;
+// if the deployment ever sits behind multiple chained proxies, this needs
+// to walk back exactly as many trusted hops as are actually configured.
 export function getClientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
-  return "unknown";
+  if (!forwarded) return "unknown";
+  const hops = forwarded.split(",").map((hop) => hop.trim()).filter(Boolean);
+  return hops.length > 0 ? hops[hops.length - 1] : "unknown";
 }
 
 export function tooManyRequestsResponse(retryAfterSeconds: number) {
