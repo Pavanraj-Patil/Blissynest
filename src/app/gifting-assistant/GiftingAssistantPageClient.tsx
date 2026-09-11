@@ -22,7 +22,7 @@ import {
   budgetToRange,
 } from "@/lib/gifting-assistant-data";
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 const fields = [
   { key: "who" as const, label: "Who are you gifting?", icon: User, options: whoOptions },

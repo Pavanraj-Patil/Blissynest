@@ -36,7 +36,7 @@ function productMatchesPill(product: ListProduct, pill: OccasionPillFilter) {
 }
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 export function OccasionPageClient({
   occasion,

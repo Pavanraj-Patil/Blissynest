@@ -1,13 +1,13 @@
 import type { AudienceSlug } from "@/lib/shop-mock-data";
 
-export const whoOptions = ["Her", "Him", "Parents", "Couple", "Friend"];
+export const whoOptions = ["Her", "Him", "Parents", "Couple", "Kids"];
 
 export const whoToAudience: Record<string, AudienceSlug> = {
   Her: "her",
   Him: "him",
   Parents: "parents",
   Couple: "couples",
-  Friend: "friends",
+  Kids: "kids",
 };
 
 export const occasionOptions = [

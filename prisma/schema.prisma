@@ -387,7 +387,7 @@ enum Audience {
   HIM
   PARENTS
   COUPLES
-  FRIENDS
+  KIDS
 }
 
 enum ProductStatus {

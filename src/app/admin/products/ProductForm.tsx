@@ -6,7 +6,12 @@ import { AlertCircle } from "lucide-react";
 import { RepeatingListField } from "@/components/admin/RepeatingListField";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { CheckboxGroupField } from "@/components/admin/CheckboxGroupField";
-import { shopCategories, shopOccasions, recipientsByAudience } from "@/lib/shop-mock-data";
+import {
+  shopCategories,
+  shopOccasions,
+  recipientsByAudience,
+  categoriesByAudience,
+} from "@/lib/shop-mock-data";
 import { collectionContent, collectionSlugs, isCollectionSlug } from "@/lib/collection-mock-data";
 import { audienceEnumToSlug } from "@/lib/validations/product";
 
@@ -15,7 +20,7 @@ const audienceOptions = [
   { value: "HIM", label: "Him" },
   { value: "PARENTS", label: "Parents" },
   { value: "COUPLES", label: "Couples" },
-  { value: "FRIENDS", label: "Friends" },
+  { value: "KIDS", label: "Kids" },
 ];
 
 export type ProductFormInitial = {
@@ -146,13 +151,16 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
-  // Category's valid vocabulary depends on Collection Slug: unscoped
-  // products (no collection) pick from the 7 shop categories; a product
-  // placed in one of the 5 curated Edits picks from that collection's own
-  // category set instead (e.g. "cozy" -> candles/bath-body/wellness/...) —
-  // see collection-mock-data.ts. A stale category value from before the
-  // Collection Slug changed just won't be in this list, so it silently
-  // stops being checked rather than blocking the form.
+  // Category's valid vocabulary depends on Collection Slug first, then
+  // Audience: a product placed in one of the 5 curated Edits picks from
+  // that collection's own category set (e.g. "cozy" -> candles/bath-body/
+  // wellness/...) — see collection-mock-data.ts. Otherwise, if one or more
+  // Audiences are checked, it's the union of those audiences' own quick-
+  // filter categories (see categoriesByAudience in shop-mock-data.ts,
+  // same union pattern as recipientOptions below). With neither set, it
+  // falls back to the 7 shop-wide categories. A stale category value from
+  // before Collection Slug/Audience changed just won't be in this list, so
+  // it silently stops being checked rather than blocking the form.
   const categoryOptions = useMemo(() => {
     if (isCollectionSlug(values.collectionSlug)) {
       return collectionContent[values.collectionSlug].categories.map((c) => ({
@@ -160,8 +168,20 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
         label: c.label,
       }));
     }
+    if (values.audience.length > 0) {
+      const slugs = values.audience.map(
+        (a) => audienceEnumToSlug[a as keyof typeof audienceEnumToSlug]
+      );
+      const union = new Map<string, string>();
+      for (const slug of slugs) {
+        for (const cat of categoriesByAudience[slug] ?? []) {
+          union.set(cat.slug, cat.label);
+        }
+      }
+      return Array.from(union, ([value, label]) => ({ value, label }));
+    }
     return shopCategories.map((c) => ({ value: c.slug, label: c.label }));
-  }, [values.collectionSlug]);
+  }, [values.collectionSlug, values.audience]);
 
   // Attribute only has a fixed vocabulary once a Collection Slug is set —
   // each collection defines its own filter facet (e.g. self-care's "Scent":
@@ -369,7 +389,9 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           <span className="mt-1.5 block text-[11px] text-ink-muted">
             {values.collectionSlug
               ? "Showing this collection's own categories."
-              : "Showing shop categories. Set a Collection Slug below to pick from that collection's categories instead."}
+              : values.audience.length > 0
+                ? "Showing the checked Audience(s)' own categories."
+                : "Showing shop categories. Check an Audience above, or set a Collection Slug below, to pick from a more specific category set instead."}
           </span>
         </div>
 

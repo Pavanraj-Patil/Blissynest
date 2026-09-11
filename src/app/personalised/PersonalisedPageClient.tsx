@@ -14,7 +14,7 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import type { ListProduct } from "@/lib/product-adapters";
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 export function PersonalisedPageClient({
   initialProducts,

@@ -6,6 +6,7 @@ import { MobileNav } from "./MobileNav";
 import {
   audienceSlugs,
   audienceShopContent,
+  personalisedCategoryByAudience,
 } from "@/lib/shop-mock-data";
 import { audiencePillIcons, occasionSlugs, occasionContent } from "@/lib/occasion-data";
 import { collectionSlugs, collectionContent } from "@/lib/collection-mock-data";
@@ -18,7 +19,7 @@ const shopItems: NavDropdownItem[] = audienceSlugs.map((slug) => ({
 
 const personalisedItems: NavDropdownItem[] = audienceSlugs.map((slug) => ({
   label: audienceShopContent[slug].title,
-  href: `/shop/${slug}?category=personalised`,
+  href: `/shop/${slug}?category=${personalisedCategoryByAudience[slug]}`,
   icon: audiencePillIcons[slug],
 }));
 
@@ -74,9 +75,6 @@ export function Header() {
             className="flex items-center gap-1.5 hover:text-terracotta-dark transition-colors uppercase"
           >
             Corporate
-            <span className="hidden xl:inline rounded-full bg-terracotta text-cream text-[9px] font-semibold px-1.5 py-0.5 tracking-normal normal-case">
-              New
-            </span>
           </Link>
         </nav>
 

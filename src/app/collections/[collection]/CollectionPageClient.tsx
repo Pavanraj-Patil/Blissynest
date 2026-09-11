@@ -16,7 +16,7 @@ import { CollectionMobileFilterDrawer } from "@/components/collections/Collectio
 import { collectionContent, type CollectionSlug } from "@/lib/collection-mock-data";
 import type { ListProduct } from "@/lib/product-adapters";
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 export function CollectionPageClient({
   collection,

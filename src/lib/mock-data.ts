@@ -32,8 +32,8 @@ export const audienceCategories = [
     fg: "a85830",
   },
   {
-    label: "Gifts for Friends",
-    href: "/shop/friends",
+    label: "Gifts for Kids",
+    href: "/shop/kids",
     bg: "d6c7a8",
     fg: "2a2621",
   },

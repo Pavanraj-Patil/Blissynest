@@ -18,7 +18,7 @@ import { budgetToRange } from "@/lib/gifting-assistant-data";
 import type { ListProduct } from "@/lib/product-adapters";
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }) {
   const allShopProducts = initialProducts;

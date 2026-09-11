@@ -7,7 +7,11 @@ import Image from "next/image";
 import { Menu, X, ChevronDown, User, PackageSearch } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { NavDropdownItem } from "./NavDropdown";
-import { audienceSlugs, audienceShopContent } from "@/lib/shop-mock-data";
+import {
+  audienceSlugs,
+  audienceShopContent,
+  personalisedCategoryByAudience,
+} from "@/lib/shop-mock-data";
 import { audiencePillIcons, occasionSlugs, occasionContent } from "@/lib/occasion-data";
 import { collectionSlugs, collectionContent } from "@/lib/collection-mock-data";
 
@@ -26,7 +30,7 @@ const shopItems: NavDropdownItem[] = audienceSlugs.map((slug) => ({
 
 const personalisedItems: NavDropdownItem[] = audienceSlugs.map((slug) => ({
   label: audienceShopContent[slug].title,
-  href: `/shop/${slug}?category=personalised`,
+  href: `/shop/${slug}?category=${personalisedCategoryByAudience[slug]}`,
   icon: audiencePillIcons[slug],
 }));
 
@@ -47,7 +51,7 @@ const sections: MobileNavSection[] = [
   { label: "Collections", href: "/collections", items: collectionItems },
   { label: "Occasions", href: "/occasions", items: occasionItems },
   { label: "Personalised", href: "/personalised", items: personalisedItems },
-  { label: "Corporate Gifting", href: "/corporate", badge: "New" },
+  { label: "Corporate Gifting", href: "/corporate" },
 ];
 
 export function MobileNav() {

@@ -731,13 +731,10 @@ export const contentSchema: Record<string, PageSchema> = {
         // photo means "show the Lucide icon instead," not "show a broken/
         // placeholder image" — see CategoryPillRow.tsx.
         all: { type: "IMAGE", label: "All", default: "" },
-        "self-care": { type: "IMAGE", label: "Self Care", default: "" },
         personalised: { type: "IMAGE", label: "Personalised", default: "" },
         "luxury-edit": { type: "IMAGE", label: "Luxury Edit", default: "" },
         "home-living": { type: "IMAGE", label: "Home & Living", default: "" },
-        beauty: { type: "IMAGE", label: "Beauty", default: "" },
         jewellery: { type: "IMAGE", label: "Jewellery", default: "" },
-        "add-ons": { type: "IMAGE", label: "Add-ons", default: "" },
       },
     },
     topbar: {

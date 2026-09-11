@@ -11,6 +11,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import {
   allShopProducts,
+  generalCategoryFor,
   type ShopProductWithAudience,
 } from "../src/lib/shop-mock-data";
 import {
@@ -58,11 +59,16 @@ function stockFor(slug: string): number {
 }
 
 function fromShopProduct(p: ShopProductWithAudience) {
+  const generalCategory = generalCategoryFor[p.category];
   return {
     slug: p.id,
     name: p.name,
     audience: [audienceSlugToEnum[p.audience]],
-    category: [p.category],
+    // Tagged with both its own audience-specific category and (where one
+    // honestly fits — see generalCategoryFor) the shared shopCategories
+    // slug, so it's discoverable through both that audience page's pills
+    // and the general /shop-style pages' pills.
+    category: generalCategory ? [p.category, generalCategory] : [p.category],
     collectionSlug: null,
     occasionTags: p.occasions,
     recipientTags: p.recipients,

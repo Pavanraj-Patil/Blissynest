@@ -44,10 +44,11 @@ export function ShopToolbar({
         <button
           type="button"
           onClick={onOpenFilters}
+          aria-label="Filter"
           className="lg:hidden inline-flex items-center gap-1.5 rounded-lg border border-charcoal/15 px-3 py-2.5 text-sm text-charcoal"
         >
           <SlidersHorizontal size={15} />
-          Filter
+          <span className="hidden sm:inline">Filter</span>
           {activeFilterCount > 0 && (
             <span className="flex h-4 w-4 items-center justify-center rounded-full bg-terracotta text-[10px] font-semibold text-white">
               {activeFilterCount}

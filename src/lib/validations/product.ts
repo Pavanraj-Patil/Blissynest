@@ -8,7 +8,7 @@ export const audienceSlugToEnum = {
   him: "HIM",
   parents: "PARENTS",
   couples: "COUPLES",
-  friends: "FRIENDS",
+  kids: "KIDS",
 } as const;
 
 export type AudienceSlug = keyof typeof audienceSlugToEnum;
@@ -34,7 +34,7 @@ export const productListQuerySchema = z.object({
   priceMax: z.coerce.number().int().min(0).optional(),
   sort: z.enum(sortOptions).default("best-selling"),
   page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(48).default(12),
+  pageSize: z.coerce.number().int().min(1).max(48).default(24),
 });
 
 export type ProductListQuery = z.infer<typeof productListQuerySchema>;

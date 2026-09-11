@@ -21,10 +21,19 @@ function createRawClient(): PrismaClient {
   return new PrismaClient({ adapter });
 }
 
+// Only the genuine "couldn't get a connection" pool timeout should trigger
+// a swap. Deliberately excludes "pool is ending" (driver code 45037) —
+// that's what every OTHER in-flight request against the same client sees
+// the instant this file's own $disconnect() call (below) fires, so treating
+// it as a fresh trigger would cascade: each of N concurrent requests
+// re-detects "failure" on the client that's being torn down and tries to
+// swap again.
 function isPoolTimeoutError(err: unknown): boolean {
-  return Boolean(
-    err && typeof err === "object" && "code" in err && err.code === "P2039"
-  );
+  if (!err || typeof err !== "object" || !("code" in err) || err.code !== "P2039") {
+    return false;
+  }
+  const message = "message" in err && typeof err.message === "string" ? err.message : "";
+  return message.includes("pool timeout");
 }
 
 // The mariadb pool behind the adapter can get stuck reporting
@@ -34,16 +43,24 @@ function isPoolTimeoutError(err: unknown): boolean {
 // dev only, detect that failure and swap in a fresh client so the next
 // request self-heals instead of every request hanging for 30s forever.
 function buildClient(): PrismaClient {
-  const client = createRawClient();
-  if (process.env.NODE_ENV === "production") return client;
+  const raw = createRawClient();
+  if (process.env.NODE_ENV === "production") return raw;
 
-  return client.$extends({
+  // Guards against concurrent requests against the SAME stale client each
+  // independently triggering their own swap/disconnect: `swapped` is local
+  // to this one client instance (only the first failure against it acts),
+  // and `db === extended` additionally confirms this client is still the
+  // active global one before tearing it down (a slow late failure from an
+  // already-superseded client must not disconnect whatever replaced it).
+  let swapped = false;
+  const extended = raw.$extends({
     query: {
       async $allOperations({ args, query }) {
         try {
           return await query(args);
         } catch (err) {
-          if (isPoolTimeoutError(err)) {
+          if (isPoolTimeoutError(err) && !swapped && db === extended) {
+            swapped = true;
             const stale = db;
             db = buildClient();
             globalForPrisma.prisma = db;
@@ -54,6 +71,8 @@ function buildClient(): PrismaClient {
       },
     },
   }) as PrismaClient;
+
+  return extended;
 }
 
 export let db: PrismaClient = globalForPrisma.prisma ?? buildClient();

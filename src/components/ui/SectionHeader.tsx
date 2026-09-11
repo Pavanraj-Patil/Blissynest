@@ -6,6 +6,10 @@ type SectionHeaderProps = {
   eyebrow?: string;
   linkLabel?: string;
   linkHref?: string;
+  // Most sections switch to a grid on mobile, where the header's own
+  // "view all" link would be redundant — sections that stay a horizontal
+  // scroll at every breakpoint (see LovedByMany) need it visible there too.
+  showLinkOnMobile?: boolean;
 };
 
 export function SectionHeader({
@@ -13,6 +17,7 @@ export function SectionHeader({
   eyebrow,
   linkLabel = "Explore all",
   linkHref = "#",
+  showLinkOnMobile = false,
 }: SectionHeaderProps) {
   return (
     <div className="flex items-end justify-between gap-4 mb-6 md:mb-8">
@@ -26,7 +31,7 @@ export function SectionHeader({
       </div>
       <Link
         href={linkHref}
-        className="hidden sm:inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-charcoal hover:text-terracotta-dark transition-colors"
+        className={`${showLinkOnMobile ? "inline-flex" : "hidden sm:inline-flex"} shrink-0 items-center gap-1.5 text-sm font-medium text-charcoal hover:text-terracotta-dark transition-colors`}
       >
         {linkLabel}
         <ArrowRight size={15} />

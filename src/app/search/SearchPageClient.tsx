@@ -13,7 +13,7 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import type { RelatedProduct } from "@/lib/product-adapters";
 import { cn } from "@/lib/cn";
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 export function SearchPageClient({
   query,

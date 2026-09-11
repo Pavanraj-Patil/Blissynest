@@ -15,13 +15,13 @@ const statusStyles: Record<string, string> = {
   ARCHIVED: "bg-charcoal/10 text-charcoal-light",
 };
 
-const audienceValues = ["HER", "HIM", "PARENTS", "COUPLES", "FRIENDS"] as const;
+const audienceValues = ["HER", "HIM", "PARENTS", "COUPLES", "KIDS"] as const;
 const audienceLabels: Record<string, string> = {
   HER: "Her",
   HIM: "Him",
   PARENTS: "Parents",
   COUPLES: "Couples",
-  FRIENDS: "Friends",
+  KIDS: "Kids",
 };
 
 export default async function AdminProductsPage({

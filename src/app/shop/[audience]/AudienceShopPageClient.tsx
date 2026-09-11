@@ -14,7 +14,7 @@ import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
 import {
-  shopCategories,
+  categoriesByAudience,
   shopOccasions,
   audienceShopContent,
   type AudienceSlug,
@@ -23,7 +23,7 @@ import { budgetToRange } from "@/lib/gifting-assistant-data";
 import type { ListProduct } from "@/lib/product-adapters";
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 export function AudienceShopPageClient({
   audience,
@@ -34,11 +34,12 @@ export function AudienceShopPageClient({
 }) {
   const content = audienceShopContent[audience];
   const shopProducts = initialProducts;
+  const categories = categoriesByAudience[audience];
 
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
   const validCategoryParam =
-    categoryParam && shopCategories.some((c) => c.slug === categoryParam)
+    categoryParam && categories.some((c) => c.slug === categoryParam)
       ? categoryParam
       : null;
 
@@ -210,7 +211,7 @@ export function AudienceShopPageClient({
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">
           <CategoryPillRow
-            categories={shopCategories}
+            categories={categories}
             selected={selectedCategories.length === 1 ? selectedCategories[0] : null}
             onSelect={(slug) => toggleCategory(slug ?? "__all__")}
           />
