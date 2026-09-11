@@ -23,6 +23,10 @@ export type WishlistItem = {
 
 type WishlistContextValue = {
   items: WishlistItem[];
+  // True while the real wishlist is still being resolved — see the
+  // matching flag on CartContext (cart-context.tsx) for why pages must not
+  // treat `items.length === 0` as "genuinely empty" while this is true.
+  loading: boolean;
   isWishlisted: (slug: string) => boolean;
   toggleItem: (item: WishlistItem) => void;
   removeItem: (slug: string) => void;
@@ -75,6 +79,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   }, [authenticated]);
 
   const items = authenticated ? (serverItems ?? []) : localItems;
+  const loading = status === "loading" || (authenticated && serverItems === null);
 
   function isWishlisted(slug: string) {
     return items.some((i) => i.slug === slug);
@@ -115,6 +120,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
   const value: WishlistContextValue = {
     items,
+    loading,
     isWishlisted,
     toggleItem,
     removeItem,

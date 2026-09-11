@@ -43,20 +43,24 @@ export function RemoveFromCartDialog({
         onClick={(e) => e.stopPropagation()}
         role="alertdialog"
         aria-modal="true"
+        aria-labelledby="remove-from-cart-title"
+        aria-describedby="remove-from-cart-description"
       >
         <div className="flex items-center gap-3.5">
           <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-cream-dark">
             <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-charcoal">{item.name}</p>
+            <p id="remove-from-cart-title" className="truncate text-sm font-medium text-charcoal">
+              {item.name}
+            </p>
             <p className="text-xs text-ink-muted mt-0.5">
               ₹{item.price.toLocaleString("en-IN")}
             </p>
           </div>
         </div>
 
-        <p className="mt-4 text-sm text-charcoal-light">
+        <p id="remove-from-cart-description" className="mt-4 text-sm text-charcoal-light">
           Remove this from your cart, or save it to your wishlist for later?
         </p>
 

@@ -35,6 +35,12 @@ function sameLine(a: { slug: string; customization?: CartItemCustomization }, b:
 
 type CartContextValue = {
   items: CartItem[];
+  // True while the real cart is still being resolved — the session status
+  // hasn't settled yet, or it has settled as authenticated but the server
+  // cart hasn't come back yet. Pages must not treat `items.length === 0`
+  // as "genuinely empty" while this is true, or a signed-in shopper with
+  // real items sees a misleading empty-cart flash on every load.
+  loading: boolean;
   addItem: (
     item: Omit<CartItem, "id" | "quantity">,
     quantity?: number
@@ -101,6 +107,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [authenticated]);
 
   const items = authenticated ? (serverItems ?? []) : localItems;
+  const loading = status === "loading" || (authenticated && serverItems === null);
 
   function addItem(item: Omit<CartItem, "id" | "quantity">, quantity = 1) {
     if (authenticated) {
@@ -159,6 +166,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value: CartContextValue = {
     items,
+    loading,
     addItem,
     removeItem,
     updateQuantity,

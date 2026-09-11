@@ -13,6 +13,7 @@ import {
   ChevronUp,
   Lock,
   ShoppingBag,
+  Loader2,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -104,7 +105,7 @@ function isValidPhone(value: string): boolean {
 
 export function CheckoutPageClient() {
   const { status } = useSession();
-  const { items, subtotal, clearCart } = useCart();
+  const { items, loading: cartLoading, subtotal, clearCart } = useCart();
   const authenticated = status === "authenticated";
 
   const [step, setStep] = useState<CheckoutStep>(1);
@@ -407,6 +408,28 @@ export function CheckoutPageClient() {
     });
 
     razorpay.open();
+  }
+
+  // Must come before the `items.length === 0` check below: the real cart
+  // (session status, then the server cart itself) hasn't resolved yet, so
+  // an authenticated shopper with real items would otherwise see "there's
+  // nothing to check out" flash right as they're trying to pay.
+  if (cartLoading) {
+    return (
+      <>
+        <Header />
+        <main>
+          <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
+            <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Checkout" }]} />
+          </div>
+          <div className="flex flex-col items-center justify-center gap-3 py-24 text-ink-muted">
+            <h1 className="sr-only">Checkout</h1>
+            <Loader2 size={22} className="animate-spin text-olive" />
+            <p className="text-sm">Loading your cart…</p>
+          </div>
+        </main>
+      </>
+    );
   }
 
   if (orderPlaced) {

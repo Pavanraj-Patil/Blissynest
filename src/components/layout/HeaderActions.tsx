@@ -8,7 +8,20 @@ import { AccountMenu } from "./AccountMenu";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
 
-function CountBadge({ count }: { count: number }) {
+function CountBadge({ count, loading }: { count: number; loading: boolean }) {
+  // While the real count is still resolving (see CartContext/WishlistContext
+  // — same signal the cart/wishlist pages use to avoid a false "empty"
+  // message), show a neutral placeholder dot instead of nothing at all, so
+  // a shopper with real items doesn't see the badge silently pop in a beat
+  // later with no visual continuity.
+  if (loading) {
+    return (
+      <span
+        aria-hidden
+        className="absolute -top-2 -right-2 h-4 w-4 rounded-full bg-charcoal/10 animate-pulse"
+      />
+    );
+  }
   if (count <= 0) return null;
   return (
     <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-terracotta text-[9px] font-semibold text-cream">
@@ -19,8 +32,8 @@ function CountBadge({ count }: { count: number }) {
 
 export function HeaderActions() {
   const [searchOpen, setSearchOpen] = useState(false);
-  const { count: cartCount } = useCart();
-  const { count: wishlistCount } = useWishlist();
+  const { count: cartCount, loading: cartLoading } = useCart();
+  const { count: wishlistCount, loading: wishlistLoading } = useWishlist();
 
   return (
     <>
@@ -40,11 +53,11 @@ export function HeaderActions() {
           className="relative hover:text-terracotta-dark transition-colors"
         >
           <Heart size={19} />
-          <CountBadge count={wishlistCount} />
+          <CountBadge count={wishlistCount} loading={wishlistLoading} />
         </Link>
         <Link href="/cart" aria-label="Cart" className="relative hover:text-terracotta-dark transition-colors">
           <ShoppingBag size={19} />
-          <CountBadge count={cartCount} />
+          <CountBadge count={cartCount} loading={cartLoading} />
         </Link>
       </div>
 

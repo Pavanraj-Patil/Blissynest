@@ -2,11 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ArrowRight } from "lucide-react";
+import { Heart, ArrowRight, Loader2 } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist-context";
 
 export function WishlistSection() {
-  const { items } = useWishlist();
+  const { items, loading } = useWishlist();
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-charcoal/10 bg-white px-6 py-16 text-center text-ink-muted">
+        <Loader2 size={20} className="animate-spin text-olive" />
+        <p className="text-sm">Loading your wishlist…</p>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

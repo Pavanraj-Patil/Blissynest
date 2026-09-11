@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { CategoryPillRow } from "@/components/shop/CategoryPillRow";
@@ -20,6 +20,7 @@ import {
   type AudienceSlug,
 } from "@/lib/shop-mock-data";
 import { budgetToRange } from "@/lib/gifting-assistant-data";
+import { replaceSearchParam } from "@/lib/url-params";
 import type { ListProduct } from "@/lib/product-adapters";
 
 const PRICE_BOUNDS = { min: 0, max: 5000, step: 100 };
@@ -36,6 +37,8 @@ export function AudienceShopPageClient({
   const shopProducts = initialProducts;
   const categories = categoriesByAudience[audience];
 
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
   const validCategoryParam =
@@ -141,15 +144,16 @@ export function AudienceShopPageClient({
 
   function toggleCategory(slug: string) {
     setCurrentPage(1);
-    if (slug === "__all__") {
-      setSelectedCategories([]);
-      return;
-    }
     // CategoryPillRow is a single-select control (one active pill at a
     // time) — replace the selection rather than toggling it into a list,
     // so picking a new category doesn't leave a previous one silently
     // still selected. Clicking the already-active pill again clears it.
-    setSelectedCategories((prev) => (prev.length === 1 && prev[0] === slug ? [] : [slug]));
+    const next =
+      slug === "__all__" || (selectedCategories.length === 1 && selectedCategories[0] === slug)
+        ? []
+        : [slug];
+    setSelectedCategories(next);
+    replaceSearchParam(router, pathname, searchParams, "category", next[0] ?? null);
   }
 
   function toggleOccasion(label: string) {
@@ -207,6 +211,10 @@ export function AudienceShopPageClient({
               { label: content.breadcrumbLabel },
             ]}
           />
+        </div>
+
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-4">
+          <h1 className="font-serif text-2xl md:text-3xl text-charcoal">{content.breadcrumbLabel}</h1>
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">

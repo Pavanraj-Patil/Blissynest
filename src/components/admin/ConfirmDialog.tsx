@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle } from "lucide-react";
 
@@ -20,6 +21,15 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onCancel();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, onCancel]);
+
   if (!open) return null;
 
   return createPortal(
@@ -32,12 +42,18 @@ export function ConfirmDialog({
         onClick={(e) => e.stopPropagation()}
         role="alertdialog"
         aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
       >
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-terracotta/10">
           <AlertTriangle size={20} className="text-terracotta-dark" />
         </div>
-        <h2 className="mt-4 font-serif text-lg text-charcoal">{title}</h2>
-        <p className="mt-1.5 text-sm text-ink-muted leading-relaxed">{description}</p>
+        <h2 id="confirm-dialog-title" className="mt-4 font-serif text-lg text-charcoal">
+          {title}
+        </h2>
+        <p id="confirm-dialog-description" className="mt-1.5 text-sm text-ink-muted leading-relaxed">
+          {description}
+        </p>
         <div className="mt-6 flex gap-3">
           <button
             type="button"

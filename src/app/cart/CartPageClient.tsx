@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, ArrowRight, Trash2, ShieldCheck, Truck, Gift } from "lucide-react";
+import { ShoppingBag, ArrowRight, Trash2, ShieldCheck, Truck, Gift, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { QuantityStepper } from "@/components/product/QuantityStepper";
@@ -39,8 +39,18 @@ function EmptyCart() {
   );
 }
 
+function CartLoading() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-24 text-ink-muted">
+      <h1 className="sr-only">My Cart</h1>
+      <Loader2 size={22} className="animate-spin text-olive" />
+      <p className="text-sm">Loading your cart…</p>
+    </div>
+  );
+}
+
 export function CartPageClient() {
-  const { items, updateQuantity, removeItem, subtotal } = useCart();
+  const { items, loading, updateQuantity, removeItem, subtotal } = useCart();
   const { isWishlisted, toggleItem: toggleWishlistItem } = useWishlist();
   const [removingItem, setRemovingItem] = useState<CartItem | null>(null);
 
@@ -82,7 +92,9 @@ export function CartPageClient() {
           <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Cart" }]} />
         </div>
 
-        {items.length === 0 ? (
+        {loading ? (
+          <CartLoading />
+        ) : items.length === 0 ? (
           <EmptyCart />
         ) : (
           <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">

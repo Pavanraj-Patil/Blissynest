@@ -180,6 +180,10 @@ export function OccasionPageClient({
           />
         </div>
 
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-4">
+          <h1 className="font-serif text-2xl md:text-3xl text-charcoal">{content.title}</h1>
+        </div>
+
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">
           <CategoryPillRow
             categories={filterPills}

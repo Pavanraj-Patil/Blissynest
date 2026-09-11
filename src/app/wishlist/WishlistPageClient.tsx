@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag, ArrowRight, X, Star, Check } from "lucide-react";
+import { Heart, ShoppingBag, ArrowRight, X, Star, Check, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist-context";
@@ -114,8 +114,17 @@ function EmptyWishlist() {
   );
 }
 
+function WishlistLoading() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-24 text-ink-muted">
+      <Loader2 size={22} className="animate-spin text-olive" />
+      <p className="text-sm">Loading your wishlist…</p>
+    </div>
+  );
+}
+
 export function WishlistPageClient() {
-  const { items } = useWishlist();
+  const { items, loading } = useWishlist();
 
   return (
     <>
@@ -125,7 +134,9 @@ export function WishlistPageClient() {
           <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Wishlist" }]} />
         </div>
 
-        {items.length === 0 ? (
+        {loading ? (
+          <WishlistLoading />
+        ) : items.length === 0 ? (
           <EmptyWishlist />
         ) : (
           <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">

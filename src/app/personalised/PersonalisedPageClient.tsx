@@ -150,6 +150,10 @@ export function PersonalisedPageClient({
           <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Personalised" }]} />
         </div>
 
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-4">
+          <h1 className="font-serif text-2xl md:text-3xl text-charcoal">Personalised Gifts</h1>
+        </div>
+
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16 pt-8">
           <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10">
             <aside className="hidden lg:block">
