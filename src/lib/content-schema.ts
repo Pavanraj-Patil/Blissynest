@@ -136,13 +136,21 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "dark", label: "Dark text overlay", kind: "checkbox" },
           ],
           emptyItem: { label: "", slug: "", image: "", icon: contentIconOptions[0], dark: false },
-          default: occasions.map((o, i) => ({
-            label: o.label,
-            slug: o.slug,
-            image: o.image,
-            icon: occasionIconDefaults[i],
-            dark: o.label === "Festivals",
-          })),
+          // Zip icons to occasions by original index first, then drop the
+          // ones this section shouldn't feature — occasionIconDefaults is a
+          // parallel array, so filtering occasions directly first would
+          // shift indices and hand the wrong icon to whatever ends up at
+          // each remaining position.
+          default: occasions
+            .map((o, i) => ({ ...o, icon: occasionIconDefaults[i] }))
+            .filter((o) => !["Wedding", "Housewarming", "Just Because"].includes(o.label))
+            .map((o) => ({
+              label: o.label,
+              slug: o.slug,
+              image: o.image,
+              icon: o.icon,
+              dark: o.label === "Festivals",
+            })),
         },
       },
     },
@@ -163,13 +171,15 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "dark", label: "Dark overlay", kind: "checkbox" },
           ],
           emptyItem: { title: "", subtitle: "", slug: "", image: "", dark: false },
-          default: editCollections.map((c) => ({
-            title: c.title,
-            subtitle: c.subtitle,
-            slug: c.slug,
-            image: c.image,
-            dark: c.title === "The Luxury Edit",
-          })),
+          default: editCollections
+            .filter((c) => !["self-care", "cozy"].includes(c.slug))
+            .map((c) => ({
+              title: c.title,
+              subtitle: c.subtitle,
+              slug: c.slug,
+              image: c.image,
+              dark: c.title === "The Luxury Edit",
+            })),
         },
       },
     },

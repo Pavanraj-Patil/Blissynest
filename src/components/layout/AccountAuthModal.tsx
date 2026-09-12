@@ -150,7 +150,7 @@ export function AccountAuthModal({
       />
 
       <div className="relative h-full sm:h-auto sm:mx-auto sm:mt-16 sm:max-w-sm sm:px-4">
-        <div className="flex h-full sm:h-auto flex-col overflow-hidden bg-white sm:rounded-3xl sm:shadow-2xl">
+        <div className="relative flex h-full sm:h-auto flex-col overflow-hidden bg-white sm:rounded-3xl sm:shadow-2xl">
           <button
             type="button"
             onClick={handleClose}
@@ -168,16 +168,36 @@ export function AccountAuthModal({
             <X size={18} />
           </button>
 
-          <div className="relative h-24 shrink-0 overflow-hidden bg-gradient-to-br from-olive-dark to-terracotta-dark">
-            <span className="absolute -right-4 -top-6 text-[7rem] leading-none text-cream/10 select-none">
+          <div className="relative h-24 shrink-0 overflow-hidden bg-gradient-to-br from-charcoal to-gold">
+            <span className="absolute left-8 top-3 text-xl leading-none text-cream/25 select-none">
               ✦
             </span>
-            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-md">
-              <Image src="/icon.png" alt="" width={40} height={40} className="h-10 w-10" />
-            </div>
+            <Image
+              src="/giftbox-lavender-gold.png"
+              alt=""
+              width={140}
+              height={140}
+              className="absolute -left-7 -bottom-9 h-28 w-28 rotate-[-10deg] drop-shadow-lg"
+            />
+            <Image
+              src="/giftbox-lavender-gold.png"
+              alt=""
+              width={90}
+              height={90}
+              className="absolute -right-4 -top-6 h-16 w-16 rotate-[14deg] opacity-80 drop-shadow-md"
+            />
+          </div>
+          {/* A sibling of the banner above, not a child of it — the banner's
+              own overflow-hidden (needed to clip the oversized ✦ character)
+              would otherwise slice off the bottom half of this badge, since
+              it's deliberately positioned to overlap past the banner's
+              edge. Centered on the boundary between the banner (h-24) and
+              this badge (h-20): top-14 (56px) = 96px - 80px/2. */}
+          <div className="absolute top-14 left-1/2 -translate-x-1/2 flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-md">
+            <Image src="/icon.png" alt="" width={56} height={56} className="h-14 w-14" />
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 pb-8 pt-12 text-center sm:pt-11">
+          <div className="flex-1 overflow-y-auto px-6 pb-8 pt-14 text-center">
             <h2 className="font-serif text-xl text-charcoal">
               {mode === "login" ? "Login to Blissynest" : "Create your account"}
             </h2>

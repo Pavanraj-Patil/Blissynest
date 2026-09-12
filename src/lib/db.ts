@@ -17,6 +17,14 @@ function createRawClient(): PrismaClient {
     connectionLimit: 5,
     acquireTimeout: 30000,
     connectTimeout: 10000,
+    // MySQL 8's default auth plugin (caching_sha2_password) needs the
+    // server's RSA public key to hash the password when the connection
+    // isn't already TLS-encrypted — without this, every connection hangs
+    // until acquireTimeout and the pool reports a generic "0 connections"
+    // error that gives no hint this is an auth handshake problem. Safe
+    // over loopback-only local dev; irrelevant once a real deployment
+    // terminates TLS in front of MySQL.
+    allowPublicKeyRetrieval: true,
   });
   return new PrismaClient({ adapter });
 }
