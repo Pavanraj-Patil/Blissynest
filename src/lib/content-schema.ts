@@ -89,7 +89,7 @@ export const contentSchema: Record<string, PageSchema> = {
         primaryCta: {
           type: "LINK",
           label: "Primary Button",
-          default: { label: "Find the Perfect Gift", href: "/gifting-assistant" },
+          default: { label: "Shop All", href: "/shop" },
         },
         secondaryCta: {
           type: "LINK",

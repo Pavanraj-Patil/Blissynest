@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { ProfileSection } from "@/components/account/ProfileSection";
 import { OrdersSection } from "@/components/account/OrdersSection";
 import { AddressesSection } from "@/components/account/AddressesSection";
@@ -50,6 +51,7 @@ function AccountDashboard({
   const [activeTab, setActiveTab] = useState<TabKey>(
     isTabKey(initialTab) ? initialTab : "profile"
   );
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
 
   const displayName = user.name ?? user.email ?? "Blissynest Member";
   const profileUser = {
@@ -74,18 +76,18 @@ function AccountDashboard({
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 pb-10">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-5 rounded-2xl bg-cream-dark px-6 py-6">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gold/20 font-serif text-xl text-charcoal">
+          <div className="flex items-center gap-4 rounded-2xl bg-cream-dark px-5 py-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold/20 font-serif text-lg text-charcoal">
               {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="font-serif text-xl text-charcoal">{displayName}</h1>
-              <p className="mt-0.5 text-sm text-ink-muted">{profileUser.email}</p>
+              <h1 className="font-serif text-lg text-charcoal truncate">{displayName}</h1>
+              <p className="mt-0.5 text-sm text-ink-muted truncate">{profileUser.email}</p>
             </div>
             <button
               type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-charcoal/15 px-5 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase text-charcoal hover:bg-white transition-colors"
+              onClick={() => setSignOutConfirmOpen(true)}
+              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-charcoal-light hover:text-terracotta-dark transition-colors"
             >
               <LogOut size={13} />
               Sign Out
@@ -123,6 +125,15 @@ function AccountDashboard({
           </div>
         </div>
       </main>
+
+      <ConfirmDialog
+        open={signOutConfirmOpen}
+        title="Sign out?"
+        description="You'll need to sign in again to access your account."
+        confirmLabel="Sign Out"
+        onConfirm={() => signOut({ callbackUrl: "/" })}
+        onCancel={() => setSignOutConfirmOpen(false)}
+      />
     </>
   );
 }

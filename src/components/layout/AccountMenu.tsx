@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { User, LogOut, LayoutDashboard } from "lucide-react";
 import { AccountAuthModal } from "./AccountAuthModal";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 
 export function AccountMenu() {
   const { data: session, status } = useSession();
   const [authOpen, setAuthOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export function AccountMenu() {
               type="button"
               onClick={() => {
                 setMenuOpen(false);
-                signOut({ callbackUrl: "/" });
+                setSignOutConfirmOpen(true);
               }}
               className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-charcoal hover:bg-cream-dark transition-colors"
             >
@@ -61,6 +63,15 @@ export function AccountMenu() {
             </button>
           </div>
         )}
+
+        <ConfirmDialog
+          open={signOutConfirmOpen}
+          title="Sign out?"
+          description="You'll need to sign in again to access your account."
+          confirmLabel="Sign Out"
+          onConfirm={() => signOut({ callbackUrl: "/" })}
+          onCancel={() => setSignOutConfirmOpen(false)}
+        />
       </div>
     );
   }
