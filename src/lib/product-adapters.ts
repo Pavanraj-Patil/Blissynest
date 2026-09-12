@@ -106,6 +106,10 @@ export function toProductDetail(p: Product): ProductDetail {
   };
 
   if (p.pdpType === "HAMPER") {
+    // Personalisation is optional on a hamper — only present once the admin
+    // has configured at least one text line (see product-service.ts's
+    // buildData, which writes customizationSchema: null otherwise).
+    const cs = p.customizationSchema as CustomizationSchemaJson | null;
     return {
       ...base,
       pdpType: "hamper",
@@ -114,6 +118,7 @@ export function toProductDetail(p: Product): ProductDetail {
         p.personalNoteLabel && p.personalNotePrice != null
           ? { label: p.personalNoteLabel, price: toRupees(p.personalNotePrice) }
           : undefined,
+      ...(cs && { textLines: cs.textLines, fonts: cs.fonts, colors: cs.colors }),
     };
   }
 

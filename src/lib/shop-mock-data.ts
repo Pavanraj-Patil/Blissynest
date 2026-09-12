@@ -43,6 +43,7 @@ export const shopCategories: ShopCategory[] = [
   { slug: "luxury-edit", label: "Luxury Edit" },
   { slug: "home-living", label: "Home & Living" },
   { slug: "jewellery", label: "Jewellery" },
+  { slug: "hamper", label: "Hampers" },
 ];
 
 export const categoryIcons: Record<string, LucideIcon> = {
@@ -125,6 +126,7 @@ export const categoriesByAudience: Record<AudienceSlug, ShopCategory[]> = {
     { slug: "flowers-floral-gifts", label: "Floral" },
     { slug: "home-lifestyle", label: "Lifestyle" },
     { slug: "cute-trending-gifts", label: "Trending" },
+    { slug: "hamper", label: "Hampers" },
   ],
   him: [
     { slug: "perfumes-fragrance", label: "Perfumes" },
@@ -134,6 +136,7 @@ export const categoriesByAudience: Record<AudienceSlug, ShopCategory[]> = {
     { slug: "luxury-gifts", label: "Luxury" },
     { slug: "home-desk", label: "Desk" },
     { slug: "jewellery-accessories", label: "Jewellery" },
+    { slug: "hamper", label: "Hampers" },
   ],
   parents: [
     { slug: "for-mom", label: "Mom" },
@@ -142,6 +145,7 @@ export const categoriesByAudience: Record<AudienceSlug, ShopCategory[]> = {
     { slug: "personalised-memories", label: "Personalised" },
     { slug: "home-living", label: "Home" },
     { slug: "luxury-gifts", label: "Luxury" },
+    { slug: "hamper", label: "Hampers" },
   ],
   couples: [
     { slug: "anniversary-gifts", label: "Anniversary" },
@@ -149,11 +153,13 @@ export const categoriesByAudience: Record<AudienceSlug, ShopCategory[]> = {
     { slug: "date-night", label: "Date Night" },
     { slug: "couple-jewellery", label: "Jewellery" },
     { slug: "luxury-couple-gifts", label: "Luxury" },
+    { slug: "hamper", label: "Hampers" },
   ],
   kids: [
     { slug: "creative-diy-kits", label: "DIY Kits" },
     { slug: "educational-interactive-toys", label: "Toys" },
     { slug: "personalized-cute-kids-gifts", label: "Personalized" },
+    { slug: "hamper", label: "Hampers" },
   ],
 };
 

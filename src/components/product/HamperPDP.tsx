@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingBag, Zap, Check } from "lucide-react";
+import { cn } from "@/lib/cn";
 import { ProductGallery } from "./ProductGallery";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { RatingStars } from "./RatingStars";
@@ -21,6 +22,14 @@ import type { RelatedProduct } from "@/lib/product-adapters";
 import type { ApprovedReview } from "@/lib/review-service";
 import { useCart } from "@/lib/cart-context";
 
+// Matches CustomisablePDP.tsx's own map exactly — a hamper's optional
+// personalisation reuses the same three font choices.
+const fontClassMap: Record<string, string> = {
+  Serif: "font-serif",
+  Script: "font-serif italic",
+  Modern: "font-sans uppercase tracking-wide",
+};
+
 export function HamperPDP({
   product,
   related,
@@ -38,14 +47,32 @@ export function HamperPDP({
   const [addNote, setAddNote] = useState(false);
   const [added, setAdded] = useState(false);
   const [cartModalOpen, setCartModalOpen] = useState(false);
+  const [textValues, setTextValues] = useState<string[]>(
+    (product.textLines ?? []).map(() => "")
+  );
+  const [font, setFont] = useState(product.fonts?.[0]);
+  const [color, setColor] = useState(product.colors?.[0]?.hex);
 
   const unitPrice =
     product.price + (addNote && product.personalNote ? product.personalNote.price : 0);
   const total = unitPrice * quantity;
 
+  // Only present when this hamper has personalisation configured — matches
+  // the shape CustomisablePDP.tsx already builds and sends through cart/
+  // checkout, so nothing downstream needs to know a hamper produced it.
+  const customization = product.textLines
+    ? { textLines: textValues, font, colorHex: color }
+    : undefined;
+
   function handleAddToCart() {
     addItem(
-      { slug: product.slug, name: product.name, price: unitPrice, image: product.images[0] },
+      {
+        slug: product.slug,
+        name: product.name,
+        price: unitPrice,
+        image: product.images[0],
+        customization,
+      },
       quantity
     );
     setAdded(true);
@@ -55,7 +82,13 @@ export function HamperPDP({
 
   function handleBuyNow() {
     addItem(
-      { slug: product.slug, name: product.name, price: unitPrice, image: product.images[0] },
+      {
+        slug: product.slug,
+        name: product.name,
+        price: unitPrice,
+        image: product.images[0],
+        customization,
+      },
       quantity
     );
     router.push("/cart");
@@ -121,6 +154,96 @@ export function HamperPDP({
               </h2>
               <WhatsInsideList items={product.whatsInside} />
             </div>
+
+            {product.textLines && product.textLines.length > 0 && (
+              <div className="mt-7 border-t border-charcoal/10 pt-5">
+                <h2 className="text-sm font-semibold text-charcoal mb-1">
+                  Personalise This Hamper
+                </h2>
+                <p className="text-xs text-ink-muted mb-4">
+                  Make it uniquely yours with a name, date, or a short message.
+                </p>
+                <div className="space-y-4">
+                  {product.textLines.map((line, i) => (
+                    <label key={line.label} className="block">
+                      <span className="flex items-center justify-between text-xs text-charcoal-light mb-1.5">
+                        <span>
+                          {line.label}{" "}
+                          {line.required ? (
+                            <span className="text-terracotta">(Required)</span>
+                          ) : (
+                            "(Optional)"
+                          )}
+                        </span>
+                        <span className="text-ink-muted">
+                          {textValues[i].length}/{line.maxLength}
+                        </span>
+                      </span>
+                      <input
+                        type="text"
+                        maxLength={line.maxLength}
+                        placeholder={line.placeholder}
+                        value={textValues[i]}
+                        onChange={(e) =>
+                          setTextValues((prev) =>
+                            prev.map((v, idx) => (idx === i ? e.target.value : v))
+                          )
+                        }
+                        className="w-full rounded-lg border border-charcoal/15 px-3 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
+                      />
+                    </label>
+                  ))}
+                </div>
+
+                {product.fonts && product.fonts.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm font-semibold text-charcoal mb-2.5">Font Style</p>
+                    <div className="flex gap-2">
+                      {product.fonts.map((f) => (
+                        <button
+                          key={f}
+                          type="button"
+                          onClick={() => setFont(f)}
+                          aria-pressed={font === f}
+                          className={cn(
+                            "rounded-lg border px-4 py-2 text-sm transition-colors",
+                            font === f
+                              ? "border-olive bg-olive text-cream"
+                              : "border-charcoal/15 text-charcoal-light hover:border-charcoal/30"
+                          )}
+                        >
+                          <span className={fontClassMap[f]}>Aa</span> {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {product.colors && product.colors.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm font-semibold text-charcoal mb-2.5">Text Color</p>
+                    <div className="flex gap-2.5">
+                      {product.colors.map((c) => (
+                        <button
+                          key={c.hex}
+                          type="button"
+                          aria-label={c.name}
+                          aria-pressed={color === c.hex}
+                          onClick={() => setColor(c.hex)}
+                          className={cn(
+                            "h-8 w-8 rounded-full border-2 transition-transform",
+                            color === c.hex
+                              ? "border-charcoal scale-110"
+                              : "border-transparent"
+                          )}
+                          style={{ backgroundColor: c.hex }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {product.personalNote && (
               <div className="mt-6 border-t border-charcoal/10 pt-5">

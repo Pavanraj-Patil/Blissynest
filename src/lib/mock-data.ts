@@ -89,6 +89,13 @@ export const editCollections = [
     bg: "241f1a",
     fg: "cfb587",
   },
+  {
+    slug: "hampers",
+    title: "Gift Hampers",
+    subtitle: "Ready to gift, or made to feel personal",
+    bg: "cc8b65",
+    fg: "2a2621",
+  },
 ].map((c) => ({ ...c, image: ph(280, 340, c.bg, c.fg, c.title) }));
 
 export const bestsellers = [

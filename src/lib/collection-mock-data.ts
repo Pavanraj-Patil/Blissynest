@@ -8,7 +8,8 @@ export type CollectionSlug =
   | "cozy"
   | "minimalist"
   | "celebration"
-  | "luxury";
+  | "luxury"
+  | "hampers";
 
 export const collectionSlugs: CollectionSlug[] = [
   "self-care",
@@ -16,6 +17,7 @@ export const collectionSlugs: CollectionSlug[] = [
   "minimalist",
   "celebration",
   "luxury",
+  "hampers",
 ];
 
 export function isCollectionSlug(value: string): value is CollectionSlug {
@@ -321,6 +323,32 @@ const definitions: CollectionDefinition[] = [
         { name: "Leather Passport & Card Holder Set", price: 2199, attribute: "Leather" },
       ],
     },
+  },
+  {
+    slug: "hampers",
+    title: "Gift Hampers",
+    subtitle: "Ready to gift, or made to feel personal.",
+    breadcrumbLabel: "Gift Hampers",
+    bannerImageLabel: "Ribbon & Box",
+    bg: "cc8b65",
+    fg: "2a2621",
+    // These two slugs are the sub-filter pills shown on this collection's
+    // own page (see CollectionPageClient.tsx, which filters real DB
+    // products by `category.includes(cat.slug)`) — "hamper" doubles as the
+    // same tag used for the Shop/audience "Hampers" pill (see
+    // shopCategories/categoriesByAudience in shop-mock-data.ts), so a
+    // hamper product only needs one shared tag to show up in both places.
+    categories: [
+      { slug: "hamper", label: "All Hampers" },
+      { slug: "personalise-it", label: "Personalise It" },
+    ],
+    attributeFilter: null,
+    occasionTagsPool: ["Birthday", "Anniversary", "Just Because", "Festivals"],
+    priceBounds: { min: 0, max: 6000, step: 100 },
+    // No mock seeds — this collection only ever shows real DB products at
+    // runtime (see CollectionPageClient.tsx), so there's nothing for the
+    // seed script to synthesize here.
+    seedsByCategory: {},
   },
 ];
 

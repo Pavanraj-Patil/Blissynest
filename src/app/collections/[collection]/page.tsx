@@ -13,6 +13,7 @@ const bannerFieldBySlug: Record<CollectionSlug, string> = {
   minimalist: "minimalistBanner",
   celebration: "celebrationBanner",
   luxury: "luxuryBanner",
+  hampers: "hampersBanner",
 };
 
 type Props = {

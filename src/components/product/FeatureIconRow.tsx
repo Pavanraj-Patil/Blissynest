@@ -5,6 +5,11 @@ type FeatureIconRowProps = {
 };
 
 export function FeatureIconRow({ items }: FeatureIconRowProps) {
+  // The admin form has no field to set benefits yet, so any admin-created
+  // product has an empty array here — render nothing rather than a blank
+  // bordered box.
+  if (items.length === 0) return null;
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-2xl border border-charcoal/10 px-4 py-4">
       {items.map((item) => {

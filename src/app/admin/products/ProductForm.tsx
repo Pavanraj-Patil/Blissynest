@@ -140,12 +140,93 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+// Shared by both the Customisable section and a Hamper's optional
+// personalisation toggle — a hamper's contents stay fixed, so it only ever
+// gets this name/message/color trio, never the variant/spec pickers below
+// (those stay Customisable-only).
+function PersonalisationFields({
+  values,
+  set,
+}: {
+  values: Pick<ProductFormInitial, "textLines" | "fonts" | "colors">;
+  set: <K extends "textLines" | "fonts" | "colors">(key: K, value: ProductFormInitial[K]) => void;
+}) {
+  return (
+    <>
+      <div>
+        <span className={labelClass}>Text Lines</span>
+        <div className="mt-2">
+          <RepeatingListField
+            value={values.textLines}
+            onChange={(next) => set("textLines", next)}
+            fields={[
+              { key: "label", label: "Label (e.g. Name)", kind: "text" },
+              { key: "placeholder", label: "Placeholder text", kind: "text" },
+              { key: "maxLength", label: "Max chars", kind: "number", min: 1 },
+              { key: "required", label: "Required", kind: "checkbox" },
+            ]}
+            emptyItem={{ label: "", required: false, maxLength: 30, placeholder: "" }}
+            addLabel="Add text line"
+          />
+        </div>
+      </div>
+
+      <div>
+        <span className={labelClass}>Font Styles</span>
+        <p className="mt-1 text-[11px] text-ink-muted">
+          Only these three are supported by the PDP&rsquo;s preview.
+        </p>
+        <div className="mt-2 flex gap-4">
+          {customisableFonts.map((f) => (
+            <label key={f} className="flex items-center gap-1.5 text-sm text-charcoal cursor-pointer">
+              <input
+                type="checkbox"
+                checked={values.fonts.includes(f)}
+                onChange={(e) =>
+                  set(
+                    "fonts",
+                    e.target.checked ? [...values.fonts, f] : values.fonts.filter((x) => x !== f)
+                  )
+                }
+                className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+              />
+              {f}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <span className={labelClass}>Colors</span>
+        <div className="mt-2">
+          <RepeatingListField
+            value={values.colors}
+            onChange={(next) => set("colors", next)}
+            fields={[
+              { key: "hex", label: "Color", kind: "color" },
+              { key: "name", label: "Color name (e.g. Charcoal)", kind: "text" },
+            ]}
+            emptyItem={{ name: "", hex: "#2a2621" }}
+            addLabel="Add color"
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
   const router = useRouter();
   const isEdit = Boolean(initial?.id);
   const [values, setValues] = useState<ProductFormInitial>(initial ?? emptyProductForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A Hamper's personalisation is optional — default the toggle from
+  // whether this product already has text lines saved (only ever true for
+  // a HAMPER here, since CUSTOMISABLE always shows its own fields anyway).
+  const [hamperPersonalisable, setHamperPersonalisable] = useState(
+    Boolean(initial && initial.pdpType === "HAMPER" && initial.textLines.length > 0)
+  );
 
   function set<K extends keyof ProductFormInitial>(key: K, value: ProductFormInitial[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -286,9 +367,18 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
               )
             )
           : undefined,
-      textLines: values.pdpType === "CUSTOMISABLE" ? values.textLines : undefined,
-      fonts: values.pdpType === "CUSTOMISABLE" ? values.fonts : undefined,
-      colors: values.pdpType === "CUSTOMISABLE" ? values.colors : undefined,
+      textLines:
+        values.pdpType === "CUSTOMISABLE" || (values.pdpType === "HAMPER" && hamperPersonalisable)
+          ? values.textLines
+          : undefined,
+      fonts:
+        values.pdpType === "CUSTOMISABLE" || (values.pdpType === "HAMPER" && hamperPersonalisable)
+          ? values.fonts
+          : undefined,
+      colors:
+        values.pdpType === "CUSTOMISABLE" || (values.pdpType === "HAMPER" && hamperPersonalisable)
+          ? values.colors
+          : undefined,
       variantLabel: values.pdpType === "CUSTOMISABLE" ? values.variantLabel || undefined : undefined,
       variantOptions:
         values.pdpType === "CUSTOMISABLE" && values.variantOptions.length > 0
@@ -676,6 +766,19 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
               />
             </label>
           </div>
+
+          <label className="flex items-center gap-2.5 cursor-pointer border-t border-charcoal/10 pt-4">
+            <input
+              type="checkbox"
+              checked={hamperPersonalisable}
+              onChange={(e) => setHamperPersonalisable(e.target.checked)}
+              className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+            />
+            <span className="text-sm text-charcoal">
+              This hamper can be personalised (name/message/color)
+            </span>
+          </label>
+          {hamperPersonalisable && <PersonalisationFields values={values} set={set} />}
         </Section>
       )}
 
@@ -730,64 +833,7 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
 
       {values.pdpType === "CUSTOMISABLE" && (
         <Section title="Personalisation (Customisable)">
-          <div>
-            <span className={labelClass}>Text Lines</span>
-            <div className="mt-2">
-              <RepeatingListField
-                value={values.textLines}
-                onChange={(next) => set("textLines", next)}
-                fields={[
-                  { key: "label", label: "Label (e.g. Name)", kind: "text" },
-                  { key: "placeholder", label: "Placeholder text", kind: "text" },
-                  { key: "maxLength", label: "Max chars", kind: "number", min: 1 },
-                  { key: "required", label: "Required", kind: "checkbox" },
-                ]}
-                emptyItem={{ label: "", required: false, maxLength: 30, placeholder: "" }}
-                addLabel="Add text line"
-              />
-            </div>
-          </div>
-
-          <div>
-            <span className={labelClass}>Font Styles</span>
-            <p className="mt-1 text-[11px] text-ink-muted">
-              Only these three are supported by the PDP&rsquo;s preview.
-            </p>
-            <div className="mt-2 flex gap-4">
-              {customisableFonts.map((f) => (
-                <label key={f} className="flex items-center gap-1.5 text-sm text-charcoal cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={values.fonts.includes(f)}
-                    onChange={(e) =>
-                      set(
-                        "fonts",
-                        e.target.checked ? [...values.fonts, f] : values.fonts.filter((x) => x !== f)
-                      )
-                    }
-                    className="h-4 w-4 rounded border-charcoal/25 accent-olive"
-                  />
-                  {f}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <span className={labelClass}>Colors</span>
-            <div className="mt-2">
-              <RepeatingListField
-                value={values.colors}
-                onChange={(next) => set("colors", next)}
-                fields={[
-                  { key: "hex", label: "Color", kind: "color" },
-                  { key: "name", label: "Color name (e.g. Charcoal)", kind: "text" },
-                ]}
-                emptyItem={{ name: "", hex: "#2a2621" }}
-                addLabel="Add color"
-              />
-            </div>
-          </div>
+          <PersonalisationFields values={values} set={set} />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">

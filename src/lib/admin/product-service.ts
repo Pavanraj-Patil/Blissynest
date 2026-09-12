@@ -52,6 +52,24 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
           })),
           personalNoteLabel: input.personalNoteLabel || null,
           personalNotePrice: toPaise(input.personalNotePrice) ?? null,
+          // Optional personalisation (name/message/color) on an otherwise
+          // fixed hamper — reuses the same JSON shape CUSTOMISABLE writes
+          // below, scoped to text/font/color only. Written as an explicit
+          // null (not omitted) when there are no text lines, so turning
+          // this off on an edit actually clears any previously saved
+          // schema rather than leaving it stale — buildData() is called on
+          // every update, and whatever it returns is persisted verbatim.
+          customizationSchema:
+            (input.textLines ?? []).length > 0
+              ? {
+                  textLines: input.textLines ?? [],
+                  fonts: input.fonts ?? [],
+                  colors: input.colors ?? [],
+                  variantLabel: null,
+                  variantOptions: null,
+                  specs: null,
+                }
+              : Prisma.DbNull,
         }
       : {}),
     ...(input.pdpType === "STANDALONE"

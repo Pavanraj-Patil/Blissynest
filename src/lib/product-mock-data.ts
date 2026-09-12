@@ -53,6 +53,13 @@ export type HamperProduct = BaseProduct & {
   pdpType: "hamper";
   whatsInside: { icon: string; name: string; subtitle: string; qty: string }[];
   personalNote?: { label: string; price: number };
+  // Optional personalisation, reusing CustomisableProduct's shape for these
+  // three fields only (no variant/spec pickers — a hamper's contents stay
+  // fixed; only a name/message/color can be personalised). Present only
+  // when the admin has configured at least one text line.
+  textLines?: CustomisableProduct["textLines"];
+  fonts?: CustomisableProduct["fonts"];
+  colors?: CustomisableProduct["colors"];
 };
 
 export type CustomisableProduct = BaseProduct & {

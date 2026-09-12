@@ -719,6 +719,11 @@ export const contentSchema: Record<string, PageSchema> = {
           label: "Luxury Edit — Banner",
           default: collectionContent.luxury.bannerImage,
         },
+        hampersBanner: {
+          type: "IMAGE",
+          label: "Gift Hampers — Banner",
+          default: collectionContent.hampers.bannerImage,
+        },
       },
     },
     "category-pills": {
@@ -735,6 +740,7 @@ export const contentSchema: Record<string, PageSchema> = {
         "luxury-edit": { type: "IMAGE", label: "Luxury Edit", default: "" },
         "home-living": { type: "IMAGE", label: "Home & Living", default: "" },
         jewellery: { type: "IMAGE", label: "Jewellery", default: "" },
+        hamper: { type: "IMAGE", label: "Hampers", default: "" },
       },
     },
     topbar: {
