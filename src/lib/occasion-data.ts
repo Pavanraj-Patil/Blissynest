@@ -1,10 +1,8 @@
 import {
   Cake,
   Heart,
-  Gem,
   Home,
   Mail,
-  Sparkles,
   Flame,
   User,
   HeartHandshake,
@@ -14,22 +12,12 @@ import {
 import { categoryIcons, type AudienceSlug } from "@/lib/shop-mock-data";
 import { slugify } from "@/lib/slugify";
 
-export type OccasionSlug =
-  | "birthday"
-  | "anniversary"
-  | "wedding"
-  | "housewarming"
-  | "thank-you"
-  | "just-because"
-  | "festivals";
+export type OccasionSlug = "birthday" | "anniversary" | "thank-you" | "festivals";
 
 export const occasionSlugs: OccasionSlug[] = [
   "birthday",
   "anniversary",
-  "wedding",
-  "housewarming",
   "thank-you",
-  "just-because",
   "festivals",
 ];
 
@@ -58,34 +46,12 @@ export const occasionContent: Record<OccasionSlug, OccasionContent> = {
     breadcrumbLabel: "Anniversary Gifts",
     icon: Heart,
   },
-  wedding: {
-    label: "Wedding",
-    title: "Wedding Gifts",
-    subtitle: "Timeless gifts to celebrate the beginning of their forever.",
-    breadcrumbLabel: "Wedding Gifts",
-    icon: Gem,
-  },
-  housewarming: {
-    label: "Housewarming",
-    title: "Housewarming Gifts",
-    subtitle:
-      "Thoughtful gifts to welcome them home and make it feel like theirs.",
-    breadcrumbLabel: "Housewarming Gifts",
-    icon: Home,
-  },
   "thank-you": {
     label: "Thank You",
     title: "Thank You Gifts",
     subtitle: "Heartfelt gifts to say thank you, beautifully.",
     breadcrumbLabel: "Thank You Gifts",
     icon: Mail,
-  },
-  "just-because": {
-    label: "Just Because",
-    title: "Just Because Gifts",
-    subtitle: "No reason needed — thoughtful gifts for absolutely any moment.",
-    breadcrumbLabel: "Just Because Gifts",
-    icon: Sparkles,
   },
   festivals: {
     label: "Festivals",
@@ -165,31 +131,11 @@ export const occasionPills: Record<OccasionSlug, OccasionPillFilter[]> = {
     { type: "category", value: "luxury-edit", label: "Luxury Edit" },
     { type: "category", value: "add-ons", label: "Add-ons" },
   ],
-  wedding: [
-    { type: "audience", value: "couples", label: "For Couples" },
-    { type: "audience", value: "her", label: "For Her" },
-    { type: "audience", value: "him", label: "For Him" },
-    { type: "category", value: "luxury-edit", label: "Luxury Edit" },
-    { type: "category", value: "add-ons", label: "Add-ons" },
-  ],
-  housewarming: [
-    { type: "category", value: "home-living", label: "Home & Living" },
-    { type: "category", value: "self-care", label: "Self Care" },
-    { type: "category", value: "personalised", label: "Personalised" },
-    { type: "audience", value: "couples", label: "For Couples" },
-    { type: "category", value: "add-ons", label: "Add-ons" },
-  ],
   "thank-you": [
     { type: "audience", value: "her", label: "For Her" },
     { type: "audience", value: "him", label: "For Him" },
     { type: "category", value: "personalised", label: "Personalised" },
     { type: "category", value: "add-ons", label: "Add-ons" },
-  ],
-  "just-because": [
-    { type: "audience", value: "her", label: "For Her" },
-    { type: "audience", value: "him", label: "For Him" },
-    { type: "audience", value: "parents", label: "For Parents" },
-    { type: "audience", value: "couples", label: "For Couples" },
   ],
   festivals: [
     { type: "audience", value: "parents", label: "For Parents" },

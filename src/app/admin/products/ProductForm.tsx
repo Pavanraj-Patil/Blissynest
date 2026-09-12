@@ -233,9 +233,9 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
   }
 
   // Category's valid vocabulary depends on Collection Slug first, then
-  // Audience: a product placed in one of the 5 curated Edits picks from
-  // that collection's own category set (e.g. "cozy" -> candles/bath-body/
-  // wellness/...) — see collection-mock-data.ts. Otherwise, if one or more
+  // Audience: a product placed in one of the curated Edits picks from
+  // that collection's own category set (e.g. "minimalist" -> home-decor/
+  // stationery/...) — see collection-mock-data.ts. Otherwise, if one or more
   // Audiences are checked, it's the union of those audiences' own quick-
   // filter categories (see categoriesByAudience in shop-mock-data.ts,
   // same union pattern as recipientOptions below). With neither set, it
@@ -265,8 +265,8 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
   }, [values.collectionSlug, values.audience]);
 
   // Attribute only has a fixed vocabulary once a Collection Slug is set —
-  // each collection defines its own filter facet (e.g. self-care's "Scent":
-  // Lavender/Vanilla/...). With no collection, Attribute has no effect on
+  // each collection defines its own filter facet (e.g. minimalist's "Material":
+  // Ceramic/Brass/...). With no collection, Attribute has no effect on
   // the storefront at all (see ProductForm's Attribute label), so it stays
   // free text.
   const attributeFilter = isCollectionSlug(values.collectionSlug)

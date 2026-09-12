@@ -8,8 +8,6 @@ import { getPageContent } from "@/lib/content-service";
 import { CollectionPageClient } from "./CollectionPageClient";
 
 const bannerFieldBySlug: Record<CollectionSlug, string> = {
-  "self-care": "selfCareBanner",
-  cozy: "cozyBanner",
   minimalist: "minimalistBanner",
   celebration: "celebrationBanner",
   luxury: "luxuryBanner",

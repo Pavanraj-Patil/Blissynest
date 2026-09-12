@@ -7,7 +7,7 @@ import { CategoryPillRow } from "@/components/shop/CategoryPillRow";
 import { FilterSidebar } from "@/components/shop/FilterSidebar";
 import { MobileFilterDrawer } from "@/components/shop/MobileFilterDrawer";
 import { ShopToolbar, type SortOption } from "@/components/shop/ShopToolbar";
-import { Pagination } from "@/components/shop/Pagination";
+import { LoadMoreButton } from "@/components/shop/LoadMoreButton";
 import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
@@ -56,7 +56,7 @@ export function OccasionPageClient({
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("best-selling");
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const filterPills = useMemo(
@@ -117,12 +117,8 @@ export function OccasionPageClient({
     }
   }, [filteredProducts, sort]);
 
-  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const pageProducts = sortedProducts.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE
-  );
+  const pageProducts = sortedProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < sortedProducts.length;
 
   const activeFilterCount =
     (selectedPillKey ? 1 : 0) +
@@ -130,19 +126,19 @@ export function OccasionPageClient({
     (priceMin > PRICE_BOUNDS.min || priceMax < PRICE_BOUNDS.max ? 1 : 0);
 
   function togglePill(key: string | null) {
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
     setSelectedPillKey((prev) => (key === null || prev === key ? null : key));
   }
 
   function toggleRecipient(label: string) {
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
     setSelectedRecipients((prev) =>
       prev.includes(label) ? prev.filter((r) => r !== label) : [...prev, label]
     );
   }
 
   function handlePriceChange(min: number, max: number) {
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
     setPriceMin(min);
     setPriceMax(max);
   }
@@ -152,7 +148,7 @@ export function OccasionPageClient({
     setPriceMin(PRICE_BOUNDS.min);
     setPriceMax(PRICE_BOUNDS.max);
     setSelectedRecipients([]);
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
   }
 
   const sidebarProps = {
@@ -194,7 +190,7 @@ export function OccasionPageClient({
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10">
-            <aside className="hidden lg:block">
+            <aside className="hidden lg:block lg:sticky lg:top-24 xl:top-28 lg:self-start">
               <FilterSidebar {...sidebarProps} />
             </aside>
 
@@ -204,7 +200,7 @@ export function OccasionPageClient({
                 sort={sort}
                 onSortChange={(s) => {
                   setSort(s);
-                  setCurrentPage(1);
+                  setVisibleCount(ITEMS_PER_PAGE);
                 }}
                 view={view}
                 onViewChange={setView}
@@ -243,10 +239,11 @@ export function OccasionPageClient({
               )}
 
               <div className="pt-4">
-                <Pagination
-                  currentPage={safePage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
+                <LoadMoreButton
+                  onClick={() => setVisibleCount((v) => v + ITEMS_PER_PAGE)}
+                  hasMore={hasMore}
+                  shownCount={pageProducts.length}
+                  totalCount={sortedProducts.length}
                 />
               </div>
             </div>

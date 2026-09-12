@@ -3,17 +3,9 @@ const ph = (w: number, h: number, bg: string, fg: string, text: string) =>
     text
   )}&font=playfair-display`;
 
-export type CollectionSlug =
-  | "self-care"
-  | "cozy"
-  | "minimalist"
-  | "celebration"
-  | "luxury"
-  | "hampers";
+export type CollectionSlug = "minimalist" | "celebration" | "luxury" | "hampers";
 
 export const collectionSlugs: CollectionSlug[] = [
-  "self-care",
-  "cozy",
   "minimalist",
   "celebration",
   "luxury",
@@ -63,113 +55,6 @@ type CollectionDefinition = {
 };
 
 const definitions: CollectionDefinition[] = [
-  {
-    slug: "self-care",
-    title: "The Self-Care Edit",
-    subtitle: "For slow days & softer moments.",
-    breadcrumbLabel: "The Self-Care Edit",
-    bannerImageLabel: "Candle & Linen",
-    bg: "e6d2c2",
-    fg: "2a2621",
-    categories: [
-      { slug: "candles", label: "Candles" },
-      { slug: "bath-body", label: "Bath & Body" },
-      { slug: "wellness", label: "Wellness" },
-      { slug: "home-fragrance", label: "Home Fragrance" },
-    ],
-    attributeFilter: {
-      label: "Scent",
-      values: ["Lavender", "Vanilla", "Sandalwood", "Rose", "Citrus"],
-    },
-    occasionTagsPool: ["Self Care", "Just Because", "Thank You"],
-    priceBounds: { min: 0, max: 2500, step: 50 },
-    seedsByCategory: {
-      candles: [
-        { name: "Calm Lavender Soy Candle", price: 899, attribute: "Lavender", badge: "Bestseller" },
-        { name: "Vanilla Bean Candle", price: 799, attribute: "Vanilla" },
-        { name: "Sandalwood Musk Candle", price: 949, attribute: "Sandalwood" },
-        { name: "Rose Petal Soy Candle", price: 849, attribute: "Rose" },
-        { name: "Citrus Grove Candle", price: 799, attribute: "Citrus" },
-        { name: "Triple Wick Serenity Candle", price: 1499, attribute: "Lavender" },
-      ],
-      "bath-body": [
-        { name: "Relaxing Body Wash", price: 799, attribute: "Lavender" },
-        { name: "Exfoliating Body Scrub", price: 699, attribute: "Citrus" },
-        { name: "Detox Bath Soak", price: 749, attribute: "Sandalwood" },
-        { name: "Whipped Shea Body Butter", price: 899, attribute: "Vanilla" },
-        { name: "Rose Milk Bath Bombs", price: 649, attribute: "Rose", badge: "New" },
-        { name: "Hand & Foot Cream Duo", price: 749, attribute: "Lavender" },
-      ],
-      wellness: [
-        { name: "Self Care Gift Set", price: 1999, badge: "Bestseller" },
-        { name: "Silk Eye Mask", price: 599 },
-        { name: "Pulse Point Roll On", price: 499, attribute: "Lavender" },
-        { name: "Weighted Comfort Eye Pillow", price: 899, attribute: "Lavender" },
-        { name: "Herbal Wellness Tea Set", price: 1099 },
-        { name: "Aromatherapy Diffuser Necklace", price: 799 },
-        { name: "Restorative Sleep Balm", price: 549, attribute: "Lavender" },
-      ],
-      "home-fragrance": [
-        { name: "Lavender Reed Diffuser", price: 1299, attribute: "Lavender", badge: "New" },
-        { name: "Sandalwood Room Mist", price: 699, attribute: "Sandalwood" },
-        { name: "Citrus Bloom Diffuser", price: 1199, attribute: "Citrus" },
-        { name: "Rose Linen Spray", price: 649, attribute: "Rose" },
-        { name: "Vanilla Amber Diffuser", price: 1099, attribute: "Vanilla" },
-        { name: "Fresh Linen Room Spray", price: 599 },
-      ],
-    },
-  },
-  {
-    slug: "cozy",
-    title: "The Cozy Edit",
-    subtitle: "Warmth in every detail.",
-    breadcrumbLabel: "The Cozy Edit",
-    bannerImageLabel: "Blanket & Mug",
-    bg: "d6c4a8",
-    fg: "2a2621",
-    categories: [
-      { slug: "blankets-throws", label: "Blankets & Throws" },
-      { slug: "mugs-drinkware", label: "Mugs & Drinkware" },
-      { slug: "candles", label: "Candles" },
-      { slug: "loungewear", label: "Loungewear" },
-    ],
-    attributeFilter: {
-      label: "Material",
-      values: ["Knit", "Faux Fur", "Wool", "Cotton", "Ceramic"],
-    },
-    occasionTagsPool: ["Housewarming", "Just Because", "Thank You"],
-    priceBounds: { min: 0, max: 3500, step: 50 },
-    seedsByCategory: {
-      "blankets-throws": [
-        { name: "Chunky Knit Throw Blanket", price: 1899, attribute: "Knit", badge: "Bestseller" },
-        { name: "Faux Fur Lap Blanket", price: 1599, attribute: "Faux Fur" },
-        { name: "Sherpa Fleece Throw", price: 1399, attribute: "Wool" },
-        { name: "Waffle Cotton Throw", price: 1199, attribute: "Cotton" },
-        { name: "Heated Weighted Blanket", price: 2999, attribute: "Wool", badge: "New" },
-      ],
-      "mugs-drinkware": [
-        { name: "Stoneware Hug Mug", price: 499, attribute: "Ceramic" },
-        { name: "Hot Cocoa Mug Set", price: 799, attribute: "Ceramic" },
-        { name: "Insulated Travel Tumbler", price: 899 },
-        { name: "Ceramic Soup Bowl Set", price: 999, attribute: "Ceramic" },
-        { name: "Cinnamon Spice Tea Set", price: 1299, attribute: "Ceramic" },
-        { name: "Marshmallow Cocoa Kit", price: 649 },
-      ],
-      candles: [
-        { name: "Fireside Amber Candle", price: 849, badge: "Bestseller" },
-        { name: "Spiced Cider Candle", price: 799 },
-        { name: "Woodwick Cabin Candle", price: 999 },
-        { name: "Cinnamon Clove Candle", price: 749 },
-      ],
-      loungewear: [
-        { name: "Cable Knit Socks Set", price: 599, attribute: "Knit" },
-        { name: "Fleece-Lined Robe", price: 1999, attribute: "Wool", badge: "New" },
-        { name: "Cotton Flannel Pyjama Set", price: 1699, attribute: "Cotton" },
-        { name: "Cozy Slipper Boots", price: 899, attribute: "Faux Fur" },
-        { name: "Knit Beanie & Scarf Set", price: 899, attribute: "Knit" },
-      ],
-    },
-  },
   {
     slug: "minimalist",
     title: "The Minimalist Edit",

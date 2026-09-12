@@ -42,10 +42,7 @@ export const audienceCategories = [
 export const occasions = [
   { label: "Birthday", bg: "f0ddce", fg: "a85830" },
   { label: "Anniversary", bg: "e9d6d0", fg: "a85830" },
-  { label: "Wedding", bg: "dfe1cf", fg: "4a5738" },
-  { label: "Housewarming", bg: "cfd0b4", fg: "3a4529" },
   { label: "Thank You", bg: "e7c9b9", fg: "a85830" },
-  { label: "Just Because", bg: "e2dccb", fg: "4a5738" },
   { label: "Festivals", bg: "6b4a2a", fg: "f0e8da" },
 ].map((o) => ({
   ...o,
@@ -54,20 +51,6 @@ export const occasions = [
 }));
 
 export const editCollections = [
-  {
-    slug: "self-care",
-    title: "The Self-Care Edit",
-    subtitle: "Take care, always",
-    bg: "e6d2c2",
-    fg: "2a2621",
-  },
-  {
-    slug: "cozy",
-    title: "The Cozy Edit",
-    subtitle: "Warmth in every detail",
-    bg: "d6c4a8",
-    fg: "2a2621",
-  },
   {
     slug: "minimalist",
     title: "The Minimalist Edit",

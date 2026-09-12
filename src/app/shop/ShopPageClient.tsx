@@ -8,7 +8,7 @@ import { CategoryPillRow } from "@/components/shop/CategoryPillRow";
 import { FilterSidebar } from "@/components/shop/FilterSidebar";
 import { MobileFilterDrawer } from "@/components/shop/MobileFilterDrawer";
 import { ShopToolbar, type SortOption } from "@/components/shop/ShopToolbar";
-import { Pagination } from "@/components/shop/Pagination";
+import { LoadMoreButton } from "@/components/shop/LoadMoreButton";
 import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
@@ -52,17 +52,18 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("best-selling");
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const occasionCounts = useMemo(
-    () =>
-      shopOccasions.map((label) => ({
-        label,
-        count: allShopProducts.filter((p) => p.occasions.includes(label)).length,
-      })),
-    [allShopProducts]
-  );
+  const occasionCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    allShopProducts.forEach((p) => {
+      p.occasions.forEach((o) => counts.set(o, (counts.get(o) ?? 0) + 1));
+    });
+    return Array.from(counts.entries())
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [allShopProducts]);
 
   const recipientCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -113,12 +114,8 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
     }
   }, [filteredProducts, sort]);
 
-  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const pageProducts = sortedProducts.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE
-  );
+  const pageProducts = sortedProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < sortedProducts.length;
 
   // Category is chosen via the always-visible pill row, not the Filters
   // drawer/sidebar (no Category section lives there) — counting it here
@@ -130,7 +127,7 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
     (priceMin > PRICE_BOUNDS.min || priceMax < PRICE_BOUNDS.max ? 1 : 0);
 
   function toggleCategory(slug: string) {
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
     // CategoryPillRow is a single-select control (one active pill at a
     // time) — replace the selection rather than toggling it into a list,
     // so picking a new category doesn't leave a previous one silently
@@ -144,21 +141,21 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
   }
 
   function toggleOccasion(label: string) {
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
     setSelectedOccasions((prev) =>
       prev.includes(label) ? prev.filter((o) => o !== label) : [...prev, label]
     );
   }
 
   function toggleRecipient(label: string) {
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
     setSelectedRecipients((prev) =>
       prev.includes(label) ? prev.filter((r) => r !== label) : [...prev, label]
     );
   }
 
   function handlePriceChange(min: number, max: number) {
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
     setPriceMin(min);
     setPriceMax(max);
   }
@@ -169,7 +166,7 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
     setPriceMax(PRICE_BOUNDS.max);
     setSelectedOccasions([]);
     setSelectedRecipients([]);
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
   }
 
   const sidebarProps = {
@@ -208,7 +205,7 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10">
-            <aside className="hidden lg:block">
+            <aside className="hidden lg:block lg:sticky lg:top-24 xl:top-28 lg:self-start">
               <FilterSidebar {...sidebarProps} />
             </aside>
 
@@ -218,7 +215,7 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
                 sort={sort}
                 onSortChange={(s) => {
                   setSort(s);
-                  setCurrentPage(1);
+                  setVisibleCount(ITEMS_PER_PAGE);
                 }}
                 view={view}
                 onViewChange={setView}
@@ -257,10 +254,11 @@ function ShopPageContent({ initialProducts }: { initialProducts: ListProduct[] }
               )}
 
               <div className="pt-4">
-                <Pagination
-                  currentPage={safePage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
+                <LoadMoreButton
+                  onClick={() => setVisibleCount((v) => v + ITEMS_PER_PAGE)}
+                  hasMore={hasMore}
+                  shownCount={pageProducts.length}
+                  totalCount={sortedProducts.length}
                 />
               </div>
             </div>
