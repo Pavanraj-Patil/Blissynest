@@ -114,10 +114,6 @@ export function toProductDetail(p: Product): ProductDetail {
       ...base,
       pdpType: "hamper",
       whatsInside: (p.whatsInside as { icon: string; name: string; subtitle: string; qty: string }[]) ?? [],
-      personalNote:
-        p.personalNoteLabel && p.personalNotePrice != null
-          ? { label: p.personalNoteLabel, price: toRupees(p.personalNotePrice) }
-          : undefined,
       ...(cs && { textLines: cs.textLines, fonts: cs.fonts, colors: cs.colors }),
     };
   }

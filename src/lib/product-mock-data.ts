@@ -52,7 +52,6 @@ type BaseProduct = {
 export type HamperProduct = BaseProduct & {
   pdpType: "hamper";
   whatsInside: { icon: string; name: string; subtitle: string; qty: string }[];
-  personalNote?: { label: string; price: number };
   // Optional personalisation, reusing CustomisableProduct's shape for these
   // three fields only (no variant/spec pickers — a hamper's contents stay
   // fixed; only a name/message/color can be personalised). Present only
@@ -153,7 +152,6 @@ export const flagshipProducts: ProductDetail[] = [
         qty: "1x",
       },
     ],
-    personalNote: { label: "Add a handwritten note", price: 199 },
     productDetails: {
       description:
         "A thoughtfully curated box of self-care essentials, perfect for celebrating another trip around the sun. Every item is chosen to help them slow down and feel cared for.",

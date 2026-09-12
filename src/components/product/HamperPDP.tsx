@@ -44,7 +44,6 @@ export function HamperPDP({
   const router = useRouter();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [addNote, setAddNote] = useState(false);
   const [added, setAdded] = useState(false);
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [textValues, setTextValues] = useState<string[]>(
@@ -53,9 +52,7 @@ export function HamperPDP({
   const [font, setFont] = useState(product.fonts?.[0]);
   const [color, setColor] = useState(product.colors?.[0]?.hex);
 
-  const unitPrice =
-    product.price + (addNote && product.personalNote ? product.personalNote.price : 0);
-  const total = unitPrice * quantity;
+  const unitPrice = product.price;
 
   // Only present when this hamper has personalisation configured — matches
   // the shape CustomisablePDP.tsx already builds and sends through cart/
@@ -148,13 +145,6 @@ export function HamperPDP({
               <FeatureIconRow items={product.benefits} />
             </div>
 
-            <div className="mt-7">
-              <h2 className="text-sm font-semibold text-charcoal mb-3">
-                What&rsquo;s Inside
-              </h2>
-              <WhatsInsideList items={product.whatsInside} />
-            </div>
-
             {product.textLines && product.textLines.length > 0 && (
               <div className="mt-7 border-t border-charcoal/10 pt-5">
                 <h2 className="text-sm font-semibold text-charcoal mb-1">
@@ -245,41 +235,16 @@ export function HamperPDP({
               </div>
             )}
 
-            {product.personalNote && (
-              <div className="mt-6 border-t border-charcoal/10 pt-5">
-                <h3 className="text-sm font-semibold text-charcoal mb-2.5">
-                  Add a Personal Touch
-                </h3>
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={addNote}
-                    onChange={(e) => setAddNote(e.target.checked)}
-                    className="h-4 w-4 rounded border-charcoal/25 accent-olive"
-                  />
-                  <span className="text-sm text-charcoal-light">
-                    {product.personalNote.label}
-                  </span>
-                  <span className="text-sm text-charcoal-light ml-auto">
-                    +₹{product.personalNote.price}
-                  </span>
-                </label>
-              </div>
-            )}
-
-            <div className="mt-6 flex items-center gap-4">
+            <div className="mt-6">
               <QuantityStepper value={quantity} onChange={setQuantity} />
-              <p className="text-sm text-ink-muted">
-                Total:{" "}
-                <span className="font-semibold text-charcoal">
-                  ₹{total.toLocaleString("en-IN")}
-                </span>
-              </p>
             </div>
 
             <div className="mt-6">
               <AccordionItem title="Product Details" defaultOpen>
                 <p>{product.productDetails.description}</p>
+              </AccordionItem>
+              <AccordionItem title="What's Inside">
+                <WhatsInsideList items={product.whatsInside} />
               </AccordionItem>
               <AccordionItem title="Delivery & Returns">
                 <p>{product.productDetails.delivery}</p>

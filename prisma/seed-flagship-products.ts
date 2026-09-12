@@ -43,8 +43,8 @@ function toRow(p: (typeof source)[number]) {
         ...base,
         pdpType: "HAMPER" as const,
         whatsInside: p.whatsInside,
-        personalNoteLabel: p.personalNote?.label ?? null,
-        personalNotePrice: p.personalNote ? p.personalNote.price * 100 : null,
+        personalNoteLabel: null,
+        personalNotePrice: null,
       };
     case "customisable":
       return {

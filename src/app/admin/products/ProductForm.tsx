@@ -745,28 +745,6 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
             addLabel="Add item"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="block">
-              <span className={labelClass}>Personal Note Label (optional)</span>
-              <input
-                value={values.personalNoteLabel}
-                onChange={(e) => set("personalNoteLabel", e.target.value)}
-                placeholder="Add a handwritten note"
-                className={inputClass}
-              />
-            </label>
-            <label className="block">
-              <span className={labelClass}>Personal Note Price (₹, optional)</span>
-              <input
-                type="number"
-                min={0}
-                value={values.personalNotePrice}
-                onChange={(e) => set("personalNotePrice", e.target.value === "" ? "" : Number(e.target.value))}
-                className={inputClass}
-              />
-            </label>
-          </div>
-
           <label className="flex items-center gap-2.5 cursor-pointer border-t border-charcoal/10 pt-4">
             <input
               type="checkbox"
