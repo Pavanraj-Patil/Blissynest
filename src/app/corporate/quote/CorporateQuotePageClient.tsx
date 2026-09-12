@@ -277,11 +277,11 @@ function QuoteForm() {
                 </h2>
                 <div className="mt-4 space-y-3">
                   <a
-                    href="mailto:corporate@blissynest.com"
+                    href="mailto:enquiry@blissynest.com"
                     className="flex items-center gap-2.5 text-sm text-ink-muted hover:text-terracotta-dark transition-colors"
                   >
                     <Mail size={16} />
-                    corporate@blissynest.com
+                    enquiry@blissynest.com
                   </a>
                   <a
                     href="tel:+911800123456"

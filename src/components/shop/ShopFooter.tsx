@@ -67,7 +67,7 @@ const columns = [
 ];
 
 const socials = [
-  { icon: InstagramIcon, label: "Instagram", href: "#" },
+  { icon: InstagramIcon, label: "Instagram", href: "https://www.instagram.com/blissynest_bn/" },
   { icon: FacebookIcon, label: "Facebook", href: "#" },
   { icon: PinterestIcon, label: "Pinterest", href: "#" },
   { icon: YoutubeIcon, label: "YouTube", href: "#" },

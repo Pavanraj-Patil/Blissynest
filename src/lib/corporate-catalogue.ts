@@ -103,7 +103,7 @@ export function generateCatalogueHtml(needSlug: string): string {
 
     <div class="footer">
       <p>Have questions or ready to place a bulk order?</p>
-      <p>Email: corporate@blissynest.com &nbsp;|&nbsp; Phone: 1800-123-456</p>
+      <p>Email: enquiry@blissynest.com &nbsp;|&nbsp; Phone: 1800-123-456</p>
     </div>
   </div>
 </body>

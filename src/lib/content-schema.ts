@@ -10,7 +10,6 @@ import {
   heroImage,
   heroImageMobile,
 } from "@/lib/mock-data";
-import { curatedCollections } from "@/lib/corporate-data";
 import { collectionContent } from "@/lib/collection-mock-data";
 import { contentIconOptions } from "@/lib/content-icons";
 
@@ -380,7 +379,7 @@ export const contentSchema: Record<string, PageSchema> = {
           ],
           emptyItem: { icon: contentIconOptions[0], label: "", value: "" },
           default: [
-            { icon: "Mail", label: "Email", value: "hello@blissynest.com" },
+            { icon: "Mail", label: "Email", value: "enquiry@blissynest.com" },
             { icon: "Phone", label: "Phone", value: "1800-123-456" },
             { icon: "MapPin", label: "Studio", value: "Koregaon Park, Pune, Maharashtra" },
           ],
@@ -555,7 +554,6 @@ export const contentSchema: Record<string, PageSchema> = {
             { text: "Dedicated account manager & end-to-end support" },
           ],
         },
-        cta: { type: "LINK", label: "CTA", default: { label: "Know More", href: "/corporate/quote" } },
         image: { type: "IMAGE", label: "Image", default: "https://placehold.co/700x560/3a4529/cfb587.png?text=Your+Brand&font=playfair-display" },
       },
     },
@@ -606,54 +604,6 @@ export const contentSchema: Record<string, PageSchema> = {
         },
       },
     },
-    "curated-collections": {
-      title: "Curated Collections",
-      fields: {
-        eyebrow: { type: "TEXT", label: "Eyebrow", default: "Ready-Made Sets" },
-        heading: { type: "TEXT", label: "Heading", default: "Curated collections for every occasion" },
-        // Fixed-position (not a LIST): slugs are referenced by
-        // needToCollectionSlugs in corporate-data.ts for the downloadable
-        // catalogue feature, and the final "Create Your Own" tile is a
-        // special CTA card, not real content — neither is safe to
-        // freely add/remove/reorder.
-        collectionWelcomeKitsTitle: { type: "TEXT", label: "Welcome Kits — Title", default: "New Employee Welcome Kits" },
-        collectionWelcomeKitsImage: {
-          type: "IMAGE",
-          label: "Welcome Kits — Image",
-          default: curatedCollections.find((c) => c.slug === "welcome-kits")!.image,
-        },
-        collectionDiwaliTitle: { type: "TEXT", label: "Diwali Gifts — Title", default: "Diwali Gifts" },
-        collectionDiwaliImage: {
-          type: "IMAGE",
-          label: "Diwali Gifts — Image",
-          default: curatedCollections.find((c) => c.slug === "diwali")!.image,
-        },
-        collectionWorkAnniversaryTitle: { type: "TEXT", label: "Work Anniversary — Title", default: "Work Anniversary" },
-        collectionWorkAnniversaryImage: {
-          type: "IMAGE",
-          label: "Work Anniversary — Image",
-          default: curatedCollections.find((c) => c.slug === "work-anniversary")!.image,
-        },
-        collectionWomensDayTitle: { type: "TEXT", label: "Women's Day — Title", default: "Women's Day Gifts" },
-        collectionWomensDayImage: {
-          type: "IMAGE",
-          label: "Women's Day — Image",
-          default: curatedCollections.find((c) => c.slug === "womens-day")!.image,
-        },
-        collectionHolidayTitle: { type: "TEXT", label: "Holiday — Title", default: "Holiday Gifts" },
-        collectionHolidayImage: {
-          type: "IMAGE",
-          label: "Holiday — Image",
-          default: curatedCollections.find((c) => c.slug === "holiday")!.image,
-        },
-        collectionClientAppreciationTitle: { type: "TEXT", label: "Client Appreciation — Title", default: "Client Appreciation" },
-        collectionClientAppreciationImage: {
-          type: "IMAGE",
-          label: "Client Appreciation — Image",
-          default: curatedCollections.find((c) => c.slug === "client-appreciation")!.image,
-        },
-      },
-    },
     "final-cta": {
       title: "Final CTA",
       fields: {
@@ -664,7 +614,7 @@ export const contentSchema: Record<string, PageSchema> = {
           default: "Share your requirements and our gifting expert will get back to you within one business day.",
         },
         cta: { type: "LINK", label: "Button", default: { label: "Request a Quote", href: "/corporate/quote" } },
-        email: { type: "TEXT", label: "Email", default: "corporate@blissynest.com" },
+        email: { type: "TEXT", label: "Email", default: "enquiry@blissynest.com" },
         phone: { type: "TEXT", label: "Phone", default: "1800-123-456" },
       },
     },
@@ -760,7 +710,11 @@ export const contentSchema: Record<string, PageSchema> = {
           label: "Newsletter Subcopy",
           default: "Gift ideas, new launches and feel-good stories — straight to your inbox.",
         },
-        instagramUrl: { type: "TEXT", label: "Instagram URL", default: "#" },
+        instagramUrl: {
+          type: "TEXT",
+          label: "Instagram URL",
+          default: "https://www.instagram.com/blissynest_bn/",
+        },
         facebookUrl: { type: "TEXT", label: "Facebook URL", default: "#" },
         pinterestUrl: { type: "TEXT", label: "Pinterest URL", default: "#" },
         youtubeUrl: { type: "TEXT", label: "YouTube URL", default: "#" },

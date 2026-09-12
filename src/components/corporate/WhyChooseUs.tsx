@@ -1,8 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { TestimonialCarousel } from "./TestimonialCarousel";
-import type { LinkValue } from "@/lib/content-schema";
 
 type ChecklistItem = { text: string };
 type Testimonial = { quote: string; name: string; title: string; company: string };
@@ -16,7 +14,6 @@ export function WhyChooseUs({
 }) {
   const heading = content.heading as string;
   const checklist = content.checklist as ChecklistItem[];
-  const cta = content.cta as LinkValue;
   const image = content.image as string;
   const items = testimonials.items as Testimonial[];
 
@@ -29,7 +26,7 @@ export function WhyChooseUs({
               <h2 className="font-serif text-2xl md:text-[1.75rem] leading-tight">
                 {heading}
               </h2>
-              <ul className="mt-6 space-y-3">
+              <ul className="mt-7 space-y-4">
                 {checklist.map((item) => (
                   <li key={item.text} className="flex items-start gap-2.5 text-sm text-cream/85">
                     <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-gold-light" />
@@ -37,13 +34,6 @@ export function WhyChooseUs({
                   </li>
                 ))}
               </ul>
-              <Link
-                href={cta.href}
-                className="mt-7 inline-flex items-center justify-center gap-2 rounded-full border border-cream/60 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-cream transition-colors duration-200 hover:bg-cream hover:text-olive-dark"
-              >
-                {cta.label}
-                <ArrowRight size={14} />
-              </Link>
             </div>
 
             <div className="relative aspect-square w-full max-w-xs mx-auto overflow-hidden rounded-2xl">
