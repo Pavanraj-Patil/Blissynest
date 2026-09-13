@@ -111,7 +111,7 @@ export function StandalonePDP({
             </div>
           </div>
 
-          <div className="min-w-0">
+          <div className="min-w-0 md:flex md:flex-col">
             <div className="flex items-start justify-between gap-3">
               <h1 className="font-serif text-2xl sm:text-3xl text-charcoal">
                 {product.name}
@@ -196,7 +196,7 @@ export function StandalonePDP({
               </AccordionItem>
             </div>
 
-            <div className="mt-6 hidden md:flex gap-3 md:sticky md:bottom-4 md:z-10 md:rounded-2xl md:border md:border-charcoal/10 md:bg-cream/95 md:backdrop-blur md:p-4 md:shadow-lg">
+            <div className="mt-6 hidden md:flex md:mt-auto gap-3 md:sticky md:bottom-0 md:z-10 md:rounded-t-2xl md:border-t md:border-charcoal/10 md:bg-cream/95 md:backdrop-blur md:p-4 md:shadow-lg">
               <button
                 onClick={handleAddToCart}
                 disabled={!product.inStock}
@@ -214,7 +214,6 @@ export function StandalonePDP({
                 Buy Now
               </button>
             </div>
-            <div aria-hidden className="hidden md:block md:h-24" />
           </div>
         </div>
 
