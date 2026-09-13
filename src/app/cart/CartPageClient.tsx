@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, ArrowRight, Trash2, ShieldCheck, Truck, Gift, Loader2 } from "lucide-react";
+import { ArrowRight, Trash2, ShieldCheck, Truck, Gift, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { QuantityStepper } from "@/components/product/QuantityStepper";
@@ -16,12 +16,14 @@ const FREE_SHIPPING_THRESHOLD = 999;
 function EmptyCart() {
   return (
     <div className="flex flex-col items-center text-center py-20 px-4">
-      <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-cream-dark">
-        <ShoppingBag size={38} className="text-olive/40" strokeWidth={1.5} />
-        <span className="absolute -top-1 -right-1 text-lg">✦</span>
-        <span className="absolute -bottom-1 -left-2 text-sm">✦</span>
-      </div>
-      <h1 className="mt-6 font-serif text-2xl text-charcoal">
+      <Image
+        src="/empty-cart.png"
+        alt=""
+        width={384}
+        height={256}
+        className="h-auto w-64 sm:w-72"
+      />
+      <h1 className="mt-2 font-serif text-2xl text-charcoal">
         Your cart is waiting to be filled
       </h1>
       <p className="mt-2 text-sm text-ink-muted max-w-sm">

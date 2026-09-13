@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag, ArrowRight, X, Star, Check, Loader2 } from "lucide-react";
+import { ShoppingBag, ArrowRight, X, Star, Check, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist-context";
@@ -91,12 +91,14 @@ function WishlistCard({ item }: { item: WishlistItem }) {
 function EmptyWishlist() {
   return (
     <div className="flex flex-col items-center text-center py-20 px-4">
-      <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-cream-dark">
-        <Heart size={38} className="text-terracotta/40" strokeWidth={1.5} />
-        <span className="absolute -top-1 -right-1 text-lg">✦</span>
-        <span className="absolute -bottom-1 -left-2 text-sm">✦</span>
-      </div>
-      <h1 className="mt-6 font-serif text-2xl text-charcoal">
+      <Image
+        src="/empty-wishlist.png"
+        alt=""
+        width={384}
+        height={256}
+        className="h-auto w-64 sm:w-72"
+      />
+      <h1 className="mt-2 font-serif text-2xl text-charcoal">
         Your wishlist is feeling a little light
       </h1>
       <p className="mt-2 text-sm text-ink-muted max-w-sm">
