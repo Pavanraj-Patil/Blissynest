@@ -8,7 +8,7 @@ import { ShopFooter } from "@/components/shop/ShopFooter";
 import { CollectionCard } from "@/components/ui/CollectionCard";
 import { getPageContent } from "@/lib/content-service";
 
-type CollectionTile = { title: string; subtitle: string; slug: string; image: string; dark: boolean };
+type CollectionTile = { title: string; subtitle: string; slug: string; image: string };
 
 export const metadata: Metadata = {
   title: "Collections | Blissynest",
@@ -52,7 +52,6 @@ export default async function CollectionsPage() {
                 subtitle={c.subtitle}
                 image={c.image}
                 href={`/collections/${c.slug}`}
-                dark={c.dark}
                 fullWidthOnMobile
               />
             ))}

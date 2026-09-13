@@ -70,6 +70,27 @@ body {
   -ms-overflow-style: none;
 }
 
+/* Scalloped edges for the Blissynest Edit band — a repeating row of
+   semicircle bumps (drawn as an exact SVG tile, not an approximated
+   gradient) rising out of the band's terracotta into the page's cream, so
+   the band reads as trimmed with a wavy border instead of a hard rectangle.
+   Tile is 28x16: a 14px-radius semicircle centered in a 28px-wide cell, so
+   adjacent bumps meet edge-to-edge with no gap or overlap. */
+.scallop-top-terracotta {
+  height: 16px;
+  background-color: var(--color-cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16'%3E%3Cpath d='M0,16 A14,14 0 0 1 28,16 Z' fill='%23edc3ab'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: bottom left;
+}
+.scallop-bottom-terracotta {
+  height: 16px;
+  background-color: var(--color-cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16'%3E%3Cpath d='M0,0 A14,14 0 0 0 28,0 Z' fill='%23edc3ab'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: top left;
+}
+
 /* Continuous logo/strip marquee — the track renders its children twice
    back to back and scrolls exactly one copy's width (-50%), so the seam
    between the end of copy 1 and the start of copy 2 is invisible and the

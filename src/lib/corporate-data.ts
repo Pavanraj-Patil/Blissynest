@@ -37,13 +37,13 @@ export const corporateNeeds: CorporateNeed[] = [
     slug: "employee",
     title: "Employee Gifting",
     subtitle: "Celebrate your team",
-    image: ph(700, 400, "4a5738", "f0e8da", "Employee Gifting"),
+    image: "/corporate-need-employee.png",
   },
   {
     slug: "client",
     title: "Client Gifting",
     subtitle: "Build lasting relationships",
-    image: ph(700, 400, "e3a37e", "2a2621", "Client Gifting"),
+    image: "/corporate-need-client.png",
   },
   {
     slug: "festive",
@@ -55,13 +55,13 @@ export const corporateNeeds: CorporateNeed[] = [
     slug: "milestone",
     title: "Milestone Gifting",
     subtitle: "Mark every achievement",
-    image: ph(700, 400, "e9dfcd", "2a2621", "Milestone Gifting"),
+    image: "/corporate-need-milestone.png",
   },
   {
     slug: "welcome",
     title: "Welcome Kits",
     subtitle: "Warm welcomes matter",
-    image: ph(700, 400, "c1693d", "f8f3ec", "Welcome Kits"),
+    image: "/corporate-need-welcome.png",
   },
 ];
 

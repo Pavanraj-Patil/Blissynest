@@ -17,69 +17,46 @@ const ph = (
   )}&font=playfair-display`;
 
 export const audienceCategories = [
-  { label: "Gifts for Her", href: "/shop/her", bg: "e9dccb", fg: "4a5738" },
-  { label: "Gifts for Him", href: "/shop/him", bg: "d9cbb0", fg: "2a2621" },
-  {
-    label: "Gifts for Parents",
-    href: "/shop/parents",
-    bg: "e3d3bd",
-    fg: "4a5738",
-  },
-  {
-    label: "Gifts for Couples",
-    href: "/shop/couples",
-    bg: "ecdccd",
-    fg: "a85830",
-  },
-  {
-    label: "Gifts for Kids",
-    href: "/shop/kids",
-    bg: "d6c7a8",
-    fg: "2a2621",
-  },
-].map((c) => ({ ...c, image: ph(320, 380, c.bg, c.fg, c.label) }));
+  { label: "Gifts for Her", href: "/shop/her", image: "/who-her.png" },
+  { label: "Gifts for Him", href: "/shop/him", image: "/who-him.png" },
+  { label: "Gifts for Parents", href: "/shop/parents", image: "/who-parents.png" },
+  { label: "Gifts for Couples", href: "/shop/couples", image: "/who-couples.png" },
+  { label: "Gifts for Kids", href: "/shop/kids", image: "/who-kids.png" },
+];
 
 export const occasions = [
-  { label: "Birthday", bg: "f0ddce", fg: "a85830" },
-  { label: "Anniversary", bg: "e9d6d0", fg: "a85830" },
-  { label: "Thank You", bg: "e7c9b9", fg: "a85830" },
-  { label: "Festivals", bg: "6b4a2a", fg: "f0e8da" },
-].map((o) => ({
-  ...o,
-  image: ph(240, 340, o.bg, o.fg, o.label),
-  slug: slugify(o.label),
-}));
+  { label: "Birthday", image: "/moment-birthday.png" },
+  { label: "Anniversary", image: "/moment-anniversary.png" },
+  { label: "Thank You", image: "/moment-thankyou.png" },
+  { label: "Festivals", image: "/moment-festivals.png" },
+].map((o) => ({ ...o, slug: slugify(o.label) }));
 
 export const editCollections = [
   {
     slug: "minimalist",
-    title: "The Minimalist Edit",
+    title: "Minimalist",
     subtitle: "Simple, elegant, thoughtful",
-    bg: "e9e2d3",
-    fg: "2a2621",
+    image: "/edit-minimalist.png",
   },
   {
     slug: "celebration",
-    title: "The Celebration Edit",
+    title: "Celebration",
     subtitle: "For moments to remember",
-    bg: "ead9c9",
-    fg: "a85830",
+    image: "/edit-celebration.png",
   },
   {
     slug: "luxury",
-    title: "The Luxury Edit",
+    title: "Luxury",
     subtitle: "For when only the best will do",
-    bg: "241f1a",
-    fg: "cfb587",
+    image: "/edit-luxury.png",
   },
   {
     slug: "hampers",
     title: "Gift Hampers",
     subtitle: "Ready to gift, or made to feel personal",
-    bg: "cc8b65",
-    fg: "2a2621",
+    image: "/edit-hampers.png",
   },
-].map((c) => ({ ...c, image: ph(280, 340, c.bg, c.fg, c.title) }));
+];
 
 export const bestsellers = [
   {
@@ -171,9 +148,9 @@ export const footerLinks: SimpleLink[] = [
   { label: "Contact Us", href: "/contact" },
 ];
 
-export const heroImage = ph(1920, 700, "e3d3bd", "2a2621", "Blissynest Gift Box");
+export const heroImage = "/home-hero-desktop.png";
 // Portrait crop for mobile/tablet — a wide desktop crop scaled down and
 // object-fit-cropped for a phone-width viewport loses the subject; a
 // separate art-directed image is the standard fix (see foxtale.in's
 // hero, which does the same thing with two entirely different files).
-export const heroImageMobile = ph(900, 1200, "e3d3bd", "2a2621", "Blissynest Gift Box");
+export const heroImageMobile = "/home-hero-mobile.png";

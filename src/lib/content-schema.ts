@@ -14,7 +14,6 @@ import { collectionContent } from "@/lib/collection-mock-data";
 import { corporateNeeds } from "@/lib/corporate-data";
 import { contentIconOptions } from "@/lib/content-icons";
 
-const occasionIconDefaults = ["Cake", "Heart", "Mail", "Flame"];
 const featureIconDefaults = ["Gift", "PackageCheck", "Wand2", "Truck"];
 const corporateChecklistIconDefaults = ["Users", "Briefcase", "PartyPopper", "PackageOpen", "CalendarDays"];
 
@@ -135,17 +134,13 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "label", label: "Label", kind: "text" },
             { key: "slug", label: "Slug (e.g. birthday)", kind: "text" },
             { key: "image", label: "Image URL", kind: "text" },
-            { key: "icon", label: "Icon", kind: "select", options: contentIconOptions },
             { key: "dark", label: "Dark text overlay", kind: "checkbox" },
           ],
-          emptyItem: { label: "", slug: "", image: "", icon: contentIconOptions[0], dark: false },
-          // occasionIconDefaults is a parallel array matched to `occasions`
-          // by index, in the same order.
-          default: occasions.map((o, i) => ({
+          emptyItem: { label: "", slug: "", image: "", dark: false },
+          default: occasions.map((o) => ({
             label: o.label,
             slug: o.slug,
             image: o.image,
-            icon: occasionIconDefaults[i],
             dark: o.label === "Festivals",
           })),
         },
@@ -165,15 +160,13 @@ export const contentSchema: Record<string, PageSchema> = {
             { key: "subtitle", label: "Subtitle", kind: "text" },
             { key: "slug", label: "Slug (e.g. minimalist)", kind: "text" },
             { key: "image", label: "Image URL", kind: "text" },
-            { key: "dark", label: "Dark overlay", kind: "checkbox" },
           ],
-          emptyItem: { title: "", subtitle: "", slug: "", image: "", dark: false },
+          emptyItem: { title: "", subtitle: "", slug: "", image: "" },
           default: editCollections.map((c) => ({
             title: c.title,
             subtitle: c.subtitle,
             slug: c.slug,
             image: c.image,
-            dark: c.title === "The Luxury Edit",
           })),
         },
       },
@@ -232,7 +225,7 @@ export const contentSchema: Record<string, PageSchema> = {
         image: {
           type: "IMAGE",
           label: "Image",
-          default: "https://placehold.co/560x460/1c1712/cfb587.png?text=Corporate+Gift+Set&font=playfair-display",
+          default: "/corporate-banner-home.png",
         },
         checklist: {
           type: "LIST",
@@ -475,7 +468,7 @@ export const contentSchema: Record<string, PageSchema> = {
           label: "Secondary Button",
           default: { label: "Book a Consultation", href: "/corporate/quote?intent=consultation" },
         },
-        image: { type: "IMAGE", label: "Hero Image", default: "https://placehold.co/900x760/e3d3bd/2a2621.png?text=Corporate+Gift+Box&font=playfair-display" },
+        image: { type: "IMAGE", label: "Hero Image", default: "/corporate-hero.png" },
         trustPoints: {
           type: "LIST",
           label: "Trust Points",

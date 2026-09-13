@@ -1,22 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 type OccasionCardProps = {
   label: string;
   image: string;
-  icon: LucideIcon | null;
   href?: string;
   dark?: boolean;
 };
 
-export function OccasionCard({
-  label,
-  image,
-  icon: Icon,
-  href = "#",
-  dark,
-}: OccasionCardProps) {
+export function OccasionCard({ label, image, href = "#", dark }: OccasionCardProps) {
   return (
     <Link
       href={href}
@@ -30,12 +23,25 @@ export function OccasionCard({
         sizes="(min-width: 1024px) 13vw, 40vw"
       />
       <div
-        className={`absolute inset-x-0 top-0 flex flex-col items-center gap-2 pt-6 text-center ${
-          dark ? "text-cream" : "text-charcoal"
-        }`}
-      >
-        {Icon && <Icon size={20} strokeWidth={1.5} />}
-        <span className="text-xs font-medium">{label}</span>
+        className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${
+          dark ? "from-black/45" : "from-white/40"
+        } to-transparent`}
+      />
+      <div className="absolute inset-x-0 top-0 flex items-start gap-1 p-3.5">
+        <span
+          className={`font-serif text-base sm:text-lg font-semibold leading-tight ${
+            dark ? "text-cream" : "text-charcoal"
+          }`}
+        >
+          {label}
+        </span>
+        <ArrowRight
+          size={15}
+          strokeWidth={2}
+          className={`mt-1 shrink-0 transition-transform group-hover:translate-x-0.5 ${
+            dark ? "text-cream/75" : "text-charcoal/55"
+          }`}
+        />
       </div>
     </Link>
   );

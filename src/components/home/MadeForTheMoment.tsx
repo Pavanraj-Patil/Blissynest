@@ -1,9 +1,8 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { OccasionCard } from "@/components/ui/OccasionCard";
 import { getPageContent } from "@/lib/content-service";
-import { getContentIcon } from "@/lib/content-icons";
 
-type OccasionTile = { label: string; slug: string; image: string; icon: string; dark: boolean };
+type OccasionTile = { label: string; slug: string; image: string; dark: boolean };
 
 export async function MadeForTheMoment() {
   const content = await getPageContent("home");
@@ -20,7 +19,6 @@ export async function MadeForTheMoment() {
             key={occ.label}
             label={occ.label}
             image={occ.image}
-            icon={getContentIcon(occ.icon)}
             href={`/occasions/${occ.slug}`}
             dark={occ.dark}
           />
