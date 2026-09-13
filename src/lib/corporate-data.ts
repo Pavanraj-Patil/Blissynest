@@ -3,11 +3,6 @@ import {
   Palette,
   Truck,
   HeadphonesIcon,
-  Users,
-  HeartHandshake,
-  Flame,
-  Trophy,
-  Gift,
   MessageSquare,
   PhoneCall,
   type LucideIcon,
@@ -32,17 +27,42 @@ export const heroTrustPoints: TrustPoint[] = [
 
 export type CorporateNeed = {
   slug: string;
-  icon: LucideIcon;
   title: string;
   subtitle: string;
+  image: string;
 };
 
 export const corporateNeeds: CorporateNeed[] = [
-  { slug: "employee", icon: Users, title: "Employee Gifting", subtitle: "Celebrate your team" },
-  { slug: "client", icon: HeartHandshake, title: "Client Gifting", subtitle: "Build lasting relationships" },
-  { slug: "festive", icon: Flame, title: "Festival Gifting", subtitle: "Celebrate togetherness" },
-  { slug: "milestone", icon: Trophy, title: "Milestone Gifting", subtitle: "Mark every achievement" },
-  { slug: "welcome", icon: Gift, title: "Welcome Kits", subtitle: "Warm welcomes matter" },
+  {
+    slug: "employee",
+    title: "Employee Gifting",
+    subtitle: "Celebrate your team",
+    image: ph(700, 400, "4a5738", "f0e8da", "Employee Gifting"),
+  },
+  {
+    slug: "client",
+    title: "Client Gifting",
+    subtitle: "Build lasting relationships",
+    image: ph(700, 400, "e3a37e", "2a2621", "Client Gifting"),
+  },
+  {
+    slug: "festive",
+    title: "Festival Gifting",
+    subtitle: "Celebrate togetherness",
+    image: ph(700, 400, "cfb587", "2a2621", "Festival Gifting"),
+  },
+  {
+    slug: "milestone",
+    title: "Milestone Gifting",
+    subtitle: "Mark every achievement",
+    image: ph(700, 400, "e9dfcd", "2a2621", "Milestone Gifting"),
+  },
+  {
+    slug: "welcome",
+    title: "Welcome Kits",
+    subtitle: "Warm welcomes matter",
+    image: ph(700, 400, "c1693d", "f8f3ec", "Welcome Kits"),
+  },
 ];
 
 export const corporateNeedSlugs: string[] = corporateNeeds.map((n) => n.slug);

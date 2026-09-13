@@ -6,6 +6,7 @@ import { Check, AlertCircle } from "lucide-react";
 import { RepeatingListField } from "@/components/admin/RepeatingListField";
 import { NestedListField } from "@/components/admin/NestedListField";
 import { SingleImageUploader } from "@/components/admin/SingleImageUploader";
+import { contentIconOptions } from "@/lib/content-icons";
 import type { ResponsiveImageValue, SectionSchema } from "@/lib/content-schema";
 
 const inputClass =
@@ -86,6 +87,27 @@ export function ContentSectionForm({
             <div key={key}>
               <SingleImageUploader label={descriptor.label} value={src} onChange={(url) => set(key, url)} />
             </div>
+          );
+        }
+
+        if (descriptor.type === "ICON") {
+          const iconValue = typeof value === "string" ? value : "";
+          return (
+            <label key={key} className="block">
+              <span className={labelClass}>{descriptor.label}</span>
+              <select
+                value={iconValue}
+                onChange={(e) => set(key, e.target.value)}
+                className={inputClass}
+              >
+                <option value="">None</option>
+                {contentIconOptions.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </label>
           );
         }
 

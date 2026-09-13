@@ -11,6 +11,7 @@ import {
   heroImageMobile,
 } from "@/lib/mock-data";
 import { collectionContent } from "@/lib/collection-mock-data";
+import { corporateNeeds } from "@/lib/corporate-data";
 import { contentIconOptions } from "@/lib/content-icons";
 
 const occasionIconDefaults = ["Cake", "Heart", "Mail", "Flame"];
@@ -24,7 +25,7 @@ const corporateChecklistIconDefaults = ["Users", "Briefcase", "PartyPopper", "Pa
 // admin has ever saved a ContentBlock row for it (see content-service.ts
 // getPageContent) — no backfill/seed script needed when a new key is
 // added here.
-export type ContentFieldType = "TEXT" | "IMAGE" | "IMAGE_RESPONSIVE" | "LINK" | "LIST" | "NESTED_LIST";
+export type ContentFieldType = "TEXT" | "IMAGE" | "IMAGE_RESPONSIVE" | "ICON" | "LINK" | "LIST" | "NESTED_LIST";
 
 export type LinkValue = { label: string; href: string };
 
@@ -36,6 +37,9 @@ export type FieldDescriptor =
   | { type: "TEXT"; label: string; default: string }
   | { type: "IMAGE"; label: string; default: string }
   | { type: "IMAGE_RESPONSIVE"; label: string; default: ResponsiveImageValue }
+  // A single icon picker (see contentIconOptions) outside of a LIST row —
+  // "" is a deliberate "no icon" choice (see getContentIcon), not unset.
+  | { type: "ICON"; label: string; default: string }
   | { type: "LINK"; label: string; default: LinkValue }
   | {
       type: "LIST";
@@ -496,21 +500,52 @@ export const contentSchema: Record<string, PageSchema> = {
       fields: {
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Corporate Catalogue" },
         heading: { type: "TEXT", label: "Heading", default: "Gifts for every corporate need" },
-        // Fixed-position text only (not a LIST): each card's icon, slug, and
-        // grid placement are hardcoded to a specific 5-cell bento layout
+        // Fixed-position fields (not a LIST): each card's slug and grid
+        // placement are hardcoded to a specific 5-cell bento layout
         // (gridTemplateAreas in CorporateNeeds.tsx) and the slug is also
         // referenced by needToCollectionSlugs in corporate-data.ts — freely
-        // adding/removing/reordering here would break both.
+        // adding/removing/reordering here would break both. Title, image,
+        // and icon per card are editable.
         needEmployeeTitle: { type: "TEXT", label: "Employee Gifting — Title", default: "Employee Gifting" },
         needEmployeeSubtitle: { type: "TEXT", label: "Employee Gifting — Subtitle", default: "Celebrate your team" },
+        needEmployeeImage: {
+          type: "IMAGE",
+          label: "Employee Gifting — Image",
+          default: corporateNeeds.find((n) => n.slug === "employee")!.image,
+        },
+        needEmployeeIcon: { type: "ICON", label: "Employee Gifting — Icon", default: "Users" },
         needClientTitle: { type: "TEXT", label: "Client Gifting — Title", default: "Client Gifting" },
         needClientSubtitle: { type: "TEXT", label: "Client Gifting — Subtitle", default: "Build lasting relationships" },
+        needClientImage: {
+          type: "IMAGE",
+          label: "Client Gifting — Image",
+          default: corporateNeeds.find((n) => n.slug === "client")!.image,
+        },
+        needClientIcon: { type: "ICON", label: "Client Gifting — Icon", default: "HeartHandshake" },
         needFestiveTitle: { type: "TEXT", label: "Festival Gifting — Title", default: "Festival Gifting" },
         needFestiveSubtitle: { type: "TEXT", label: "Festival Gifting — Subtitle", default: "Celebrate togetherness" },
+        needFestiveImage: {
+          type: "IMAGE",
+          label: "Festival Gifting — Image",
+          default: corporateNeeds.find((n) => n.slug === "festive")!.image,
+        },
+        needFestiveIcon: { type: "ICON", label: "Festival Gifting — Icon", default: "Flame" },
         needMilestoneTitle: { type: "TEXT", label: "Milestone Gifting — Title", default: "Milestone Gifting" },
         needMilestoneSubtitle: { type: "TEXT", label: "Milestone Gifting — Subtitle", default: "Mark every achievement" },
+        needMilestoneImage: {
+          type: "IMAGE",
+          label: "Milestone Gifting — Image",
+          default: corporateNeeds.find((n) => n.slug === "milestone")!.image,
+        },
+        needMilestoneIcon: { type: "ICON", label: "Milestone Gifting — Icon", default: "Trophy" },
         needWelcomeTitle: { type: "TEXT", label: "Welcome Kits — Title", default: "Welcome Kits" },
         needWelcomeSubtitle: { type: "TEXT", label: "Welcome Kits — Subtitle", default: "Warm welcomes matter" },
+        needWelcomeImage: {
+          type: "IMAGE",
+          label: "Welcome Kits — Image",
+          default: corporateNeeds.find((n) => n.slug === "welcome")!.image,
+        },
+        needWelcomeIcon: { type: "ICON", label: "Welcome Kits — Icon", default: "Gift" },
       },
     },
     "how-it-works": {

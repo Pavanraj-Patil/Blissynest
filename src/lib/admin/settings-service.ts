@@ -11,6 +11,7 @@ export async function updateSiteSettings(input: SiteSettingsInput): Promise<void
       freeShippingThreshold: Math.round(input.freeShippingThreshold * 100),
       standardShippingFee: Math.round(input.standardShippingFee * 100),
       codEnabled: input.codEnabled,
+      topBarEnabled: input.topBarEnabled,
     },
   });
 }

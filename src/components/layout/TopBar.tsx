@@ -8,10 +8,12 @@ import type { LinkValue } from "@/lib/content-schema";
 // "₹999" as literal text, which would've silently gone stale the moment an
 // admin changed the actual checkout threshold in Settings.
 export async function TopBar() {
-  const [{ freeShippingThreshold }, content] = await Promise.all([
+  const [{ freeShippingThreshold, topBarEnabled }, content] = await Promise.all([
     getSiteSettings(),
     getPageContent("layout"),
   ]);
+  if (!topBarEnabled) return null;
+
   const { trackOrder, help, corporateGifting } = content.topbar as {
     trackOrder: LinkValue;
     help: LinkValue;

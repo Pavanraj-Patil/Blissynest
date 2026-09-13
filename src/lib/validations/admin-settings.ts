@@ -5,6 +5,7 @@ export const siteSettingsSchema = z.object({
   freeShippingThreshold: z.coerce.number().min(0), // rupees
   standardShippingFee: z.coerce.number().min(0), // rupees
   codEnabled: z.boolean(),
+  topBarEnabled: z.boolean(),
 });
 
 export type SiteSettingsInput = z.infer<typeof siteSettingsSchema>;

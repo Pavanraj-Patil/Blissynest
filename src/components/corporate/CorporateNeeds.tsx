@@ -1,35 +1,26 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { corporateNeeds } from "@/lib/corporate-data";
+import { getContentIcon } from "@/lib/content-icons";
 
-type CorporateNeed = { slug: string; icon: LucideIcon; title: string; subtitle: string };
-
-type Tone = {
-  bg: string;
-  text: string;
-  subtext: string;
-  border?: string;
+type CorporateNeed = {
+  slug: string;
+  icon: LucideIcon | null;
+  title: string;
+  subtitle: string;
+  image: string;
 };
-
-const tones: Tone[] = [
-  { bg: "bg-olive-dark", text: "text-cream", subtext: "text-cream/70" }, // employee — featured
-  { bg: "bg-terracotta-light/35", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // client
-  { bg: "bg-gold-light/40", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // festive
-  { bg: "bg-cream-darker", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // milestone
-  { bg: "bg-terracotta", text: "text-cream", subtext: "text-cream/75" }, // welcome
-];
 
 const areaNames = ["a", "b", "c", "d", "e"];
 
 function NeedCard({
   need,
-  tone,
   featured = false,
   gridArea,
 }: {
   need: CorporateNeed;
-  tone: Tone;
   featured?: boolean;
   gridArea?: string;
 }) {
@@ -38,23 +29,31 @@ function NeedCard({
       href={`/corporate/${need.slug}`}
       style={gridArea ? { gridArea } : undefined}
       className={cn(
-        "group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border p-5 transition-transform duration-200 hover:-translate-y-0.5",
-        tone.bg,
-        tone.border ?? "border-transparent",
+        "group relative flex h-full min-h-[172px] flex-col justify-between overflow-hidden rounded-2xl p-5 transition-transform duration-200 hover:-translate-y-0.5",
         featured ? "p-7 md:p-8" : ""
       )}
     >
-      <need.icon
-        size={featured ? 30 : 22}
-        strokeWidth={1.25}
-        className={cn(tone.text, "shrink-0 opacity-80")}
+      <Image
+        src={need.image}
+        alt=""
+        fill
+        className="object-cover transition-transform duration-300 group-hover:scale-105"
+        sizes={featured ? "(min-width: 1024px) 45vw, 90vw" : "(min-width: 1024px) 22vw, 45vw"}
       />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
 
-      <div className="mt-6 shrink-0">
+      {need.icon && (
+        <need.icon
+          size={featured ? 30 : 22}
+          strokeWidth={1.25}
+          className="relative shrink-0 text-cream/90"
+        />
+      )}
+
+      <div className="relative mt-6 shrink-0">
         <h3
           className={cn(
-            "font-serif leading-tight",
-            tone.text,
+            "font-serif leading-tight text-cream",
             featured ? "text-2xl md:text-[1.75rem]" : "text-base"
           )}
         >
@@ -62,8 +61,7 @@ function NeedCard({
         </h3>
         <p
           className={cn(
-            "mt-1.5 leading-snug",
-            tone.subtext,
+            "mt-1.5 leading-snug text-cream/80",
             featured ? "text-sm max-w-[16rem]" : "text-xs"
           )}
         >
@@ -72,11 +70,8 @@ function NeedCard({
 
         <span
           className={cn(
-            "mt-4 inline-flex items-center gap-1.5 text-xs font-medium transition-opacity",
-            tone.text,
-            featured
-              ? "opacity-100"
-              : "opacity-0 group-hover:opacity-100"
+            "mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-cream transition-opacity",
+            featured ? "opacity-100" : "opacity-0 group-hover:opacity-100"
           )}
         >
           Explore
@@ -87,7 +82,7 @@ function NeedCard({
   );
 }
 
-// slug -> content-schema field-name prefix (needEmployeeTitle, needEmployeeSubtitle, ...)
+// slug -> content-schema field-name prefix (needEmployeeTitle, needEmployeeSubtitle, needEmployeeImage, ...)
 const slugToFieldPrefix: Record<string, string> = {
   employee: "needEmployee",
   client: "needClient",
@@ -103,6 +98,8 @@ export function CorporateNeeds({ content }: { content: Record<string, unknown> }
       ...need,
       title: (content[`${prefix}Title`] as string) ?? need.title,
       subtitle: (content[`${prefix}Subtitle`] as string) ?? need.subtitle,
+      image: (content[`${prefix}Image`] as string) || need.image,
+      icon: getContentIcon((content[`${prefix}Icon`] as string) ?? ""),
     };
   });
 
@@ -125,22 +122,14 @@ export function CorporateNeeds({ content }: { content: Record<string, unknown> }
         }}
       >
         {needs.map((need, i) => (
-          <NeedCard
-            key={need.slug}
-            need={need}
-            tone={tones[i]}
-            featured={i === 0}
-            gridArea={areaNames[i]}
-          />
+          <NeedCard key={need.slug} need={need} featured={i === 0} gridArea={areaNames[i]} />
         ))}
       </div>
 
       {/* Mobile / tablet: even grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 lg:hidden">
-        {needs.map((need, i) => (
-          <div key={need.slug} className="min-h-[172px]">
-            <NeedCard need={need} tone={tones[i]} />
-          </div>
+        {needs.map((need) => (
+          <NeedCard key={need.slug} need={need} />
         ))}
       </div>
     </section>

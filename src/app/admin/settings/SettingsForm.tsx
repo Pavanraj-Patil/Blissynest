@@ -15,6 +15,7 @@ export function SettingsForm({
     freeShippingThreshold: number;
     standardShippingFee: number;
     codEnabled: boolean;
+    topBarEnabled: boolean;
   };
 }) {
   const [values, setValues] = useState(initial);
@@ -101,6 +102,22 @@ export function SettingsForm({
           <span className="block text-[11px] text-ink-muted">
             Turns off COD as a checkout payment option store-wide. Individual
             products can also be excluded from COD from their own edit page.
+          </span>
+        </span>
+      </label>
+
+      <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+        <input
+          type="checkbox"
+          checked={values.topBarEnabled}
+          onChange={(e) => setValues((v) => ({ ...v, topBarEnabled: e.target.checked }))}
+          className="mt-0.5 h-4 w-4 rounded border-charcoal/25 accent-olive"
+        />
+        <span>
+          <span className="block text-sm text-charcoal">Show Top Bar</span>
+          <span className="block text-[11px] text-ink-muted">
+            The free-shipping strip and Track Order/Help/Corporate Gifting
+            links shown above the header on every page.
           </span>
         </span>
       </label>

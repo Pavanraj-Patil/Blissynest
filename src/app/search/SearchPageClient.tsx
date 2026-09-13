@@ -6,7 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { type SortOption, sortLabels } from "@/components/shop/ShopToolbar";
-import { Pagination } from "@/components/shop/Pagination";
+import { LoadMoreButton } from "@/components/shop/LoadMoreButton";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
@@ -24,7 +24,7 @@ export function SearchPageClient({
 }) {
   const [sort, setSort] = useState<SortOption>("best-selling");
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
   const results = initialResults;
 
@@ -44,12 +44,8 @@ export function SearchPageClient({
     }
   }, [results, sort]);
 
-  const totalPages = Math.max(1, Math.ceil(sortedResults.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const pageResults = sortedResults.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE
-  );
+  const pageResults = sortedResults.slice(0, visibleCount);
+  const hasMore = visibleCount < sortedResults.length;
 
   return (
     <>
@@ -98,7 +94,7 @@ export function SearchPageClient({
                     value={sort}
                     onChange={(v) => {
                       setSort(v as SortOption);
-                      setCurrentPage(1);
+                      setVisibleCount(ITEMS_PER_PAGE);
                     }}
                     options={(Object.keys(sortLabels) as SortOption[]).map((key) => ({
                       value: key,
@@ -155,10 +151,11 @@ export function SearchPageClient({
               </div>
 
               <div className="pt-4">
-                <Pagination
-                  currentPage={safePage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
+                <LoadMoreButton
+                  onClick={() => setVisibleCount((v) => v + ITEMS_PER_PAGE)}
+                  hasMore={hasMore}
+                  shownCount={pageResults.length}
+                  totalCount={sortedResults.length}
                 />
               </div>
             </>

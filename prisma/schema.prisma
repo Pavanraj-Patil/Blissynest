@@ -345,6 +345,9 @@ model SiteSettings {
   // Store-wide Cash on Delivery kill switch. A product can also be excluded
   // individually via Product.codAvailable, independent of this flag.
   codEnabled            Boolean  @default(true)
+  // Shows/hides the top strip (free-shipping banner + Track Order/Help/
+  // Corporate Gifting links) across every page.
+  topBarEnabled         Boolean  @default(true)
   updatedAt             DateTime @updatedAt
 }
 
@@ -473,6 +476,7 @@ enum ContentBlockType {
   TEXT
   IMAGE
   IMAGE_RESPONSIVE
+  ICON
   LINK
   LIST
   NESTED_LIST

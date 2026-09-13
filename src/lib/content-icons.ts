@@ -15,6 +15,8 @@ import {
   PackageSearch,
   HelpCircle,
   Phone,
+  HeartHandshake,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { iconMap } from "@/components/product/icon-map";
@@ -30,6 +32,8 @@ export const contentIconMap: Record<string, LucideIcon> = {
   Home,
   Wand2,
   Users,
+  HeartHandshake,
+  Trophy,
   Briefcase,
   PartyPopper,
   PackageOpen,

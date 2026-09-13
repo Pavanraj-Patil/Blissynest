@@ -7,7 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { type SortOption, sortLabels } from "@/components/shop/ShopToolbar";
-import { Pagination } from "@/components/shop/Pagination";
+import { LoadMoreButton } from "@/components/shop/LoadMoreButton";
 import { cn } from "@/lib/cn";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
@@ -45,7 +45,7 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
   const [category, setCategory] = useState(searchParams.get("category") ?? "");
   const [sort, setSort] = useState<SortOption>("best-selling");
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
   const selections: Record<string, string> = { who, occasion, budget, category };
   const setters: Record<string, (v: string) => void> = {
@@ -83,12 +83,8 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
     }
   }, [filteredProducts, sort]);
 
-  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(currentPage, totalPages);
-  const pageProducts = sortedProducts.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE
-  );
+  const pageProducts = sortedProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < sortedProducts.length;
 
   const activeFilterCount =
     (who ? 1 : 0) + (occasion ? 1 : 0) + (budget ? 1 : 0) + (category ? 1 : 0);
@@ -98,7 +94,7 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
     setOccasion("");
     setBudget("");
     setCategory("");
-    setCurrentPage(1);
+    setVisibleCount(ITEMS_PER_PAGE);
   }
 
   return (
@@ -133,7 +129,7 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
                   value={selections[field.key]}
                   onChange={(v) => {
                     setters[field.key](v);
-                    setCurrentPage(1);
+                    setVisibleCount(ITEMS_PER_PAGE);
                   }}
                   placeholder="Any"
                 />
@@ -163,7 +159,7 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
                 value={sort}
                 onChange={(v) => {
                   setSort(v as SortOption);
-                  setCurrentPage(1);
+                  setVisibleCount(ITEMS_PER_PAGE);
                 }}
                 options={(Object.keys(sortLabels) as SortOption[]).map((key) => ({
                   value: key,
@@ -226,10 +222,11 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
           )}
 
           <div className="pt-4">
-            <Pagination
-              currentPage={safePage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
+            <LoadMoreButton
+              onClick={() => setVisibleCount((v) => v + ITEMS_PER_PAGE)}
+              hasMore={hasMore}
+              shownCount={pageProducts.length}
+              totalCount={sortedProducts.length}
             />
           </div>
         </div>
