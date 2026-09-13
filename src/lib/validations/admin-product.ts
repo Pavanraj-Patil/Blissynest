@@ -25,6 +25,8 @@ export const adminProductSchema = z.object({
   stockQuantity: z.coerce.number().int().min(0),
   codAvailable: z.boolean().default(true),
   featured: z.boolean().default(false),
+  corporateOnly: z.boolean().default(false),
+  corporateNeeds: z.array(z.string()).default([]),
   sortRank: z.coerce.number().int().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   description: z.string().trim().min(1, "Description is required"),

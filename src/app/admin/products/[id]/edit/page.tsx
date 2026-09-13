@@ -56,6 +56,8 @@ export default async function AdminEditProductPage({
     stockQuantity: product.stockQuantity,
     codAvailable: product.codAvailable,
     featured: product.featured,
+    corporateOnly: product.corporateOnly,
+    corporateNeeds: product.corporateNeeds as string[],
     sortRank: product.sortRank ?? "",
     status: product.status,
     description: details.description,

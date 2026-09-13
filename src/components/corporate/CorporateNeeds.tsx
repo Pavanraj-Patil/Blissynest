@@ -18,11 +18,9 @@ const tones: Tone[] = [
   { bg: "bg-gold-light/40", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // festive
   { bg: "bg-cream-darker", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // milestone
   { bg: "bg-terracotta", text: "text-cream", subtext: "text-cream/75" }, // welcome
-  { bg: "bg-olive/15", text: "text-charcoal", subtext: "text-charcoal-light", border: "border-charcoal/10" }, // event
-  { bg: "bg-charcoal", text: "text-cream", subtext: "text-cream/65" }, // custom
 ];
 
-const areaNames = ["a", "b", "c", "d", "e", "f", "g"];
+const areaNames = ["a", "b", "c", "d", "e"];
 
 function NeedCard({
   need,
@@ -37,7 +35,7 @@ function NeedCard({
 }) {
   return (
     <Link
-      href={`/corporate/quote?interest=${need.slug}`}
+      href={`/corporate/${need.slug}`}
       style={gridArea ? { gridArea } : undefined}
       className={cn(
         "group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border p-5 transition-transform duration-200 hover:-translate-y-0.5",
@@ -96,8 +94,6 @@ const slugToFieldPrefix: Record<string, string> = {
   festive: "needFestive",
   milestone: "needMilestone",
   welcome: "needWelcome",
-  event: "needEvent",
-  custom: "needCustom",
 };
 
 export function CorporateNeeds({ content }: { content: Record<string, unknown> }) {
@@ -124,8 +120,8 @@ export function CorporateNeeds({ content }: { content: Record<string, unknown> }
         className="hidden lg:grid gap-4"
         style={{
           gridTemplateColumns: "repeat(4, 1fr)",
-          gridTemplateRows: "repeat(3, 160px)",
-          gridTemplateAreas: `"a a b c" "a a d e" "f f g g"`,
+          gridTemplateRows: "repeat(2, 160px)",
+          gridTemplateAreas: `"a a b c" "a a d e"`,
         }}
       >
         {needs.map((need, i) => (

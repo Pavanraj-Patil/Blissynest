@@ -497,7 +497,7 @@ export const contentSchema: Record<string, PageSchema> = {
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Corporate Catalogue" },
         heading: { type: "TEXT", label: "Heading", default: "Gifts for every corporate need" },
         // Fixed-position text only (not a LIST): each card's icon, slug, and
-        // grid placement are hardcoded to a specific 7-cell bento layout
+        // grid placement are hardcoded to a specific 5-cell bento layout
         // (gridTemplateAreas in CorporateNeeds.tsx) and the slug is also
         // referenced by needToCollectionSlugs in corporate-data.ts — freely
         // adding/removing/reordering here would break both.
@@ -511,10 +511,6 @@ export const contentSchema: Record<string, PageSchema> = {
         needMilestoneSubtitle: { type: "TEXT", label: "Milestone Gifting — Subtitle", default: "Mark every achievement" },
         needWelcomeTitle: { type: "TEXT", label: "Welcome Kits — Title", default: "Welcome Kits" },
         needWelcomeSubtitle: { type: "TEXT", label: "Welcome Kits — Subtitle", default: "Warm welcomes matter" },
-        needEventTitle: { type: "TEXT", label: "Event Gifting — Title", default: "Event Gifting" },
-        needEventSubtitle: { type: "TEXT", label: "Event Gifting — Subtitle", default: "Make every event special" },
-        needCustomTitle: { type: "TEXT", label: "Custom Hampers — Title", default: "Custom Hampers" },
-        needCustomSubtitle: { type: "TEXT", label: "Custom Hampers — Subtitle", default: "Curated just for you" },
       },
     },
     "how-it-works": {

@@ -7,7 +7,7 @@ import { getPageContent } from "@/lib/content-service";
 export async function LovedByMany() {
   const [rows, content] = await Promise.all([
     db.product.findMany({
-      where: { status: "PUBLISHED", featured: true },
+      where: { status: "PUBLISHED", corporateOnly: false, featured: true },
       orderBy: { reviewCount: "desc" },
       take: 5,
     }),

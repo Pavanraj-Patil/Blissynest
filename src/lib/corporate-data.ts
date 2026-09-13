@@ -8,8 +8,6 @@ import {
   Flame,
   Trophy,
   Gift,
-  CalendarDays,
-  PackageOpen,
   MessageSquare,
   PhoneCall,
   type LucideIcon,
@@ -45,9 +43,13 @@ export const corporateNeeds: CorporateNeed[] = [
   { slug: "festive", icon: Flame, title: "Festival Gifting", subtitle: "Celebrate togetherness" },
   { slug: "milestone", icon: Trophy, title: "Milestone Gifting", subtitle: "Mark every achievement" },
   { slug: "welcome", icon: Gift, title: "Welcome Kits", subtitle: "Warm welcomes matter" },
-  { slug: "event", icon: CalendarDays, title: "Event Gifting", subtitle: "Make every event special" },
-  { slug: "custom", icon: PackageOpen, title: "Custom Hampers", subtitle: "Curated just for you" },
 ];
+
+export const corporateNeedSlugs: string[] = corporateNeeds.map((n) => n.slug);
+
+export function isCorporateNeedSlug(value: string): boolean {
+  return corporateNeedSlugs.includes(value);
+}
 
 export type ProcessStep = {
   number: string;
@@ -175,6 +177,4 @@ export const needToCollectionSlugs: Record<string, string[]> = {
   festive: ["diwali", "holiday"],
   milestone: ["work-anniversary", "client-appreciation"],
   welcome: ["welcome-kits"],
-  event: ["holiday", "womens-day"],
-  custom: [],
 };

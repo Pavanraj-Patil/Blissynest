@@ -42,7 +42,7 @@ export default async function CollectionPage({ params }: Props) {
 
   const [rows, layoutContent] = await Promise.all([
     db.product.findMany({
-      where: { status: "PUBLISHED", collectionSlug: slug },
+      where: { status: "PUBLISHED", corporateOnly: false, collectionSlug: slug },
       orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
     }),
     getPageContent("layout"),

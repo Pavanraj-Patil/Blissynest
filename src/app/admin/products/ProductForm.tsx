@@ -14,6 +14,9 @@ import {
 } from "@/lib/shop-mock-data";
 import { collectionContent, collectionSlugs, isCollectionSlug } from "@/lib/collection-mock-data";
 import { audienceEnumToSlug } from "@/lib/validations/product";
+import { corporateNeeds } from "@/lib/corporate-data";
+
+const corporateNeedOptions = corporateNeeds.map((n) => ({ value: n.slug, label: n.title }));
 
 const audienceOptions = [
   { value: "HER", label: "Her" },
@@ -42,6 +45,8 @@ export type ProductFormInitial = {
   stockQuantity: number;
   codAvailable: boolean;
   featured: boolean;
+  corporateOnly: boolean;
+  corporateNeeds: string[];
   sortRank: number | "";
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   description: string;
@@ -106,6 +111,8 @@ export const emptyProductForm: ProductFormInitial = {
   stockQuantity: 0,
   codAvailable: true,
   featured: false,
+  corporateOnly: false,
+  corporateNeeds: [],
   sortRank: "",
   status: "DRAFT",
   description: "",
@@ -340,6 +347,8 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
       stockQuantity: values.stockQuantity,
       codAvailable: values.codAvailable,
       featured: values.featured,
+      corporateOnly: values.corporateOnly,
+      corporateNeeds: values.corporateNeeds,
       sortRank: values.sortRank === "" ? undefined : values.sortRank,
       status: values.status,
       description: values.description,
@@ -664,6 +673,37 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
             </span>
           </span>
         </label>
+
+        <label className="flex items-center gap-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={values.corporateOnly}
+            onChange={(e) => set("corporateOnly", e.target.checked)}
+            className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+          />
+          <span className="text-sm text-charcoal">
+            Corporate-exclusive
+            <span className="block text-xs text-ink-muted">
+              Hides this product from Shop, audience pages, Collections, Occasions,
+              Personalised, search and the homepage — it only appears on its
+              corporate-need page(s) below.
+            </span>
+          </span>
+        </label>
+
+        {values.corporateOnly && (
+          <div>
+            <span className={labelClass}>Corporate Needs</span>
+            <div className="mt-1.5">
+              <CheckboxGroupField
+                value={values.corporateNeeds}
+                onChange={(next) => set("corporateNeeds", next)}
+                options={corporateNeedOptions}
+                emptyHint="No corporate needs defined."
+              />
+            </div>
+          </div>
+        )}
       </Section>
 
       <Section title="Images">

@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ items: [], total: 0 });
   }
 
-  const where = { status: "PUBLISHED" as const, name: { contains: q } };
+  const where = { status: "PUBLISHED" as const, corporateOnly: false, name: { contains: q } };
 
   const [rows, total] = await Promise.all([
     db.product.findMany({

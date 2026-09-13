@@ -35,6 +35,7 @@ function toRow(p: (typeof source)[number]) {
     productDetails: p.productDetails,
     relatedSlugs: p.relatedSlugs ?? [],
     featured: true,
+    corporateNeeds: [],
   };
 
   switch (p.pdpType) {

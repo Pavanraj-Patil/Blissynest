@@ -43,6 +43,13 @@ model Product {
   variantImages       Json?
   relatedSlugs        Json
   featured            Boolean          @default(false)
+  // When true, hidden from every consumer-facing browse/search surface
+  // (Shop, audience pages, Collections, Occasions, Personalised, search,
+  // homepage featured carousel) — only shown on its corporateNeeds page(s)
+  // under /corporate/[need]. Still has a normal PDP and is normally
+  // purchasable if reached directly.
+  corporateOnly       Boolean          @default(false)
+  corporateNeeds      Json // string[] of corporate-need slugs (see corporateNeedSlugs in corporate-data.ts) — only meaningful when corporateOnly is true
   status              ProductStatus    @default(PUBLISHED)
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt

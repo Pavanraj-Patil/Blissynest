@@ -22,6 +22,7 @@ export async function GET(request: Request) {
 
   const where: Prisma.ProductWhereInput = {
     status: "PUBLISHED",
+    corporateOnly: false,
     // MySQL wants a bare string for array_contains on a Json array column
     // (Postgres would need it wrapped in an array — not relevant here,
     // this app is MySQL-only, see prisma/schema.prisma's header).

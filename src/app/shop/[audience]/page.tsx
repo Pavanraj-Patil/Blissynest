@@ -37,7 +37,11 @@ export default async function AudienceShopPage({ params }: Props) {
   }
 
   const rows = await db.product.findMany({
-    where: { status: "PUBLISHED", audience: { array_contains: audienceSlugToEnum[audience] } },
+    where: {
+      status: "PUBLISHED",
+      corporateOnly: false,
+      audience: { array_contains: audienceSlugToEnum[audience] },
+    },
     orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   });
 

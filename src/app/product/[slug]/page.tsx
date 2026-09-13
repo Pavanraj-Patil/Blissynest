@@ -57,6 +57,7 @@ export default async function ProductPage({ params }: Props) {
     relatedRows = await db.product.findMany({
       where: {
         status: "PUBLISHED",
+        corporateOnly: false,
         id: { not: product.id },
         // Both sides are arrays now — match anything sharing at least one
         // category or audience with this product, rather than requiring

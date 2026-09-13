@@ -86,6 +86,7 @@ function fromShopProduct(p: ShopProductWithAudience) {
       care: genericCare.join(" · "),
     },
     featured: false,
+    corporateNeeds: [],
   };
 }
 
@@ -114,6 +115,7 @@ function fromCollectionProduct(slug: CollectionSlug, p: CollectionProduct) {
       care: genericCare.join(" · "),
     },
     featured: false,
+    corporateNeeds: [],
   };
 }
 
@@ -139,6 +141,7 @@ function fromBestseller(b: (typeof bestsellers)[number]) {
       care: genericCare.join(" · "),
     },
     featured: true,
+    corporateNeeds: [],
   };
 }
 
