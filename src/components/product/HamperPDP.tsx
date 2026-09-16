@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingBag, Zap, Check } from "lucide-react";
+import { ShoppingBag, Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { ProductGallery } from "./ProductGallery";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -15,6 +15,7 @@ import { ShareIconButton } from "./ShareIconButton";
 import { PdpWishlistButton } from "./PdpWishlistButton";
 import { ReviewsSection } from "./ReviewsSection";
 import { MobileStickyCTA } from "./MobileStickyCTA";
+import { BuyNowOrViewCartButton } from "./BuyNowOrViewCartButton";
 import { RelatedProducts } from "./RelatedProducts";
 import { AddedToCartModal } from "./AddedToCartModal";
 import type { HamperProduct } from "@/lib/product-mock-data";
@@ -265,14 +266,11 @@ export function HamperPDP({
                 {added ? <Check size={15} /> : <ShoppingBag size={15} />}
                 {added ? "Added" : "Add to Cart"}
               </button>
-              <button
-                onClick={handleBuyNow}
+              <BuyNowOrViewCartButton
+                onBuyNow={handleBuyNow}
                 disabled={!product.inStock}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
-              >
-                <Zap size={15} />
-                Buy Now
-              </button>
+              />
             </div>
           </div>
         </div>

@@ -346,11 +346,14 @@ export function AddressStep({
             )}
           </div>
 
+          {/* Hidden on mobile — CheckoutMobileStickyCTA covers this role
+              there (a persistent sticky bottom bar across every step) so
+              the shopper never has to scroll to find it. */}
           <button
             type="button"
             onClick={onContinue}
             disabled={!selectedId || !canContinue}
-            className="inline-flex items-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
+            className="hidden md:inline-flex items-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
           >
             Continue to Payment
             <ArrowRight size={14} />

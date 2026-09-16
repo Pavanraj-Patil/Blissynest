@@ -17,7 +17,7 @@ export default async function AccountPage() {
   if (!session?.user?.id) {
     redirect("/");
   }
-  if (session.user.role === "ADMIN") {
+  if (session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN") {
     redirect("/admin");
   }
 

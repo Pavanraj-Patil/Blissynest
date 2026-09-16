@@ -19,6 +19,8 @@ export async function SeasonalBanner() {
     href: b.href,
     iconKey: b.icon,
     gradientKey: b.gradient,
+    image: b.image ?? undefined,
+    imageMobile: b.imageMobile ?? undefined,
   }));
 
   return <SeasonalBannerCarousel slides={slides} />;

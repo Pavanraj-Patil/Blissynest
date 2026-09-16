@@ -1,4 +1,5 @@
-import { ShoppingBag, Zap, Check } from "lucide-react";
+import { ShoppingBag, Check } from "lucide-react";
+import { BuyNowOrViewCartButton } from "./BuyNowOrViewCartButton";
 
 type MobileStickyCTAProps = {
   onAddToCart: () => void;
@@ -28,15 +29,13 @@ export function MobileStickyCTA({
         {added ? <Check size={14} /> : <ShoppingBag size={14} />}
         {added ? "Added" : addToCartLabel}
       </button>
-      <button
-        type="button"
-        onClick={onBuyNow}
+      <BuyNowOrViewCartButton
+        onBuyNow={onBuyNow}
+        buyNowLabel={buyNowLabel}
         disabled={disabled}
+        iconSize={14}
         className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-4 py-3 text-xs font-semibold tracking-[0.1em] uppercase disabled:opacity-40 disabled:pointer-events-none"
-      >
-        <Zap size={14} />
-        {buyNowLabel}
-      </button>
+      />
     </div>
   );
 }

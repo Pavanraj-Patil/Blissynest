@@ -323,16 +323,23 @@ model RestockRequest {
 }
 
 model Banner {
-  id        String   @id @default(cuid())
-  title     String
-  subtitle  String
-  href      String
-  icon      String
-  gradient  String
-  sortOrder Int      @default(0)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String
+  href        String
+  icon        String
+  gradient    String
+  // Optional photo — when set, the carousel shows this behind a scrim
+  // instead of the solid gradient + ghost icon. A single wide desktop crop
+  // stretched across a phone-width viewport loses the subject (same issue
+  // Hero.tsx solves for the main hero image), so imageMobile is a separate
+  // art-directed crop for narrow viewports — falls back to `image` when unset.
+  image       String?
+  imageMobile String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([active, sortOrder])
 }

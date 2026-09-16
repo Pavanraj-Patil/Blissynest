@@ -17,15 +17,29 @@ function BannerPreviewCard({
   gradientClasses,
   title,
   subtitle,
+  image,
 }: {
   icon: LucideIcon;
   gradientClasses: string;
   title: string;
   subtitle: string;
+  image?: string;
 }) {
   return (
-    <div className={`relative flex h-24 items-center overflow-hidden rounded-xl bg-gradient-to-br px-5 ${gradientClasses}`}>
-      <Icon size={80} strokeWidth={1} className="absolute -right-3 -bottom-5 text-cream/10 rotate-[-12deg]" />
+    <div
+      className={`relative flex h-24 items-center overflow-hidden rounded-xl px-5 ${
+        image ? "" : `bg-gradient-to-br ${gradientClasses}`
+      }`}
+    >
+      {image ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
+        </>
+      ) : (
+        <Icon size={80} strokeWidth={1} className="absolute -right-3 -bottom-5 text-cream/10 rotate-[-12deg]" />
+      )}
       <div className="relative">
         <p className="font-serif text-base text-cream">{title || "Banner title"}</p>
         <p className="mt-1 text-xs text-cream/80">{subtitle || "Banner subtitle"}</p>
@@ -40,6 +54,8 @@ type BannerFormValues = {
   href: string;
   icon: string;
   gradient: string;
+  image: string;
+  imageMobile: string;
   sortOrder: number;
   active: boolean;
 };
@@ -50,6 +66,8 @@ const emptyForm: BannerFormValues = {
   href: "/occasions/festivals",
   icon: bannerIconOptions[0],
   gradient: bannerGradientOptions[0],
+  image: "",
+  imageMobile: "",
   sortOrder: 0,
   active: true,
 };
@@ -117,6 +135,47 @@ function BannerForm({
         />
       </label>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label className="block">
+          <span className="text-xs font-medium text-charcoal">Desktop Image URL (optional)</span>
+          <div className="mt-1.5 flex items-center gap-2">
+            <input
+              value={values.image}
+              onChange={(e) => set("image", e.target.value)}
+              placeholder="/baner-diwali.png — leave blank to use the gradient + icon instead"
+              className="flex-1 rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+            />
+            {values.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={values.image}
+                alt=""
+                className="h-11 w-11 shrink-0 rounded-lg border border-charcoal/10 object-cover"
+              />
+            )}
+          </div>
+        </label>
+        <label className="block">
+          <span className="text-xs font-medium text-charcoal">Mobile Image URL (optional — falls back to Desktop)</span>
+          <div className="mt-1.5 flex items-center gap-2">
+            <input
+              value={values.imageMobile}
+              onChange={(e) => set("imageMobile", e.target.value)}
+              placeholder="A taller crop of the same scene for narrow screens"
+              className="flex-1 rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+            />
+            {values.imageMobile && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={values.imageMobile}
+                alt=""
+                className="h-11 w-11 shrink-0 rounded-lg border border-charcoal/10 object-cover"
+              />
+            )}
+          </div>
+        </label>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <label className="block">
           <span className="text-xs font-medium text-charcoal">Icon</span>
@@ -172,6 +231,7 @@ function BannerForm({
         gradientClasses={bannerGradients[values.gradient].classes}
         title={values.title}
         subtitle={values.subtitle}
+        image={values.image}
       />
 
       <div className="flex gap-3 pt-1">
@@ -314,7 +374,11 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
   if (mode === "edit" && editingBanner) {
     return (
       <BannerForm
-        initial={editingBanner}
+        initial={{
+          ...editingBanner,
+          image: editingBanner.image ?? "",
+          imageMobile: editingBanner.imageMobile ?? "",
+        }}
         onSave={(values) => handleEdit(editingBanner.id, values)}
         onCancel={() => {
           setMode("list");
@@ -354,9 +418,19 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
               <div key={banner.id} className="rounded-2xl border border-charcoal/10 bg-white p-4 sm:p-5">
                 <div className="flex flex-wrap items-center gap-4">
                   <div
-                    className={`relative flex h-16 w-28 shrink-0 items-center overflow-hidden rounded-xl bg-gradient-to-br px-3 ${bannerGradients[banner.gradient]?.classes ?? ""}`}
+                    className={`relative flex h-16 w-28 shrink-0 items-center overflow-hidden rounded-xl px-3 ${
+                      banner.image ? "" : `bg-gradient-to-br ${bannerGradients[banner.gradient]?.classes ?? ""}`
+                    }`}
                   >
-                    <Icon size={44} strokeWidth={1} className="absolute -right-1 -bottom-2 text-cream/10 rotate-[-12deg]" />
+                    {banner.image ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={banner.image} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
+                      </>
+                    ) : (
+                      <Icon size={44} strokeWidth={1} className="absolute -right-1 -bottom-2 text-cream/10 rotate-[-12deg]" />
+                    )}
                     <p className="relative truncate text-[11px] font-serif text-cream">{banner.title}</p>
                   </div>
 

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Tag, X, Info, Truck, PackageCheck, Clock, Heart } from "lucide-react";
+import { ArrowRight, Tag, X, Info, Truck, PackageCheck, Clock, Heart, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/cn";
 import type { CartItem } from "@/lib/cart-context";
 
 type AppliedCoupon = { code: string; discount: number };
@@ -57,12 +58,40 @@ export function OrderSummarySidebar({
   canPlaceOrder,
 }: OrderSummarySidebarProps) {
   const [couponInput, setCouponInput] = useState("");
+  // Collapsed by default on mobile — the full item-by-item breakdown, trust
+  // grid, etc. used to render inline between the checkout steps, forcing a
+  // long scroll just to get past it. Desktop is unaffected: the sidebar
+  // there was never the thing standing between a shopper and the next step.
+  const [mobileExpanded, setMobileExpanded] = useState(false);
+  // Same collapsed-by-default treatment as the order summary above — an
+  // always-open input + button was taking a full section for something most
+  // shoppers don't have and won't use on a given visit.
+  const [couponOpen, setCouponOpen] = useState(false);
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
     <div>
       <div className="rounded-3xl border border-charcoal/10 bg-white p-6">
-        <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setMobileExpanded((v) => !v)}
+          className="w-full flex items-center justify-between md:hidden"
+          aria-expanded={mobileExpanded}
+        >
+          <span className="text-sm font-medium text-charcoal">
+            Order Summary <span className="text-ink-muted">({itemCount} items)</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="font-serif text-lg text-charcoal">₹{total.toLocaleString("en-IN")}</span>
+            <ChevronDown
+              size={16}
+              className={cn("text-charcoal/40 transition-transform", mobileExpanded && "rotate-180")}
+            />
+          </span>
+        </button>
+
+        <div className={cn(mobileExpanded ? "mt-5" : "hidden", "md:block md:mt-0")}>
+        <div className="hidden md:flex items-center justify-between">
           <h2 className="font-serif text-lg text-charcoal">
             Order Summary <span className="text-sm font-sans text-ink-muted">({itemCount} items)</span>
           </h2>
@@ -152,54 +181,78 @@ export function OrderSummarySidebar({
             </div>
           ))}
         </div>
+        </div>
       </div>
 
       <div className="mt-4 rounded-2xl border border-charcoal/10 bg-white p-5">
-        <p className="flex items-center gap-2 text-sm font-medium text-charcoal">
-          <Tag size={15} className="text-terracotta" />
-          Have a coupon code?
-        </p>
-        {authenticated ? (
-          <>
-            <p className="text-xs text-ink-muted mt-1">Apply your code and save on your order.</p>
-            <div className="mt-3 flex gap-2">
-              <input
-                type="text"
-                value={couponInput}
-                onChange={(e) => setCouponInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && couponInput.trim() && !couponApplying) {
-                    onApplyCoupon(couponInput.trim());
-                  }
-                }}
-                placeholder="Enter coupon code"
-                className="flex-1 min-w-0 rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive uppercase placeholder:normal-case"
-              />
-              <button
-                type="button"
-                disabled={couponApplying}
-                onClick={() => couponInput.trim() && onApplyCoupon(couponInput.trim())}
-                className="shrink-0 rounded-lg bg-olive text-cream px-5 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
-              >
-                {couponApplying ? "Checking…" : "Apply"}
-              </button>
-            </div>
-            {couponError && <p className="mt-2 text-xs text-terracotta-dark">{couponError}</p>}
-          </>
-        ) : (
-          <>
-            <p className="text-xs text-ink-muted mt-1">
-              Coupons are an account perk —{" "}
-              <button
-                type="button"
-                onClick={onSignInClick}
-                className="font-medium text-terracotta-dark hover:text-terracotta transition-colors"
-              >
-                sign in
-              </button>{" "}
-              to apply one.
-            </p>
-          </>
+        <button
+          type="button"
+          onClick={() => setCouponOpen((v) => !v)}
+          className="w-full flex items-center justify-between"
+          aria-expanded={couponOpen}
+        >
+          <span className="flex items-center gap-2 text-sm font-medium text-charcoal">
+            <Tag size={15} className="text-terracotta" />
+            {appliedCoupon ? (
+              <>
+                Coupon applied
+                <span className="inline-flex items-center rounded-full bg-olive/10 text-olive-dark text-xs font-medium px-2 py-0.5">
+                  {appliedCoupon.code}
+                </span>
+              </>
+            ) : (
+              "Have a coupon code?"
+            )}
+          </span>
+          <ChevronDown
+            size={16}
+            className={cn("text-charcoal/40 transition-transform shrink-0", couponOpen && "rotate-180")}
+          />
+        </button>
+
+        {couponOpen && (
+          <div className="mt-3">
+            {authenticated ? (
+              <>
+                <p className="text-xs text-ink-muted">Apply your code and save on your order.</p>
+                <div className="mt-3 flex gap-2">
+                  <input
+                    type="text"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && couponInput.trim() && !couponApplying) {
+                        onApplyCoupon(couponInput.trim());
+                      }
+                    }}
+                    placeholder="Enter coupon code"
+                    className="flex-1 min-w-0 rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive uppercase placeholder:normal-case"
+                  />
+                  <button
+                    type="button"
+                    disabled={couponApplying}
+                    onClick={() => couponInput.trim() && onApplyCoupon(couponInput.trim())}
+                    className="shrink-0 rounded-lg bg-olive text-cream px-5 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
+                  >
+                    {couponApplying ? "Checking…" : "Apply"}
+                  </button>
+                </div>
+                {couponError && <p className="mt-2 text-xs text-terracotta-dark">{couponError}</p>}
+              </>
+            ) : (
+              <p className="text-xs text-ink-muted">
+                Coupons are an account perk —{" "}
+                <button
+                  type="button"
+                  onClick={onSignInClick}
+                  className="font-medium text-terracotta-dark hover:text-terracotta transition-colors"
+                >
+                  sign in
+                </button>{" "}
+                to apply one.
+              </p>
+            )}
+          </div>
         )}
       </div>
 

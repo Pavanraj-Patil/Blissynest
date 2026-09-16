@@ -16,22 +16,26 @@ export function ShopGiftBanner() {
         src={mobileImage}
         alt="A Blissynest gift box with a candle, mug, and dried flowers"
         fill
-        className="object-cover object-[72%_center] sm:hidden"
+        className="object-cover object-[62%_center] sm:hidden"
         sizes="100vw"
       />
       <Image
         src={desktopImage}
         alt="A Blissynest gift box with a candle, mug, and dried flowers"
         fill
-        className="hidden object-cover object-[72%_center] sm:block"
+        className="hidden object-cover object-[62%_center] sm:block"
         sizes="1200px"
       />
 
-      {/* Scrim: opaque cream on the left for text legibility, fading out to reveal the photo on the right */}
+      {/* Light scrim — just enough to guarantee text legibility regardless of
+          what's behind it. The photo itself should already have genuine open,
+          plain-toned space on its left third (see the generation prompt), so
+          this only needs to be a soft assist, not a wall — a heavy opaque
+          panel is what crushed the photo down to an invisible sliver before. */}
       <div
         className="absolute inset-0
-          bg-[linear-gradient(to_right,var(--color-cream-dark)_0%,var(--color-cream-dark)_75%,transparent_98%)]
-          sm:bg-[linear-gradient(to_right,var(--color-cream-dark)_0%,var(--color-cream-dark)_52%,transparent_82%)]"
+          bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_30%,transparent_60%)]
+          sm:bg-[linear-gradient(to_right,var(--color-cream)_0%,var(--color-cream)_25%,transparent_50%)]"
       />
 
       <div className="relative h-full flex items-center px-6 sm:px-10">

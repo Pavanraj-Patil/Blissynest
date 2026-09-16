@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -16,8 +16,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
-import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { AccountAuthModal } from "@/components/layout/AccountAuthModal";
+import { CheckoutHeader } from "@/components/checkout/CheckoutHeader";
 import { CheckoutStepper, type CheckoutStep } from "@/components/checkout/CheckoutStepper";
 import { AddressStep } from "@/components/checkout/AddressStep";
 import { OrderSummarySidebar } from "@/components/checkout/OrderSummarySidebar";
@@ -58,7 +58,10 @@ function StepSection({
   const isReachable = stepNumber <= currentStep;
 
   return (
-    <div className="rounded-2xl border border-charcoal/10 bg-white overflow-hidden">
+    <div
+      id={`checkout-step-${stepNumber}`}
+      className="rounded-2xl border border-charcoal/10 bg-white overflow-hidden scroll-mt-4"
+    >
       <button
         type="button"
         onClick={() => isReachable && onOpen()}
@@ -150,6 +153,22 @@ export function CheckoutPageClient() {
     if (orderPlaced) window.scrollTo(0, 0);
   }, [orderPlaced]);
 
+  // Advancing a step is just a state change — the browser doesn't scroll
+  // anywhere on its own, so the newly-opened step's fields could render
+  // below the fold with nothing on screen telling the shopper what to do
+  // next. Skips the very first run so landing on the page doesn't cause an
+  // unnecessary scroll.
+  const isFirstStepRender = useRef(true);
+  useEffect(() => {
+    if (isFirstStepRender.current) {
+      isFirstStepRender.current = false;
+      return;
+    }
+    document
+      .getElementById(`checkout-step-${step}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [step]);
+
   // Public, auth-agnostic check (works for guest carts too, which never
   // touch the server otherwise) — the real enforcement is server-side in
   // order-service.ts; this is only what decides whether the option is
@@ -190,6 +209,12 @@ export function CheckoutPageClient() {
     (pm) => pm.key !== "cod" || codAvailableForCart
   );
   const selectedPaymentMethod = paymentMethods.find((m) => m.key === effectivePaymentMethod) ?? null;
+  // Mirrors AddressStep's own inline Continue button gate — duplicated
+  // (rather than lifted into shared state) because the mobile sticky CTA
+  // needs the same "can we advance" answer without AddressStep's own
+  // list/add/edit mode, which stays that component's own local concern.
+  const canContinueAddress =
+    !!selectedAddressId && (authenticated || (isValidEmail(guestEmail) && isValidPhone(guestPhone)));
 
   async function handleAddAddress(values: Omit<Address, "id">) {
     if (!authenticated) {
@@ -417,11 +442,8 @@ export function CheckoutPageClient() {
   if (cartLoading) {
     return (
       <>
-        <Header />
+        <CheckoutHeader />
         <main>
-          <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-            <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Checkout" }]} />
-          </div>
           <div className="flex flex-col items-center justify-center gap-3 py-24 text-ink-muted">
             <h1 className="sr-only">Checkout</h1>
             <Loader2 size={22} className="animate-spin text-olive" />
@@ -433,15 +455,13 @@ export function CheckoutPageClient() {
   }
 
   if (orderPlaced) {
+    // Full Header here on purpose, unlike the rest of checkout — the sale
+    // is done, so restoring navigation now helps (track the order, keep
+    // browsing) rather than risking a lost conversion.
     return (
       <>
         <Header />
         <main>
-          <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-            <Breadcrumb
-              items={[{ label: "Home", href: "/" }, { label: "Order Confirmed" }]}
-            />
-          </div>
           <div className="mx-auto max-w-[1440px] px-4 md:px-8">
             <OrderConfirmation
               orderNumber={orderNumber}
@@ -479,11 +499,8 @@ export function CheckoutPageClient() {
   if (items.length === 0) {
     return (
       <>
-        <Header />
+        <CheckoutHeader />
         <main>
-          <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-            <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Checkout" }]} />
-          </div>
           <div className="flex flex-col items-center text-center py-20 px-4">
             <div className="flex h-24 w-24 items-center justify-center rounded-full bg-cream-dark">
               <ShoppingBag size={38} className="text-olive/40" strokeWidth={1.5} />
@@ -510,31 +527,13 @@ export function CheckoutPageClient() {
 
   return (
     <>
-      <Header />
+      <CheckoutHeader />
       <main>
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-          <Breadcrumb
-            items={[
-              { label: "Home", href: "/" },
-              { label: "Cart", href: "/cart" },
-              { label: "Checkout" },
-            ]}
-          />
-        </div>
-
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 pb-4">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <h1 className="font-serif text-2xl md:text-3xl text-charcoal">Checkout</h1>
-              <p className="mt-1 text-sm text-ink-muted">
-                You&rsquo;re just a few steps away from thoughtful gifting ✨
-              </p>
-            </div>
-            <p className="hidden sm:flex items-center gap-1.5 text-sm text-ink-muted shrink-0">
-              <Lock size={13} />
-              Secure Checkout
-            </p>
-          </div>
+          <h1 className="font-serif text-2xl md:text-3xl text-charcoal">Checkout</h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            You&rsquo;re just a few steps away from thoughtful gifting ✨
+          </p>
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">
@@ -666,11 +665,13 @@ export function CheckoutPageClient() {
                     {codAvailableForCart && " Cash on Delivery needs nothing upfront."}
                   </p>
 
+                  {/* Hidden on mobile — same reasoning as AddressStep's own
+                      Continue button: CheckoutMobileStickyCTA covers it. */}
                   <button
                     type="button"
                     onClick={() => setStep(3)}
                     disabled={!effectivePaymentMethod}
-                    className="inline-flex items-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                    className="hidden md:inline-flex items-center gap-2 rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
                   >
                     Continue to Review
                     <ArrowRight size={14} />
@@ -824,13 +825,16 @@ export function CheckoutPageClient() {
           </div>
         </div>
 
-        {step === 3 && (
-          <CheckoutMobileStickyCTA
-            total={total}
-            onPlaceOrder={handlePlaceOrder}
-            placingOrder={placingOrder}
-          />
-        )}
+        <CheckoutMobileStickyCTA
+          step={step}
+          onContinueAddress={() => setStep(2)}
+          canContinueAddress={canContinueAddress}
+          onContinuePayment={() => setStep(3)}
+          canContinuePayment={!!effectivePaymentMethod}
+          total={total}
+          onPlaceOrder={handlePlaceOrder}
+          placingOrder={placingOrder}
+        />
       </main>
       <AccountAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
