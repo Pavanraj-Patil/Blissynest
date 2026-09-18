@@ -244,16 +244,17 @@ model OrderItem {
 }
 
 model Coupon {
-  id            String       @id @default(cuid())
-  code          String       @unique
-  discountType  DiscountType
-  discountValue Int
-  minOrderValue Int          @default(0)
-  usageLimit    Int?
-  usedCount     Int          @default(0)
-  expiresAt     DateTime?
-  active        Boolean      @default(true)
-  createdAt     DateTime     @default(now())
+  id             String       @id @default(cuid())
+  code           String       @unique
+  discountType   DiscountType
+  discountValue  Int
+  minOrderValue  Int          @default(0)
+  usageLimit     Int?
+  usedCount      Int          @default(0)
+  expiresAt      DateTime?
+  active         Boolean      @default(true)
+  firstOrderOnly Boolean      @default(false)
+  createdAt      DateTime     @default(now())
 }
 
 model Review {

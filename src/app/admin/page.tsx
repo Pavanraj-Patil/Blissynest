@@ -151,7 +151,11 @@ export default async function AdminDashboardPage({
         <div className="rounded-2xl border border-charcoal/10 bg-white p-5">
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-serif text-lg text-charcoal">Sales Overview</h2>
-            <p className="text-xs text-ink-muted">Last {Math.min(days, 30)} days</p>
+            <p className="text-xs text-ink-muted">
+              {days > 30
+                ? `Daily breakdown capped at 30 of the selected ${days} days`
+                : `Last ${days} days`}
+            </p>
           </div>
           <SalesOverviewChart data={sales} />
         </div>

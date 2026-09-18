@@ -106,7 +106,6 @@ export const corporateChecklist: SimpleLink[] = [
   { label: "Client Gifting", href: "/corporate/quote?interest=client" },
   { label: "Festive Gifting", href: "/corporate/quote?interest=festive" },
   { label: "Welcome Kits", href: "/corporate/quote?interest=welcome" },
-  { label: "Event Gifting", href: "/corporate/quote?interest=event" },
 ];
 
 export const featureStrip = [

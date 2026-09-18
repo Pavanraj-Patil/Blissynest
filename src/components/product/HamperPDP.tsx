@@ -7,7 +7,6 @@ import { cn } from "@/lib/cn";
 import { ProductGallery } from "./ProductGallery";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { RatingStars } from "./RatingStars";
-import { QuantityStepper } from "./QuantityStepper";
 import { FeatureIconRow } from "./FeatureIconRow";
 import { WhatsInsideList } from "./WhatsInsideList";
 import { AccordionItem } from "./Accordion";
@@ -44,7 +43,7 @@ export function HamperPDP({
 }) {
   const router = useRouter();
   const { addItem } = useCart();
-  const [quantity, setQuantity] = useState(1);
+  const quantity = 1;
   const [added, setAdded] = useState(false);
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [textValues, setTextValues] = useState<string[]>(
@@ -237,10 +236,6 @@ export function HamperPDP({
             )}
 
             <div className="mt-6">
-              <QuantityStepper value={quantity} onChange={setQuantity} />
-            </div>
-
-            <div className="mt-6">
               <AccordionItem title="Product Details" defaultOpen>
                 <p>{product.productDetails.description}</p>
               </AccordionItem>
@@ -267,6 +262,7 @@ export function HamperPDP({
                 {added ? "Added" : "Add to Cart"}
               </button>
               <BuyNowOrViewCartButton
+                productSlug={product.slug}
                 onBuyNow={handleBuyNow}
                 disabled={!product.inStock}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
@@ -278,6 +274,7 @@ export function HamperPDP({
         <ReviewsSection reviews={reviews} />
 
         <MobileStickyCTA
+          productSlug={product.slug}
           onAddToCart={handleAddToCart}
           onBuyNow={handleBuyNow}
           added={added}

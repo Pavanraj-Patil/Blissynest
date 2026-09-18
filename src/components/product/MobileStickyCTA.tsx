@@ -2,6 +2,7 @@ import { ShoppingBag, Check } from "lucide-react";
 import { BuyNowOrViewCartButton } from "./BuyNowOrViewCartButton";
 
 type MobileStickyCTAProps = {
+  productSlug: string;
   onAddToCart: () => void;
   onBuyNow: () => void;
   added?: boolean;
@@ -11,6 +12,7 @@ type MobileStickyCTAProps = {
 };
 
 export function MobileStickyCTA({
+  productSlug,
   onAddToCart,
   onBuyNow,
   added = false,
@@ -30,6 +32,7 @@ export function MobileStickyCTA({
         {added ? "Added" : addToCartLabel}
       </button>
       <BuyNowOrViewCartButton
+        productSlug={productSlug}
         onBuyNow={onBuyNow}
         buyNowLabel={buyNowLabel}
         disabled={disabled}

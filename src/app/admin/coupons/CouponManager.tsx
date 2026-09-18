@@ -12,6 +12,7 @@ type CouponFormValues = {
   minOrderValue: number;
   usageLimit: number | "";
   active: boolean;
+  firstOrderOnly: boolean;
 };
 
 const emptyForm: CouponFormValues = {
@@ -21,6 +22,7 @@ const emptyForm: CouponFormValues = {
   minOrderValue: 0,
   usageLimit: "",
   active: true,
+  firstOrderOnly: false,
 };
 
 const inputClass =
@@ -35,6 +37,7 @@ function toFormValues(c: Coupon): CouponFormValues {
     minOrderValue: Math.round(c.minOrderValue / 100),
     usageLimit: c.usageLimit ?? "",
     active: c.active,
+    firstOrderOnly: c.firstOrderOnly,
   };
 }
 
@@ -135,6 +138,18 @@ function CouponForm({
           className="h-4 w-4 rounded border-charcoal/25 accent-olive"
         />
         <span className="text-sm text-charcoal">Active — customers can apply this at checkout</span>
+      </label>
+
+      <label className="flex items-center gap-2.5 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={values.firstOrderOnly}
+          onChange={(e) => set("firstOrderOnly", e.target.checked)}
+          className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+        />
+        <span className="text-sm text-charcoal">
+          First-time customers only — blocked for anyone with a prior order
+        </span>
       </label>
 
       <div className="flex gap-3 pt-1">
@@ -288,7 +303,14 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
             <tbody>
               {coupons.map((c) => (
                 <tr key={c.id} className="border-b border-charcoal/5 last:border-0">
-                  <td className="py-2.5 pl-5 pr-3 font-medium text-charcoal">{c.code}</td>
+                  <td className="py-2.5 pl-5 pr-3 font-medium text-charcoal">
+                    {c.code}
+                    {c.firstOrderOnly && (
+                      <span className="ml-2 rounded-full bg-terracotta/10 text-terracotta-dark text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5">
+                        First order
+                      </span>
+                    )}
+                  </td>
                   <td className="py-2.5 px-3 text-charcoal-light">
                     {c.discountType === "PERCENT" ? `${c.discountValue}%` : `₹${Math.round(c.discountValue / 100)}`}
                   </td>

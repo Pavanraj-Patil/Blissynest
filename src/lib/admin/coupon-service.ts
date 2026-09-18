@@ -13,6 +13,7 @@ function toPaiseFields(input: AdminCouponInput) {
     minOrderValue: Math.round(input.minOrderValue * 100),
     usageLimit: input.usageLimit ?? null,
     active: input.active,
+    firstOrderOnly: input.firstOrderOnly,
   };
 }
 

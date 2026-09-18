@@ -9,8 +9,6 @@ import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { CollectionBanner } from "@/components/collections/CollectionBanner";
-import { CollectionTrustStrip } from "@/components/collections/CollectionTrustStrip";
 import { CollectionFilterSidebar } from "@/components/collections/CollectionFilterSidebar";
 import { CollectionMobileFilterDrawer } from "@/components/collections/CollectionMobileFilterDrawer";
 import { collectionContent, type CollectionSlug } from "@/lib/collection-mock-data";
@@ -185,18 +183,9 @@ export function CollectionPageClient({
           />
         </div>
 
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-          <CollectionBanner
-            title={content.title}
-            subtitle={content.subtitle}
-            image={content.bannerImage}
-            bg={content.bg}
-            dark={content.dark}
-          />
-        </div>
-
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">
-          <CollectionTrustStrip />
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-4">
+          <h1 className="font-serif text-2xl md:text-3xl text-charcoal">{content.title}</h1>
+          <p className="mt-1 text-sm text-ink-muted">{content.subtitle}</p>
         </div>
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">

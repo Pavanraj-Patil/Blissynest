@@ -263,11 +263,28 @@ export type CouponDiscountResult =
 // what actually gets charged.
 export async function resolveCouponDiscount(
   couponCode: string,
-  subtotal: number
+  subtotal: number,
+  userId: string
 ): Promise<CouponDiscountResult> {
   const coupon = await db.coupon.findUnique({ where: { code: couponCode.toUpperCase() } });
   if (!coupon || !coupon.active) {
     return { error: "That coupon code isn't valid." };
+  }
+  // usageLimit/usedCount were tracked (usedCount incremented on every order
+  // that uses a coupon — see persistOrder) but never actually enforced here,
+  // so a coupon with a limit could be used indefinitely. Checked against the
+  // live count, not a cached value, so a race between two orders using the
+  // last slot can only ever over-count by the handful of orders placed in
+  // the same instant — an acceptable, self-correcting edge case for a promo
+  // code, not a payment-critical invariant.
+  if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+    return { error: "This coupon has reached its usage limit." };
+  }
+  if (coupon.firstOrderOnly) {
+    const priorOrderCount = await db.order.count({ where: { userId } });
+    if (priorOrderCount > 0) {
+      return { error: "This coupon is valid for first-time customers only." };
+    }
   }
   if (subtotal < coupon.minOrderValue) {
     return { error: "Your order doesn't meet this coupon's minimum value." };
@@ -295,7 +312,7 @@ async function computeOrderPricing(source: CartSource, couponCode?: string): Pro
   // order (bypassing the UI, which already hides the coupon panel for
   // guests) is silently ignored here rather than trusted.
   if (couponCode && source.kind === "account") {
-    const result = await resolveCouponDiscount(couponCode, subtotal);
+    const result = await resolveCouponDiscount(couponCode, subtotal, source.userId);
     if (!("error" in result)) {
       discount = result.discount;
       resolvedCouponCode = result.couponCode;

@@ -11,6 +11,7 @@ export const adminCouponSchema = z
     minOrderValue: z.coerce.number().min(0).default(0),
     usageLimit: z.coerce.number().int().min(0).optional(),
     active: z.boolean().default(true),
+    firstOrderOnly: z.boolean().default(false),
   })
   .refine((data) => data.discountType !== "PERCENT" || data.discountValue <= 100, {
     message: "A percent discount can't exceed 100",

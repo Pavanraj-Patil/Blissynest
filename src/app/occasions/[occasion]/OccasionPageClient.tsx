@@ -59,14 +59,19 @@ export function OccasionPageClient({
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Quick-access pills only make sense for filters that actually match
+  // something in stock — an empty pill just leads to a "no products match"
+  // grid with no way to tell that in advance.
   const filterPills = useMemo(
     () =>
-      pills.map((pill) => ({
-        slug: pillKey(pill.type, pill.value),
-        label: pill.label,
-        icon: getOccasionPillIcon(pill),
-        count: occasionProducts.filter((p) => productMatchesPill(p, pill)).length,
-      })),
+      pills
+        .map((pill) => ({
+          slug: pillKey(pill.type, pill.value),
+          label: pill.label,
+          icon: getOccasionPillIcon(pill),
+          count: occasionProducts.filter((p) => productMatchesPill(p, pill)).length,
+        }))
+        .filter((pill) => pill.count > 0),
     [pills, occasionProducts]
   );
 

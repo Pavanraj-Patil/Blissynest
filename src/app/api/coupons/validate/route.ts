@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   }
 
   const subtotalPaise = rupeesToPaise(parsed.data.subtotal);
-  const result = await resolveCouponDiscount(parsed.data.code, subtotalPaise);
+  const result = await resolveCouponDiscount(parsed.data.code, subtotalPaise, session.user.id);
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }

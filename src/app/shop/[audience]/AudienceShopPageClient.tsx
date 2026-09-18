@@ -69,6 +69,14 @@ export function AudienceShopPageClient({
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Quick-access pills only make sense for categories that actually have
+  // something in stock — an empty pill just leads to a "no products match"
+  // grid with no way to tell that in advance.
+  const visibleCategories = useMemo(
+    () => categories.filter((c) => shopProducts.some((p) => p.category.includes(c.slug))),
+    [categories, shopProducts]
+  );
+
   const occasionCounts = useMemo(() => {
     const counts = new Map<string, number>();
     shopProducts.forEach((p) => {
@@ -216,7 +224,7 @@ export function AudienceShopPageClient({
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">
           <CategoryPillRow
-            categories={categories}
+            categories={visibleCategories}
             selected={selectedCategories.length === 1 ? selectedCategories[0] : null}
             onSelect={(slug) => toggleCategory(slug ?? "__all__")}
           />

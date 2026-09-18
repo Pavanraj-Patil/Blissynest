@@ -6,7 +6,6 @@ import { ShoppingBag, Check } from "lucide-react";
 import { ProductGallery } from "./ProductGallery";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { RatingStars } from "./RatingStars";
-import { QuantityStepper } from "./QuantityStepper";
 import { VariantPills } from "./VariantPills";
 import { AccordionItem } from "./Accordion";
 import { ShareIconButton } from "./ShareIconButton";
@@ -34,7 +33,7 @@ export function StandalonePDP({
 }) {
   const router = useRouter();
   const { addItem } = useCart();
-  const [quantity, setQuantity] = useState(1);
+  const quantity = 1;
   const [added, setAdded] = useState(false);
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(
@@ -165,10 +164,6 @@ export function StandalonePDP({
             )}
 
             <div className="mt-6">
-              <QuantityStepper value={quantity} onChange={setQuantity} />
-            </div>
-
-            <div className="mt-6">
               <AccordionItem title="Description" defaultOpen>
                 <p>{product.productDetails.description}</p>
               </AccordionItem>
@@ -207,6 +202,7 @@ export function StandalonePDP({
                 {added ? "Added" : "Add to Cart"}
               </button>
               <BuyNowOrViewCartButton
+                productSlug={product.slug}
                 onBuyNow={handleBuyNow}
                 disabled={!product.inStock}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
@@ -218,6 +214,7 @@ export function StandalonePDP({
         <ReviewsSection reviews={reviews} />
 
         <MobileStickyCTA
+          productSlug={product.slug}
           onAddToCart={handleAddToCart}
           onBuyNow={handleBuyNow}
           added={added}

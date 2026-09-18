@@ -15,7 +15,7 @@ import { corporateNeeds } from "@/lib/corporate-data";
 import { contentIconOptions } from "@/lib/content-icons";
 
 const featureIconDefaults = ["Gift", "PackageCheck", "Wand2", "Truck"];
-const corporateChecklistIconDefaults = ["Users", "Briefcase", "PartyPopper", "PackageOpen", "CalendarDays"];
+const corporateChecklistIconDefaults = ["Users", "Briefcase", "PartyPopper", "PackageOpen"];
 
 // The single source of truth for every admin-editable content field on
 // the homepage and static pages: what it's called in the admin UI, what
@@ -291,9 +291,9 @@ export const contentSchema: Record<string, PageSchema> = {
           ],
           emptyItem: { icon: contentIconOptions[0], title: "", body: "" },
           default: [
-            { icon: "Clock", title: "Delivery timelines", body: "Most orders are dispatched within 24–48 hours and delivered within 3–5 business days, depending on your location. Personalised and hamper orders may take an extra 1–2 days to prepare with care." },
+            { icon: "Clock", title: "Delivery timelines", body: "Most orders are dispatched within 24–48 hours and delivered within 5–7 business days, depending on your location. Personalised and hamper orders may take an extra 1–2 days to prepare with care." },
             { icon: "Truck", title: "Shipping charges", body: "Free shipping on all orders above ₹999. Orders below that ship for a flat ₹99. Charges are calculated automatically at checkout — no surprises at the end." },
-            { icon: "MapPin", title: "Where we deliver", body: "We currently deliver across India, including most Tier 1 and Tier 2 cities. Enter your pincode on any product page to check serviceability before you order." },
+            { icon: "MapPin", title: "Where we deliver", body: "We currently deliver across India, including most Tier 1 and Tier 2 cities. Delivery availability and timelines are confirmed automatically once you enter your address at checkout." },
             { icon: "PackageCheck", title: "Tracking your order", body: "Once your order ships, you'll get a tracking link by email. You can also check the status any time from the Track Order page." },
           ],
         },

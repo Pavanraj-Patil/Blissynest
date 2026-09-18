@@ -5,6 +5,7 @@ import { ShoppingBag, Zap } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 
 type BuyNowOrViewCartButtonProps = {
+  productSlug: string;
   onBuyNow: () => void;
   buyNowLabel?: string;
   disabled?: boolean;
@@ -12,11 +13,14 @@ type BuyNowOrViewCartButtonProps = {
   iconSize?: number;
 };
 
-// Once anything is sitting in the cart, "Buy Now" is no longer an honest
-// label for this slot — the shopper isn't buying fresh from zero anymore.
-// Swap it for a "View Cart" shortcut instead, badge and all (same pattern
-// FNP uses) — Add to Cart elsewhere on the page still never redirects.
+// Once THIS product is sitting in the cart, "Buy Now" is no longer an
+// honest label for this slot — the shopper isn't buying it fresh from zero
+// anymore. Swap it for a "View Cart" shortcut instead, badge and all (same
+// pattern FNP uses) — Add to Cart elsewhere on the page still never
+// redirects. Keyed to this product specifically (not "is the cart
+// non-empty") so browsing to a different product still shows "Buy Now".
 export function BuyNowOrViewCartButton({
+  productSlug,
   onBuyNow,
   buyNowLabel = "Buy Now",
   disabled = false,
@@ -24,9 +28,10 @@ export function BuyNowOrViewCartButton({
   iconSize = 15,
 }: BuyNowOrViewCartButtonProps) {
   const router = useRouter();
-  const { count } = useCart();
+  const { items, count } = useCart();
+  const inCart = items.some((i) => i.slug === productSlug);
 
-  if (count > 0) {
+  if (inCart) {
     return (
       <button
         type="button"
