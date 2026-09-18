@@ -23,7 +23,7 @@ export function SingleImageUploader({
 
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch("/api/admin/upload-image", { method: "POST", body: formData });
+    const res = await fetch("/api/admin/upload-image-r2", { method: "POST", body: formData });
     const data = await res.json();
     setUploading(false);
     if (inputRef.current) inputRef.current.value = "";

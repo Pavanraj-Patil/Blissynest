@@ -1,41 +1,14 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 import { requireAdminApi } from "@/lib/admin/require-admin";
+import { validateUploadedImage } from "@/lib/image-upload-validation";
 
-const MAX_BYTES = 8 * 1024 * 1024; // 8MB
-
-// Allowlist, not a broad "image/*" prefix check — that would also accept
-// image/svg+xml. SVG is XML and can embed a <script> that runs when the
-// file is opened directly or embedded in certain contexts; product photos
-// have no legitimate reason to be vector/scriptable files, so it's excluded
-// outright rather than attempting to sanitize it.
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-
-// Magic-byte check for the same four formats ALLOWED_IMAGE_TYPES declares —
-// the one piece of upload validation that can't be spoofed by just setting
-// a Content-Type header, unlike file.type above.
-function hasKnownImageSignature(bytes: Buffer): boolean {
-  if (bytes.length < 12) return false;
-  const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-  const isPng =
-    bytes[0] === 0x89 &&
-    bytes[1] === 0x50 &&
-    bytes[2] === 0x4e &&
-    bytes[3] === 0x47 &&
-    bytes[4] === 0x0d &&
-    bytes[5] === 0x0a &&
-    bytes[6] === 0x1a &&
-    bytes[7] === 0x0a;
-  const isGif =
-    bytes.subarray(0, 6).toString("ascii") === "GIF87a" ||
-    bytes.subarray(0, 6).toString("ascii") === "GIF89a";
-  const isWebp =
-    bytes.subarray(0, 4).toString("ascii") === "RIFF" &&
-    bytes.subarray(8, 12).toString("ascii") === "WEBP";
-  return isJpeg || isPng || isGif || isWebp;
-}
-
-// POST /api/admin/upload-image — admin uploading a real product photo.
+// POST /api/admin/upload-image — admin uploading a real product photo to
+// Cloudinary. Kept in place (and working) as a fallback/revert path even
+// after R2 + Cloudflare Images (see upload-image-r2/route.ts) became the
+// active integration — switching back is just re-adding these three env
+// vars and pointing the uploader components at this route again.
+//
 // Cloudinary credentials aren't set yet (see .env) until a real account is
 // configured; until then this responds with a clear "not configured" error
 // instead of a confusing crash, and the admin form's URL/local-path textarea
@@ -59,34 +32,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const formData = await request.formData().catch(() => null);
-  const file = formData?.get("file");
-  if (!file || !(file instanceof File)) {
-    return NextResponse.json({ error: "No file provided." }, { status: 400 });
+  const validated = await validateUploadedImage(request);
+  if ("error" in validated) {
+    return NextResponse.json({ error: validated.error }, { status: validated.status });
   }
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-    return NextResponse.json(
-      { error: "Only JPEG, PNG, WebP, or GIF images are allowed." },
-      { status: 400 }
-    );
-  }
-  if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "Image must be under 8MB." }, { status: 400 });
-  }
+  const { bytes } = validated;
 
   cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret });
-
-  const bytes = Buffer.from(await file.arrayBuffer());
-
-  // The declared MIME type is client-supplied and spoofable — confirm the
-  // file's actual bytes match a known raster-image signature before it
-  // goes anywhere near Cloudinary, rather than trusting file.type alone.
-  if (!hasKnownImageSignature(bytes)) {
-    return NextResponse.json(
-      { error: "That file doesn't look like a valid image." },
-      { status: 400 }
-    );
-  }
 
   try {
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {

@@ -728,7 +728,7 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
             className={`${inputClass} resize-none`}
           />
           <span className="mt-1 block text-[11px] text-ink-muted">
-            Uploads above go to Cloudinary once it&rsquo;s configured (see .env) — until then, a
+            Uploads above go to Cloudflare R2 once it&rsquo;s configured (see .env) — until then, a
             local path under /public (e.g. /products/candle.jpg) works fine for testing.
           </span>
         </label>

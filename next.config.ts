@@ -17,7 +17,7 @@ const CSP = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval' "}https://checkout.razorpay.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https://placehold.co https://res.cloudinary.com",
+  "img-src 'self' data: https://placehold.co https://res.cloudinary.com https://imagedelivery.net",
   "font-src 'self' data:",
   "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com",
   "frame-src https://api.razorpay.com https://checkout.razorpay.com",
@@ -29,6 +29,14 @@ const CSP = [
 
 const nextConfig: NextConfig = {
   images: {
+    // A custom loader replaces Next's built-in optimizer for every <Image>
+    // in the app — see src/lib/cloudflare-images-loader.ts for why it still
+    // behaves identically for every source that isn't a new Cloudflare
+    // Images URL. remotePatterns below is still enforced: the loader's
+    // fallback branch routes through Next's own internal /_next/image
+    // route, which checks this allowlist itself.
+    loader: "custom",
+    loaderFile: "./src/lib/cloudflare-images-loader.ts",
     remotePatterns: [
       {
         protocol: "https",
@@ -37,6 +45,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "imagedelivery.net",
       },
     ],
   },
