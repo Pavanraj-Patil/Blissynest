@@ -9,7 +9,7 @@ import { HowItWorks } from "@/components/corporate/HowItWorks";
 import { WhyChooseUs } from "@/components/corporate/WhyChooseUs";
 import { TrustedByStrip } from "@/components/corporate/TrustedByStrip";
 import { CorporateFinalCta } from "@/components/corporate/CorporateFinalCta";
-import { getPageContent } from "@/lib/content-service";
+import { getPageContent, getSectionVisibility } from "@/lib/content-service";
 
 export const metadata: Metadata = {
   title: "Corporate Gifting | Blissynest",
@@ -17,7 +17,10 @@ export const metadata: Metadata = {
 };
 
 export default async function CorporatePage() {
-  const content = await getPageContent("corporate");
+  const [content, show] = await Promise.all([
+    getPageContent("corporate"),
+    getSectionVisibility("corporate"),
+  ]);
 
   return (
     <>
@@ -33,12 +36,15 @@ export default async function CorporatePage() {
           />
         </div>
 
-        <CorporateHero content={content.hero} />
-        <CorporateNeeds content={content.needs} />
-        <HowItWorks content={content["how-it-works"]} />
-        <WhyChooseUs content={content["why-choose-us"]} testimonials={content.testimonials} />
-        <TrustedByStrip content={content["trusted-by"]} />
-        <CorporateFinalCta content={content["final-cta"]} />
+        {show.hero && <CorporateHero content={content.hero} />}
+        {show.needs && <CorporateNeeds content={content.needs} />}
+        {show["how-it-works"] && <HowItWorks content={content["how-it-works"]} />}
+        <WhyChooseUs
+          content={show["why-choose-us"] ? content["why-choose-us"] : null}
+          testimonials={show.testimonials ? content.testimonials : null}
+        />
+        {show["trusted-by"] && <TrustedByStrip content={content["trusted-by"]} />}
+        {show["final-cta"] && <CorporateFinalCta content={content["final-cta"]} />}
       </main>
       <ShopFooter />
     </>

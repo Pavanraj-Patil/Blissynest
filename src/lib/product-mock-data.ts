@@ -59,6 +59,7 @@ export type HamperProduct = BaseProduct & {
   textLines?: CustomisableProduct["textLines"];
   fonts?: CustomisableProduct["fonts"];
   colors?: CustomisableProduct["colors"];
+  imageUpload?: CustomisableProduct["imageUpload"];
 };
 
 export type CustomisableProduct = BaseProduct & {
@@ -71,6 +72,8 @@ export type CustomisableProduct = BaseProduct & {
   }[];
   fonts: string[];
   colors: { name: string; hex: string }[];
+  // Present when the shopper can upload their own photos for this product.
+  imageUpload?: { maxImages: number; required: boolean };
   variantLabel?: string;
   variantOptions?: string[];
   specs?: { icon: string; label: string; value: string }[];

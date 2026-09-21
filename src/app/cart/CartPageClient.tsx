@@ -194,6 +194,20 @@ export function CartPageClient() {
                                 {label}: {value}
                               </span>
                             ))}
+                          {item.customization.imageUrls && item.customization.imageUrls.length > 0 && (
+                            <span className="flex items-center gap-1.5">
+                              {item.customization.imageUrls.map((src, i) => (
+                                // Plain <img>: shopper-uploaded file on the R2 host, tiny preview.
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  key={src}
+                                  src={src}
+                                  alt={`Your photo ${i + 1}`}
+                                  className="h-9 w-9 rounded-md border border-charcoal/10 object-cover"
+                                />
+                              ))}
+                            </span>
+                          )}
                         </div>
                       )}
 

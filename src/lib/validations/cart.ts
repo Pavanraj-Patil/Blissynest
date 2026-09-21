@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isCustomerUploadUrl } from "@/lib/customer-uploads";
 
 // Covers both product types that attach customization to a cart line:
 // Customisable (textLines/font/colorHex/variant — all populated together)
@@ -14,6 +15,12 @@ export const customizationSchema = z
     colorHex: z.string().min(1).optional(),
     variant: z.string().optional(),
     variants: z.record(z.string(), z.string()).optional(),
+    imageUrls: z
+      .array(
+        z.string().max(500).refine(isCustomerUploadUrl, "That isn't a valid uploaded photo.")
+      )
+      .max(10)
+      .optional(),
   })
   .optional();
 

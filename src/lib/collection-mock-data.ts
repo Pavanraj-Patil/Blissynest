@@ -43,7 +43,6 @@ type CollectionDefinition = {
   title: string;
   subtitle: string;
   breadcrumbLabel: string;
-  bannerImageLabel: string;
   bg: string;
   fg: string;
   dark?: boolean;
@@ -60,7 +59,6 @@ const definitions: CollectionDefinition[] = [
     title: "The Minimalist Edit",
     subtitle: "Simple, elegant, thoughtful.",
     breadcrumbLabel: "The Minimalist Edit",
-    bannerImageLabel: "Vase & Linen",
     bg: "e9e2d3",
     fg: "2a2621",
     categories: [
@@ -111,7 +109,6 @@ const definitions: CollectionDefinition[] = [
     title: "The Celebration Edit",
     subtitle: "For moments to remember.",
     breadcrumbLabel: "The Celebration Edit",
-    bannerImageLabel: "Balloons & Cake",
     bg: "ead9c9",
     fg: "a85830",
     categories: [
@@ -162,7 +159,6 @@ const definitions: CollectionDefinition[] = [
     title: "The Luxury Edit",
     subtitle: "For when only the best will do.",
     breadcrumbLabel: "The Luxury Edit",
-    bannerImageLabel: "Watch & Silk",
     bg: "241f1a",
     fg: "cfb587",
     dark: true,
@@ -214,7 +210,6 @@ const definitions: CollectionDefinition[] = [
     title: "Gift Hampers",
     subtitle: "Ready to gift, or made to feel personal.",
     breadcrumbLabel: "Gift Hampers",
-    bannerImageLabel: "Ribbon & Box",
     bg: "cc8b65",
     fg: "2a2621",
     // These two slugs are the sub-filter pills shown on this collection's
@@ -272,7 +267,6 @@ export type CollectionContent = {
   bg: string;
   fg: string;
   dark: boolean;
-  bannerImage: string;
   categories: CollectionCategory[];
   attributeFilter: { label: string; values: string[] } | null;
   occasionTagsPool: string[];
@@ -292,7 +286,6 @@ export const collectionContent: Record<CollectionSlug, CollectionContent> =
         bg: def.bg,
         fg: def.fg,
         dark: def.dark ?? false,
-        bannerImage: ph(1400, 700, def.bg, def.fg, def.bannerImageLabel),
         categories: def.categories,
         attributeFilter: def.attributeFilter,
         occasionTagsPool: def.occasionTagsPool,

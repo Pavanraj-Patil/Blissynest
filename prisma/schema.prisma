@@ -488,4 +488,5 @@ enum ContentBlockType {
   LINK
   LIST
   NESTED_LIST
+  BOOLEAN
 }

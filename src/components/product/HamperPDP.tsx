@@ -15,6 +15,7 @@ import { PdpWishlistButton } from "./PdpWishlistButton";
 import { ReviewsSection } from "./ReviewsSection";
 import { MobileStickyCTA } from "./MobileStickyCTA";
 import { BuyNowOrViewCartButton } from "./BuyNowOrViewCartButton";
+import { CustomerImageUploader } from "./CustomerImageUploader";
 import { RelatedProducts } from "./RelatedProducts";
 import { AddedToCartModal } from "./AddedToCartModal";
 import type { HamperProduct } from "@/lib/product-mock-data";
@@ -54,12 +55,24 @@ export function HamperPDP({
 
   const unitPrice = product.price;
 
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+
   // Only present when this hamper has personalisation configured — matches
   // the shape CustomisablePDP.tsx already builds and sends through cart/
   // checkout, so nothing downstream needs to know a hamper produced it.
-  const customization = product.textLines
-    ? { textLines: textValues, font, colorHex: color }
-    : undefined;
+  const customization =
+    product.textLines || product.imageUpload
+      ? {
+          textLines: textValues,
+          font,
+          colorHex: color,
+          ...(photoUrls.length > 0 && { imageUrls: photoUrls }),
+        }
+      : undefined;
+
+  // A hamper that requires the shopper's photo can't be bought without one.
+  const missingRequiredPhoto = Boolean(product.imageUpload?.required) && photoUrls.length === 0;
+  const purchaseBlocked = !product.inStock || missingRequiredPhoto;
 
   function handleAddToCart() {
     addItem(
@@ -144,6 +157,17 @@ export function HamperPDP({
             <div className="mt-5">
               <FeatureIconRow items={product.benefits} />
             </div>
+
+            {product.imageUpload && (
+              <div className="mt-7 border-t border-charcoal/10 pt-5">
+                <CustomerImageUploader
+                  value={photoUrls}
+                  onChange={setPhotoUrls}
+                  maxImages={product.imageUpload.maxImages}
+                  required={product.imageUpload.required}
+                />
+              </div>
+            )}
 
             {product.textLines && product.textLines.length > 0 && (
               <div className="mt-7 border-t border-charcoal/10 pt-5">
@@ -255,7 +279,7 @@ export function HamperPDP({
             <div className="mt-6 hidden md:flex md:mt-auto gap-3 md:sticky md:bottom-0 md:z-10 md:rounded-t-2xl md:border-t md:border-charcoal/10 md:bg-cream/95 md:backdrop-blur md:p-4 md:shadow-lg">
               <button
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={purchaseBlocked}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors disabled:opacity-40 disabled:pointer-events-none"
               >
                 {added ? <Check size={15} /> : <ShoppingBag size={15} />}
@@ -264,7 +288,7 @@ export function HamperPDP({
               <BuyNowOrViewCartButton
                 productSlug={product.slug}
                 onBuyNow={handleBuyNow}
-                disabled={!product.inStock}
+                disabled={purchaseBlocked}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
               />
             </div>
@@ -278,7 +302,7 @@ export function HamperPDP({
           onAddToCart={handleAddToCart}
           onBuyNow={handleBuyNow}
           added={added}
-          disabled={!product.inStock}
+          disabled={purchaseBlocked}
         />
       </div>
 

@@ -92,6 +92,21 @@ export const shopOccasions = [
   "Congratulations",
 ];
 
+// Specific festivals a product can be tagged with (stored alongside the
+// general occasion tags in Product.occasionTags). Drives the pill row on the
+// Festivals occasion page and the "Festival Tags" checkboxes in the admin
+// product form, so the two can never disagree.
+export const festivalTags = [
+  "Diwali",
+  "Ganesh Chaturthi",
+  "Navratri",
+  "Christmas",
+  "New Year",
+  "Holi",
+  "Raksha Bandhan",
+  "Eid",
+];
+
 type ProductSeed = { name: string; price: number };
 
 export type AudienceSlug =

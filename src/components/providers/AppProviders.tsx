@@ -13,15 +13,17 @@ export function AppProviders({
   session,
   shopGiftBannerImage,
   categoryPillImages,
+  shopGiftBannerVisible,
 }: {
   children: ReactNode;
   session: Session | null;
   shopGiftBannerImage: ResponsiveImageValue;
   categoryPillImages: Record<string, string>;
+  shopGiftBannerVisible: boolean;
 }) {
   return (
     <SessionProvider session={session}>
-      <SiteContentProvider value={{ shopGiftBannerImage, categoryPillImages }}>
+      <SiteContentProvider value={{ shopGiftBannerImage, categoryPillImages, shopGiftBannerVisible }}>
         <CartProvider>
           <WishlistProvider>{children}</WishlistProvider>
         </CartProvider>

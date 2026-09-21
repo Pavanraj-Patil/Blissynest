@@ -11,23 +11,29 @@ import { LovedByMany } from "@/components/home/LovedByMany";
 import { CorporateBanner } from "@/components/home/CorporateBanner";
 import { FeatureStrip } from "@/components/home/FeatureStrip";
 import { CommunityStrip } from "@/components/home/CommunityStrip";
+import { getSectionVisibility } from "@/lib/content-service";
 
-export default function Home() {
+export default async function Home() {
+  // Each block below can be switched off from Admin → Site Content. The
+  // seasonal banner isn't in that list — it's managed (and has its own
+  // active/inactive switches) under Admin → Banners.
+  const show = await getSectionVisibility("home");
+
   return (
     <>
       <TopBar />
       <Header />
       <main>
-        <Hero />
-        <GiftingAssistant />
+        {show.hero && <Hero />}
+        {show["gifting-assistant"] && <GiftingAssistant />}
         <SeasonalBanner />
-        <WhoAreYouGifting />
-        <MadeForTheMoment />
-        <BlissynestEdit />
-        <LovedByMany />
-        <CorporateBanner />
-        <FeatureStrip />
-        <CommunityStrip />
+        {show["who-are-you-gifting"] && <WhoAreYouGifting />}
+        {show["made-for-the-moment"] && <MadeForTheMoment />}
+        {show["blissynest-edit"] && <BlissynestEdit />}
+        {show["loved-by-many"] && <LovedByMany />}
+        {show["corporate-banner"] && <CorporateBanner />}
+        {show["feature-strip"] && <FeatureStrip />}
+        {show["community-strip"] && <CommunityStrip />}
       </main>
       <Footer />
     </>

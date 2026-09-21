@@ -7,9 +7,16 @@ import {
   User,
   HeartHandshake,
   Baby,
+  Sparkles,
+  PartyPopper,
+  TreePine,
+  Palette,
+  Gift,
+  Moon,
+  Flower2,
   type LucideIcon,
 } from "lucide-react";
-import { categoryIcons, type AudienceSlug } from "@/lib/shop-mock-data";
+import { categoryIcons, festivalTags, type AudienceSlug } from "@/lib/shop-mock-data";
 import { slugify } from "@/lib/slugify";
 
 export type OccasionSlug = "birthday" | "anniversary" | "thank-you" | "festivals";
@@ -84,7 +91,9 @@ export const audiencePillIcons: Record<AudienceSlug, LucideIcon> = {
 };
 
 export type OccasionPillFilter = {
-  type: "audience" | "category" | "recipient";
+  // "occasion" matches a product's own occasion tag (used for the specific
+  // festivals on the Festivals page).
+  type: "audience" | "category" | "recipient" | "occasion";
   value: string;
   label: string;
 };
@@ -137,15 +146,25 @@ export const occasionPills: Record<OccasionSlug, OccasionPillFilter[]> = {
     { type: "category", value: "personalised", label: "Personalised" },
     { type: "category", value: "add-ons", label: "Add-ons" },
   ],
-  festivals: [
-    { type: "audience", value: "parents", label: "For Parents" },
-    { type: "audience", value: "her", label: "For Her" },
-    { type: "audience", value: "him", label: "For Him" },
-    { type: "category", value: "add-ons", label: "Add-ons" },
-  ],
+  // By festival rather than by recipient — that's how people shop this page
+  // ("Diwali gifts", "Raksha Bandhan gifts"). A festival with no products
+  // tagged yet is hidden automatically by OccasionPageClient.
+  festivals: festivalTags.map((tag) => ({ type: "occasion", value: tag, label: tag })),
+};
+
+export const festivalPillIcons: Record<string, LucideIcon> = {
+  Diwali: Flame,
+  "Ganesh Chaturthi": Flower2,
+  Navratri: Sparkles,
+  Christmas: TreePine,
+  "New Year": PartyPopper,
+  Holi: Palette,
+  "Raksha Bandhan": Gift,
+  Eid: Moon,
 };
 
 export function getOccasionPillIcon(pill: OccasionPillFilter): LucideIcon {
+  if (pill.type === "occasion") return festivalPillIcons[pill.value] ?? Sparkles;
   if (pill.type === "audience") return audiencePillIcons[pill.value as AudienceSlug];
   if (pill.type === "recipient") return recipientPillIcons[pill.value] ?? Baby;
   return categoryIcons[pill.value] ?? categoryIcons["add-ons"];

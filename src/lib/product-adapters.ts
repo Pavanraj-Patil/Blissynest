@@ -18,6 +18,9 @@ import { audienceEnumToSlug } from "@/lib/validations/product";
 // option) for a plain product with color/size-style choices. A single
 // cart line only ever has one shape populated, never both.
 export type CartItemCustomization = {
+  // Customer-uploaded photos (public R2 URLs) for products that let shoppers
+  // send their own images — see CustomerImageUploader.
+  imageUrls?: string[];
   textLines?: string[];
   font?: string;
   colorHex?: string;
@@ -85,6 +88,7 @@ type CustomizationSchemaJson = {
   variantLabel?: string | null;
   variantOptions?: string[] | null;
   specs?: { icon: string; label: string; value: string }[] | null;
+  imageUpload?: { maxImages: number; required: boolean } | null;
 };
 
 // Matches the real product's pdpType exactly, so HamperPDP/CustomisablePDP/
@@ -114,7 +118,12 @@ export function toProductDetail(p: Product): ProductDetail {
       ...base,
       pdpType: "hamper",
       whatsInside: (p.whatsInside as { icon: string; name: string; subtitle: string; qty: string }[]) ?? [],
-      ...(cs && { textLines: cs.textLines, fonts: cs.fonts, colors: cs.colors }),
+      ...(cs && {
+        textLines: cs.textLines,
+        fonts: cs.fonts,
+        colors: cs.colors,
+        imageUpload: cs.imageUpload ?? undefined,
+      }),
     };
   }
 
@@ -126,6 +135,7 @@ export function toProductDetail(p: Product): ProductDetail {
       textLines: cs.textLines,
       fonts: cs.fonts,
       colors: cs.colors,
+      imageUpload: cs.imageUpload ?? undefined,
       variantLabel: cs.variantLabel ?? undefined,
       variantOptions: cs.variantOptions ?? undefined,
       specs: cs.specs ?? undefined,

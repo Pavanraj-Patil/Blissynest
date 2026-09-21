@@ -139,7 +139,7 @@ export function ShopFooter() {
         </div>
 
         <p className="text-xs text-ink-muted mt-10 pt-6 border-t border-charcoal/10">
-          © 2026 BlissyNest. All rights reserved.
+          © 2026 Blissynest. All rights reserved.
         </p>
       </div>
     </footer>

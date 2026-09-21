@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { db } from "@/lib/db";
 import { paiseToRupees } from "@/lib/currency";
+import { getRelatedProductOptions } from "@/lib/admin/product-service";
 import { ProductForm, type ProductFormInitial } from "../../ProductForm";
 
 function toRupees(paise: number | null): number | "" {
@@ -16,7 +17,10 @@ export default async function AdminEditProductPage({
   await requireAdmin("products");
   const { id } = await params;
 
-  const product = await db.product.findUnique({ where: { id } });
+  const [product, relatedProductOptions] = await Promise.all([
+    db.product.findUnique({ where: { id } }),
+    getRelatedProductOptions(id),
+  ]);
   if (!product) notFound();
 
   const details = product.productDetails as {
@@ -35,6 +39,7 @@ export default async function AdminEditProductPage({
     variantLabel?: string | null;
     variantOptions?: string[] | null;
     specs?: { icon: string; label: string; value: string }[] | null;
+    imageUpload?: { maxImages: number; required: boolean } | null;
   } | null;
 
   const initial: ProductFormInitial = {
@@ -48,6 +53,7 @@ export default async function AdminEditProductPage({
     breadcrumbCategory: product.breadcrumbCategory ?? "",
     occasionTags: product.occasionTags as string[],
     recipientTags: product.recipientTags as string[],
+    relatedSlugs: product.relatedSlugs as string[],
     attribute: product.attribute ?? "",
     badge: product.badge ?? "",
     basePrice: paiseToRupees(product.basePrice),
@@ -79,6 +85,9 @@ export default async function AdminEditProductPage({
     textLines: cs?.textLines ?? [],
     fonts: cs?.fonts ?? [],
     colors: cs?.colors ?? [],
+    imageUploadEnabled: Boolean(cs?.imageUpload),
+    imageUploadMax: cs?.imageUpload?.maxImages ?? 1,
+    imageUploadRequired: cs?.imageUpload?.required ?? true,
     variantLabel: cs?.variantLabel ?? "",
     variantOptions: cs?.variantOptions ?? [],
     specs: cs?.specs ?? [],
@@ -90,7 +99,7 @@ export default async function AdminEditProductPage({
         <h1 className="font-serif text-2xl text-charcoal">Edit Product</h1>
         <p className="mt-1 text-sm text-ink-muted">{product.slug}</p>
       </div>
-      <ProductForm initial={initial} />
+      <ProductForm initial={initial} relatedProductOptions={relatedProductOptions} />
     </div>
   );
 }

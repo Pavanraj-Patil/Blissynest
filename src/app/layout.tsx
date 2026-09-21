@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Work_Sans } from "next/font/google";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { auth } from "@/auth";
-import { getPageContent } from "@/lib/content-service";
+import { getPageContent, getSectionVisibility } from "@/lib/content-service";
 import type { ResponsiveImageValue } from "@/lib/content-schema";
 import "./globals.css";
 
@@ -28,7 +28,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const [session, layoutContent] = await Promise.all([auth(), getPageContent("layout")]);
+  const [session, layoutContent, layoutVisibility] = await Promise.all([
+    auth(),
+    getPageContent("layout"),
+    getSectionVisibility("layout"),
+  ]);
   const shopGiftBannerImage = layoutContent["shop-gift-banner"].image as ResponsiveImageValue;
   const categoryPillImages = layoutContent["category-pills"] as Record<string, string>;
 
@@ -42,6 +46,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           session={session}
           shopGiftBannerImage={shopGiftBannerImage}
           categoryPillImages={categoryPillImages}
+          shopGiftBannerVisible={layoutVisibility["shop-gift-banner"]}
         >
           {children}
         </AppProviders>

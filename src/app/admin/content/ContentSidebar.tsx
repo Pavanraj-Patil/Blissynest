@@ -14,6 +14,7 @@ import {
   PackageSearch,
   Briefcase,
   PanelsTopLeft,
+  EyeOff,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -34,7 +35,7 @@ const pageIcons: Record<string, LucideIcon> = {
   layout: PanelsTopLeft,
 };
 
-export type ContentSectionSummary = { key: string; title: string };
+export type ContentSectionSummary = { key: string; title: string; hidden: boolean };
 export type ContentPageGroup = {
   slug: string;
   label: string;
@@ -93,13 +94,20 @@ export function ContentSidebar({
                     key={section.key}
                     href={`/admin/content?page=${group.slug}&section=${section.key}`}
                     className={cn(
-                      "block rounded-lg px-2.5 py-1.5 text-sm transition-colors",
+                      "flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
                       group.slug === activePage && section.key === activeSection
                         ? "bg-olive text-cream"
                         : "text-charcoal-light hover:bg-cream-dark"
                     )}
                   >
-                    {section.title}
+                    <span className="truncate">{section.title}</span>
+                    {section.hidden && (
+                      <EyeOff
+                        size={13}
+                        aria-label="Hidden from the site"
+                        className="shrink-0 opacity-70"
+                      />
+                    )}
                   </Link>
                 ))}
               </div>

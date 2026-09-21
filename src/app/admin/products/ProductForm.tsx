@@ -7,8 +7,14 @@ import { RepeatingListField } from "@/components/admin/RepeatingListField";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { CheckboxGroupField } from "@/components/admin/CheckboxGroupField";
 import {
+  RelatedProductsPicker,
+  MAX_RELATED_PRODUCTS,
+  type RelatedProductOption,
+} from "@/components/admin/RelatedProductsPicker";
+import {
   shopCategories,
   shopOccasions,
+  festivalTags,
   recipientsByAudience,
   categoriesByAudience,
 } from "@/lib/shop-mock-data";
@@ -37,6 +43,7 @@ export type ProductFormInitial = {
   breadcrumbCategory: string;
   occasionTags: string[];
   recipientTags: string[];
+  relatedSlugs: string[];
   attribute: string;
   badge: string;
   basePrice: number; // rupees
@@ -65,6 +72,11 @@ export type ProductFormInitial = {
   textLines: { label: string; required: boolean; maxLength: number; placeholder: string }[];
   fonts: string[];
   colors: { name: string; hex: string }[];
+  // Shopper photo upload as part of the customisation (Customisable and a
+  // personalisable Hamper) — saved into customizationSchema.imageUpload.
+  imageUploadEnabled: boolean;
+  imageUploadMax: number;
+  imageUploadRequired: boolean;
   variantLabel: string;
   variantOptions: string[];
   specs: { icon: string; label: string; value: string }[];
@@ -103,6 +115,7 @@ export const emptyProductForm: ProductFormInitial = {
   breadcrumbCategory: "",
   occasionTags: [],
   recipientTags: [],
+  relatedSlugs: [],
   attribute: "",
   badge: "",
   basePrice: 0,
@@ -129,6 +142,9 @@ export const emptyProductForm: ProductFormInitial = {
   textLines: [],
   fonts: [],
   colors: [],
+  imageUploadEnabled: false,
+  imageUploadMax: 1,
+  imageUploadRequired: true,
   variantLabel: "",
   variantOptions: [],
   specs: [],
@@ -155,11 +171,74 @@ function PersonalisationFields({
   values,
   set,
 }: {
-  values: Pick<ProductFormInitial, "textLines" | "fonts" | "colors">;
-  set: <K extends "textLines" | "fonts" | "colors">(key: K, value: ProductFormInitial[K]) => void;
+  values: Pick<
+    ProductFormInitial,
+    | "textLines"
+    | "fonts"
+    | "colors"
+    | "imageUploadEnabled"
+    | "imageUploadMax"
+    | "imageUploadRequired"
+  >;
+  set: <
+    K extends
+      | "textLines"
+      | "fonts"
+      | "colors"
+      | "imageUploadEnabled"
+      | "imageUploadMax"
+      | "imageUploadRequired",
+  >(
+    key: K,
+    value: ProductFormInitial[K]
+  ) => void;
 }) {
   return (
     <>
+      <div className="space-y-2.5 rounded-xl border border-charcoal/10 bg-cream/40 p-4">
+        <label className="flex items-center gap-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={values.imageUploadEnabled}
+            onChange={(e) => set("imageUploadEnabled", e.target.checked)}
+            className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+          />
+          <span className="text-sm text-charcoal">
+            Let customers upload their own photos
+            <span className="block text-xs text-ink-muted">
+              For photo-based products (framed photos, prints…). The photos show on the order
+              so you can produce it.
+            </span>
+          </span>
+        </label>
+        {values.imageUploadEnabled && (
+          <div className="flex flex-wrap items-end gap-x-6 gap-y-3 pl-6">
+            <label className="block">
+              <span className={labelClass}>Max photos</span>
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={values.imageUploadMax}
+                onChange={(e) =>
+                  set("imageUploadMax", Math.min(10, Math.max(1, Number(e.target.value) || 1)))
+                }
+                className={`${inputClass} w-24`}
+              />
+            </label>
+            <label className="flex items-center gap-2 pb-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={values.imageUploadRequired}
+                onChange={(e) => set("imageUploadRequired", e.target.checked)}
+                className="h-4 w-4 rounded border-charcoal/25 accent-olive"
+              />
+              <span className="text-sm text-charcoal">Required (at least one photo)</span>
+            </label>
+          </div>
+        )}
+      </div>
+
       <div>
         <span className={labelClass}>Text Lines</span>
         <div className="mt-2">
@@ -222,7 +301,13 @@ function PersonalisationFields({
   );
 }
 
-export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
+export function ProductForm({
+  initial,
+  relatedProductOptions = [],
+}: {
+  initial?: ProductFormInitial;
+  relatedProductOptions?: RelatedProductOption[];
+}) {
   const router = useRouter();
   const isEdit = Boolean(initial?.id);
   const [values, setValues] = useState<ProductFormInitial>(initial ?? emptyProductForm);
@@ -232,7 +317,11 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
   // whether this product already has text lines saved (only ever true for
   // a HAMPER here, since CUSTOMISABLE always shows its own fields anyway).
   const [hamperPersonalisable, setHamperPersonalisable] = useState(
-    Boolean(initial && initial.pdpType === "HAMPER" && initial.textLines.length > 0)
+    Boolean(
+      initial &&
+        initial.pdpType === "HAMPER" &&
+        (initial.textLines.length > 0 || initial.imageUploadEnabled)
+    )
   );
 
   function set<K extends keyof ProductFormInitial>(key: K, value: ProductFormInitial[K]) {
@@ -339,6 +428,7 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
       breadcrumbCategory: values.breadcrumbCategory || undefined,
       occasionTags: values.occasionTags,
       recipientTags: values.recipientTags,
+      relatedSlugs: values.relatedSlugs,
       attribute: values.attribute || undefined,
       badge: values.badge || undefined,
       basePrice: values.basePrice,
@@ -394,6 +484,11 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           ? values.variantOptions
           : undefined,
       specs: values.pdpType === "CUSTOMISABLE" ? values.specs : undefined,
+      imageUpload:
+        values.imageUploadEnabled &&
+        (values.pdpType === "CUSTOMISABLE" || (values.pdpType === "HAMPER" && hamperPersonalisable))
+          ? { maxImages: values.imageUploadMax, required: values.imageUploadRequired }
+          : undefined,
     };
 
     const res = await fetch(isEdit ? `/api/admin/products/${initial!.id}` : "/api/admin/products", {
@@ -525,10 +620,28 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
           <span className={labelClass}>Occasion Tags</span>
           <div className="mt-1.5">
             <CheckboxGroupField
-              value={values.occasionTags}
-              onChange={(next) => set("occasionTags", next)}
+              value={values.occasionTags.filter((t) => !festivalTags.includes(t))}
+              onChange={(next) =>
+                set("occasionTags", [...values.occasionTags.filter((t) => festivalTags.includes(t)), ...next])
+              }
               options={shopOccasions.map((o) => ({ value: o, label: o }))}
             />
+          </div>
+          <div>
+            <span className={labelClass}>Festival Tags</span>
+            <p className="mt-1 text-[11px] text-ink-muted">
+              Which specific festivals this suits — they become the filter pills on the Festivals
+              page. Also tick &ldquo;Festivals&rdquo; above so the product appears on that page.
+            </p>
+            <div className="mt-1.5">
+              <CheckboxGroupField
+                value={values.occasionTags.filter((t) => festivalTags.includes(t))}
+                onChange={(next) =>
+                  set("occasionTags", [...values.occasionTags.filter((t) => !festivalTags.includes(t)), ...next])
+                }
+                options={festivalTags.map((o) => ({ value: o, label: o }))}
+              />
+            </div>
           </div>
         </div>
 
@@ -732,6 +845,24 @@ export function ProductForm({ initial }: { initial?: ProductFormInitial }) {
             local path under /public (e.g. /products/candle.jpg) works fine for testing.
           </span>
         </label>
+      </Section>
+
+      <Section title="Related Products">
+        <div>
+          <span className={labelClass}>
+            &ldquo;You may also like&rdquo; on this product&rsquo;s page (up to {MAX_RELATED_PRODUCTS}, in
+            the order shown)
+          </span>
+          <p className="mt-1 mb-2 text-[11px] text-ink-muted">
+            Leave empty to let the page suggest products sharing a category or audience
+            automatically.
+          </p>
+          <RelatedProductsPicker
+            value={values.relatedSlugs}
+            onChange={(next) => set("relatedSlugs", next)}
+            options={relatedProductOptions}
+          />
+        </div>
       </Section>
 
       <Section title="Description">

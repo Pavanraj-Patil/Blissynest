@@ -22,7 +22,7 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
     breadcrumbCategory: input.breadcrumbCategory || null,
     occasionTags: input.occasionTags,
     recipientTags: input.recipientTags,
-    relatedSlugs: [],
+    relatedSlugs: [...new Set(input.relatedSlugs)],
     attribute: input.attribute || null,
     badge: input.badge || null,
     basePrice: toPaise(input.basePrice)!,
@@ -62,7 +62,7 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
           // schema rather than leaving it stale — buildData() is called on
           // every update, and whatever it returns is persisted verbatim.
           customizationSchema:
-            (input.textLines ?? []).length > 0
+            (input.textLines ?? []).length > 0 || input.imageUpload
               ? {
                   textLines: input.textLines ?? [],
                   fonts: input.fonts ?? [],
@@ -70,6 +70,7 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
                   variantLabel: null,
                   variantOptions: null,
                   specs: null,
+                  imageUpload: input.imageUpload ?? null,
                 }
               : Prisma.DbNull,
         }
@@ -92,6 +93,7 @@ function buildData(input: AdminProductInput): Prisma.ProductUncheckedCreateInput
             variantLabel: input.variantLabel || null,
             variantOptions: (input.variantOptions ?? []).length > 0 ? input.variantOptions : null,
             specs: (input.specs ?? []).length > 0 ? input.specs : null,
+            imageUpload: input.imageUpload ?? null,
           },
         }
       : {}),
@@ -128,8 +130,35 @@ export async function updateProduct(
   const { slug: _slug, ...updateData } = data;
   void _slug;
 
+  // A product can't be its own related product — only checkable here, since
+  // create derives the slug after buildData runs.
+  updateData.relatedSlugs = (updateData.relatedSlugs as string[]).filter((s) => s !== existing.slug);
+
   await db.product.update({ where: { id }, data: updateData });
   return { id, slug: existing.slug };
+}
+
+export type RelatedProductOptionRow = {
+  slug: string;
+  name: string;
+  image: string;
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+};
+
+// Every product the "related products" picker can offer (or needs to resolve
+// a saved slug to a name/thumbnail), minus the one being edited.
+export async function getRelatedProductOptions(excludeId?: string): Promise<RelatedProductOptionRow[]> {
+  const rows = await db.product.findMany({
+    where: excludeId ? { id: { not: excludeId } } : undefined,
+    select: { slug: true, name: true, images: true, status: true },
+    orderBy: { name: "asc" },
+  });
+  return rows.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    image: (p.images as string[])[0] ?? "",
+    status: p.status,
+  }));
 }
 
 export async function deleteProduct(id: string): Promise<ErrorResult | { success: true }> {

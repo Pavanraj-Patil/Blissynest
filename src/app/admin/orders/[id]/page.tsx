@@ -4,7 +4,68 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, User, Gift, CreditCard } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { getOrderForAdmin } from "@/lib/admin/order-service";
+import type { CartItemCustomization } from "@/lib/product-adapters";
 import { OrderStatusEditor } from "./OrderStatusEditor";
+
+// What the shopper asked for on a personalised line — the seller needs all of
+// it (text, font/colour, options, and any photos they sent) to produce the
+// item. Photos link to the full-size original, since these are print sources.
+function ItemCustomization({ customization }: { customization: CartItemCustomization | null }) {
+  if (!customization) return null;
+  const lines = (customization.textLines ?? []).filter(Boolean);
+  const options = [
+    customization.variant,
+    ...Object.entries(customization.variants ?? {}).map(([label, value]) => `${label}: ${value}`),
+  ].filter(Boolean);
+  const photos = customization.imageUrls ?? [];
+  if (lines.length === 0 && options.length === 0 && photos.length === 0) return null;
+
+  return (
+    <div className="mt-2 space-y-1.5 rounded-lg bg-cream/60 px-3 py-2 text-xs text-charcoal-light">
+      {lines.length > 0 && (
+        <p>
+          <span className="font-medium text-charcoal">Text:</span> &ldquo;{lines.join(" / ")}&rdquo;
+          {customization.font && ` · ${customization.font}`}
+          {customization.colorHex && (
+            <span className="ml-1.5 inline-flex items-center gap-1 align-middle">
+              <span
+                aria-hidden
+                className="inline-block h-3 w-3 rounded-full border border-charcoal/15"
+                style={{ backgroundColor: customization.colorHex }}
+              />
+              {customization.colorHex}
+            </span>
+          )}
+        </p>
+      )}
+      {options.length > 0 && (
+        <p>
+          <span className="font-medium text-charcoal">Options:</span> {options.join(" · ")}
+        </p>
+      )}
+      {photos.length > 0 && (
+        <div>
+          <p className="font-medium text-charcoal">
+            Customer photo{photos.length === 1 ? "" : "s"} ({photos.length}) — click to open full size
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            {photos.map((src, i) => (
+              <a key={src} href={src} target="_blank" rel="noopener noreferrer">
+                {/* Plain <img>: customer upload on the R2 host, admin-only preview. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={`Customer photo ${i + 1}`}
+                  className="h-16 w-16 rounded-lg border border-charcoal/10 object-cover"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default async function AdminOrderDetailPage({
   params,
@@ -75,6 +136,7 @@ export default async function AdminOrderDetailPage({
                     <p className="text-xs text-ink-muted">
                       Qty {item.quantity} × ₹{item.unitPrice.toLocaleString("en-IN")}
                     </p>
+                    <ItemCustomization customization={item.customization as CartItemCustomization | null} />
                   </div>
                   <p className="text-sm font-medium text-charcoal shrink-0">
                     ₹{(item.quantity * item.unitPrice).toLocaleString("en-IN")}

@@ -212,7 +212,7 @@ export function PersonalisedPageClient({
           </div>
         </div>
 
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-14">
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-14 empty:hidden">
           <ShopGiftBanner />
         </div>
 

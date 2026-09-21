@@ -19,19 +19,16 @@ const ITEMS_PER_PAGE = 24;
 export function CollectionPageClient({
   collection,
   initialProducts,
-  bannerImage,
 }: {
   collection: CollectionSlug;
   initialProducts: ListProduct[];
-  bannerImage?: string;
 }) {
   const content = useMemo(
     () => ({
       ...collectionContent[collection],
       products: initialProducts,
-      bannerImage: bannerImage || collectionContent[collection].bannerImage,
     }),
-    [collection, initialProducts, bannerImage]
+    [collection, initialProducts]
   );
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -44,21 +41,28 @@ export function CollectionPageClient({
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Counts come from the full product set, not the filtered one, so an
+  // option only disappears when nothing in this collection has it at all —
+  // never because another filter happens to be narrowing the grid.
   const categoriesWithCounts = useMemo(
     () =>
-      content.categories.map((cat) => ({
-        ...cat,
-        count: content.products.filter((p) => p.category.includes(cat.slug)).length,
-      })),
+      content.categories
+        .map((cat) => ({
+          ...cat,
+          count: content.products.filter((p) => p.category.includes(cat.slug)).length,
+        }))
+        .filter((cat) => cat.count > 0),
     [content]
   );
 
   const attributeCounts = useMemo(() => {
     if (!content.attributeFilter) return [];
-    return content.attributeFilter.values.map((value) => ({
-      label: value,
-      count: content.products.filter((p) => p.attribute === value).length,
-    }));
+    return content.attributeFilter.values
+      .map((value) => ({
+        label: value,
+        count: content.products.filter((p) => p.attribute === value).length,
+      }))
+      .filter((a) => a.count > 0);
   }, [content]);
 
   const occasionCounts = useMemo(() => {
@@ -251,7 +255,7 @@ export function CollectionPageClient({
           </div>
         </div>
 
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-14">
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-14 empty:hidden">
           <ShopGiftBanner />
         </div>
 

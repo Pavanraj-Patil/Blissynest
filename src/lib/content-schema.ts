@@ -10,7 +10,14 @@ import {
   heroImage,
   heroImageMobile,
 } from "@/lib/mock-data";
-import { collectionContent } from "@/lib/collection-mock-data";
+
+import {
+  shopCategories,
+  categoriesByAudience,
+  audienceSlugs,
+  audienceShopContent,
+} from "@/lib/shop-mock-data";
+import { occasionPills } from "@/lib/occasion-data";
 import { corporateNeeds } from "@/lib/corporate-data";
 import { contentIconOptions } from "@/lib/content-icons";
 
@@ -73,15 +80,58 @@ export type FieldDescriptor =
 
 export type SectionSchema = {
   title: string;
+  // A standalone block on a page that the admin can switch off (see
+  // content-service.ts getSectionVisibility). Deliberately opt-in: many
+  // sections here are data rather than blocks (footer, top-bar links,
+  // category photos), and a static page's only section IS the page, so a
+  // hide switch there would just leave an empty page.
+  hideable?: boolean;
+  // Visibility when the admin has never touched the switch. Defaults to
+  // shown; a section whose block isn't currently on the site can start hidden.
+  defaultVisible?: boolean;
   fields: Record<string, FieldDescriptor>;
 };
 
 export type PageSchema = Record<string, SectionSchema>;
 
+// One photo field per quick-access pill that actually appears on the site —
+// the /shop row, each "Gifts for …" page's row, and the occasion pages' rows.
+// Built from the same lists those pages render (shopCategories,
+// categoriesByAudience, occasionPills) rather than typed out, so adding or
+// renaming a pill there can't leave this editor out of date. Keys are exactly
+// the slugs CategoryPillRow looks photos up by; a slug that appears on
+// several pages (e.g. "personalised-gifts") is one field shared by all of them.
+function buildCategoryPillFields(): Record<string, FieldDescriptor> {
+  const pills = new Map<string, { label: string; where: string[] }>();
+  const add = (slug: string, label: string, where: string) => {
+    const existing = pills.get(slug);
+    if (!existing) pills.set(slug, { label, where: [where] });
+    else if (!existing.where.includes(where)) existing.where.push(where);
+  };
+
+  shopCategories.forEach((c) => add(c.slug, c.label, "Shop"));
+  for (const audience of audienceSlugs) {
+    const page = audienceShopContent[audience].breadcrumbLabel;
+    categoriesByAudience[audience].forEach((c) => add(c.slug, c.label, page));
+  }
+  for (const pillList of Object.values(occasionPills)) {
+    pillList.forEach((pill) => add(`${pill.type}:${pill.value}`, pill.label, "Occasion pages"));
+  }
+
+  const fields: Record<string, FieldDescriptor> = {
+    all: { type: "IMAGE", label: "All (every page)", default: "" },
+  };
+  for (const [slug, { label, where }] of pills) {
+    fields[slug] = { type: "IMAGE", label: `${label} — ${where.join(", ")}`, default: "" };
+  }
+  return fields;
+}
+
 export const contentSchema: Record<string, PageSchema> = {
   home: {
     hero: {
       title: "Hero",
+      hideable: true,
       fields: {
         image: {
           type: "IMAGE_RESPONSIVE",
@@ -100,8 +150,16 @@ export const contentSchema: Record<string, PageSchema> = {
         },
       },
     },
+    // No editable copy — exists only so the gift-finder bar under the hero
+    // gets a show/hide switch alongside the other homepage sections.
+    "gifting-assistant": {
+      title: "Gift Finder Bar",
+      hideable: true,
+      fields: {},
+    },
     "who-are-you-gifting": {
       title: "Who's It For — Tiles",
+      hideable: true,
       fields: {
         sectionTitle: {
           type: "TEXT",
@@ -124,6 +182,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "made-for-the-moment": {
       title: "Made for the Moment — Occasions",
+      hideable: true,
       fields: {
         sectionTitle: { type: "TEXT", label: "Section Title", default: "Made for the moment" },
         tiles: {
@@ -148,6 +207,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "blissynest-edit": {
       title: "The Blissynest Edit — Collections",
+      hideable: true,
       fields: {
         sectionTitle: { type: "TEXT", label: "Section Title", default: "The Blissynest Edit" },
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Curated Collections" },
@@ -173,6 +233,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "feature-strip": {
       title: "Trust Feature Strip",
+      hideable: true,
       fields: {
         items: {
           type: "LIST",
@@ -190,6 +251,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "community-strip": {
       title: "From Our Community",
+      hideable: true,
       fields: {
         sectionTitle: { type: "TEXT", label: "Section Title", default: "From our community" },
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Real moments, real smiles" },
@@ -205,6 +267,8 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "corporate-banner": {
       title: "Corporate Gifting Banner",
+      hideable: true,
+      defaultVisible: false,
       fields: {
         heading: { type: "TEXT", label: "Heading", default: "Thoughtful gifting, at scale." },
         subcopy: {
@@ -247,6 +311,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "loved-by-many": {
       title: "Loved by Many — Heading",
+      hideable: true,
       fields: {
         sectionTitle: { type: "TEXT", label: "Section Title", default: "Loved by many" },
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Bestsellers" },
@@ -454,6 +519,7 @@ export const contentSchema: Record<string, PageSchema> = {
   corporate: {
     hero: {
       title: "Corporate Hero",
+      hideable: true,
       fields: {
         heading: { type: "TEXT", label: "Heading Line 1", default: "Meaningful gifts." },
         headingHighlight: { type: "TEXT", label: "Heading Line 2 (highlighted)", default: "Stronger connections." },
@@ -490,6 +556,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     needs: {
       title: "Corporate Needs Grid",
+      hideable: true,
       fields: {
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Corporate Catalogue" },
         heading: { type: "TEXT", label: "Heading", default: "Gifts for every corporate need" },
@@ -543,6 +610,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "how-it-works": {
       title: "How It Works — Steps",
+      hideable: true,
       fields: {
         heading: { type: "TEXT", label: "Heading", default: "How does it work?" },
         subcopy: { type: "TEXT", label: "Subcopy", default: "Book your corporate gifts in 4 simple steps" },
@@ -561,6 +629,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "why-choose-us": {
       title: "Why Choose Us",
+      hideable: true,
       fields: {
         heading: { type: "TEXT", label: "Heading", default: "Why businesses love gifting with Blissynest" },
         checklist: {
@@ -583,6 +652,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     testimonials: {
       title: "Testimonials",
+      hideable: true,
       fields: {
         items: {
           type: "LIST",
@@ -606,6 +676,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "trusted-by": {
       title: "Trusted By Strip",
+      hideable: true,
       fields: {
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Trusted by teams at" },
         companies: {
@@ -630,6 +701,7 @@ export const contentSchema: Record<string, PageSchema> = {
     },
     "final-cta": {
       title: "Final CTA",
+      hideable: true,
       fields: {
         heading: { type: "TEXT", label: "Heading", default: "Let's plan your next gifting moment." },
         subcopy: {
@@ -651,6 +723,7 @@ export const contentSchema: Record<string, PageSchema> = {
   layout: {
     "shop-gift-banner": {
       title: "Shop Gift Banner",
+      hideable: true,
       fields: {
         // Shared across /shop, /occasions, /occasions/[occasion],
         // /collections, and /collections/[collection] — one banner, one image.
@@ -664,50 +737,12 @@ export const contentSchema: Record<string, PageSchema> = {
         },
       },
     },
-    "collection-banners": {
-      title: "Collection Page Banners",
-      fields: {
-        // Fixed-position, one per collection slug — collections themselves
-        // aren't a LIST an admin can add/remove (they're a hardcoded
-        // catalog in collection-mock-data.ts), so neither are their banners.
-        minimalistBanner: {
-          type: "IMAGE",
-          label: "Minimalist Edit — Banner",
-          default: collectionContent.minimalist.bannerImage,
-        },
-        celebrationBanner: {
-          type: "IMAGE",
-          label: "Celebration Edit — Banner",
-          default: collectionContent.celebration.bannerImage,
-        },
-        luxuryBanner: {
-          type: "IMAGE",
-          label: "Luxury Edit — Banner",
-          default: collectionContent.luxury.bannerImage,
-        },
-        hampersBanner: {
-          type: "IMAGE",
-          label: "Gift Hampers — Banner",
-          default: collectionContent.hampers.bannerImage,
-        },
-      },
-    },
     "category-pills": {
       title: "Category Quick-Access Photos",
-      fields: {
-        // Keyed directly by the shop category slug (see shopCategories in
-        // shop-mock-data.ts) so CategoryPillRow can look a value up with no
-        // translation step. Empty default (not a placeholder image, unlike
-        // every other IMAGE field on this page) is deliberate: an unset
-        // photo means "show the Lucide icon instead," not "show a broken/
-        // placeholder image" — see CategoryPillRow.tsx.
-        all: { type: "IMAGE", label: "All", default: "" },
-        personalised: { type: "IMAGE", label: "Personalised", default: "" },
-        "luxury-edit": { type: "IMAGE", label: "Luxury Edit", default: "" },
-        "home-living": { type: "IMAGE", label: "Home & Living", default: "" },
-        jewellery: { type: "IMAGE", label: "Jewellery", default: "" },
-        hamper: { type: "IMAGE", label: "Hampers", default: "" },
-      },
+      // Empty default (not a placeholder image, unlike other IMAGE fields
+      // here) is deliberate: an unset photo means "show the icon instead",
+      // not "show a broken/placeholder image" — see CategoryPillRow.tsx.
+      fields: buildCategoryPillFields(),
     },
     topbar: {
       title: "Top Bar Links",
@@ -753,7 +788,7 @@ export const contentSchema: Record<string, PageSchema> = {
           emptyItem: { label: "", href: "" },
           default: footerLinks,
         },
-        copyright: { type: "TEXT", label: "Copyright Line", default: "© 2026 BlissyNest. All rights reserved." },
+        copyright: { type: "TEXT", label: "Copyright Line", default: "© 2026 Blissynest. All rights reserved." },
       },
     },
   },

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { useSiteContent } from "@/lib/site-content-context";
 
 export function ShopGiftBanner() {
-  const { shopGiftBannerImage } = useSiteContent();
+  const { shopGiftBannerImage, shopGiftBannerVisible } = useSiteContent();
+  if (!shopGiftBannerVisible) return null;
   const desktopImage = shopGiftBannerImage.desktop;
   const mobileImage = shopGiftBannerImage.mobile || shopGiftBannerImage.desktop;
 

@@ -15,6 +15,7 @@ import { PdpWishlistButton } from "./PdpWishlistButton";
 import { ReviewsSection } from "./ReviewsSection";
 import { MobileStickyCTA } from "./MobileStickyCTA";
 import { BuyNowOrViewCartButton } from "./BuyNowOrViewCartButton";
+import { CustomerImageUploader } from "./CustomerImageUploader";
 import { RelatedProducts } from "./RelatedProducts";
 import { AddedToCartModal } from "./AddedToCartModal";
 import { getIcon } from "./icon-map";
@@ -51,13 +52,19 @@ export function CustomisablePDP({
   const [font, setFont] = useState(product.fonts[0]);
   const [color, setColor] = useState(product.colors[0]?.hex ?? "#2a2621");
   const [variant, setVariant] = useState(product.variantOptions?.[0] ?? "");
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
 
   const customization = {
     textLines: textValues,
     font,
     colorHex: color,
     ...(variant && { variant }),
+    ...(photoUrls.length > 0 && { imageUrls: photoUrls }),
   };
+
+  // A product that requires the shopper's photo can't be bought without one.
+  const missingRequiredPhoto = Boolean(product.imageUpload?.required) && photoUrls.length === 0;
+  const purchaseBlocked = !product.inStock || missingRequiredPhoto;
 
   function handleAddToCart() {
     addItem(
@@ -146,6 +153,18 @@ export function CustomisablePDP({
               <FeatureIconRow items={product.benefits} />
             </div>
 
+            {product.imageUpload && (
+              <div className="mt-7">
+                <CustomerImageUploader
+                  value={photoUrls}
+                  onChange={setPhotoUrls}
+                  maxImages={product.imageUpload.maxImages}
+                  required={product.imageUpload.required}
+                />
+              </div>
+            )}
+
+            {product.textLines.length > 0 && (
             <div className="mt-7">
               <h2 className="text-sm font-semibold text-charcoal mb-1">
                 Personalise Your {product.name.replace("Personalised ", "")}
@@ -189,7 +208,9 @@ export function CustomisablePDP({
                 entered.
               </p>
             </div>
+            )}
 
+            {product.textLines.length > 0 && product.fonts.length > 0 && (
             <div className="mt-6">
               <p className="text-sm font-semibold text-charcoal mb-2.5">Font Style</p>
               <div className="flex gap-2">
@@ -211,7 +232,9 @@ export function CustomisablePDP({
                 ))}
               </div>
             </div>
+            )}
 
+            {product.textLines.length > 0 && product.colors.length > 0 && (
             <div className="mt-6">
               <p className="text-sm font-semibold text-charcoal mb-2.5">Text Color</p>
               <div className="flex gap-2.5">
@@ -233,6 +256,7 @@ export function CustomisablePDP({
                 ))}
               </div>
             </div>
+            )}
 
             {product.variantLabel && product.variantOptions && (
               <div className="mt-6">
@@ -286,7 +310,7 @@ export function CustomisablePDP({
             <div className="mt-6 hidden md:flex md:mt-auto gap-3 md:sticky md:bottom-0 md:z-10 md:rounded-t-2xl md:border-t md:border-charcoal/10 md:bg-cream/95 md:backdrop-blur md:p-4 md:shadow-lg">
               <button
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={purchaseBlocked}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors disabled:opacity-40 disabled:pointer-events-none"
               >
                 {added ? <Check size={15} /> : <ShoppingBag size={15} />}
@@ -295,7 +319,7 @@ export function CustomisablePDP({
               <BuyNowOrViewCartButton
                 productSlug={product.slug}
                 onBuyNow={handleBuyNow}
-                disabled={!product.inStock}
+                disabled={purchaseBlocked}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
               />
             </div>
@@ -309,7 +333,7 @@ export function CustomisablePDP({
           onAddToCart={handleAddToCart}
           onBuyNow={handleBuyNow}
           added={added}
-          disabled={!product.inStock}
+          disabled={purchaseBlocked}
         />
       </div>
 

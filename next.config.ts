@@ -13,11 +13,22 @@ import type { NextConfig } from "next";
 // to dev only rather than weakening the production policy for a dev-only need.
 const isProd = process.env.NODE_ENV === "production";
 
+// Shopper-uploaded photos (see /api/upload-customer-image) are shown as plain
+// <img>s straight from the R2 bucket's public URL, so that origin has to be
+// allowed by img-src. Read from env because the bucket URL is per-deployment.
+const r2ImgOrigin = (() => {
+  try {
+    return process.env.R2_PUBLIC_URL ? ` ${new URL(process.env.R2_PUBLIC_URL).origin}` : "";
+  } catch {
+    return "";
+  }
+})();
+
 const CSP = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval' "}https://checkout.razorpay.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https://placehold.co https://res.cloudinary.com https://imagedelivery.net",
+  `img-src 'self' data: https://placehold.co https://res.cloudinary.com https://imagedelivery.net${r2ImgOrigin}`,
   "font-src 'self' data:",
   "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com",
   "frame-src https://api.razorpay.com https://checkout.razorpay.com",

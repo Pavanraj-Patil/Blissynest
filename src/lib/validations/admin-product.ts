@@ -17,6 +17,9 @@ export const adminProductSchema = z.object({
   breadcrumbCategory: z.string().trim().optional(),
   occasionTags: z.array(z.string()).default([]),
   recipientTags: z.array(z.string()).default([]),
+  // Hand-picked "You may also like" slugs, in display order. Empty means the
+  // product page falls back to matching by shared category/audience.
+  relatedSlugs: z.array(z.string().trim().min(1)).max(8, "Pick at most 8 related products").default([]),
   attribute: z.string().trim().optional(),
   badge: z.enum(["BESTSELLER", "NEW", ""]).optional(),
   basePrice: z.coerce.number().int().min(0, "Price can't be negative"),
@@ -60,6 +63,11 @@ export const adminProductSchema = z.object({
     )
     .optional(),
   fonts: z.array(z.string().min(1)).optional(),
+  // Lets shoppers upload their own photos as part of the customisation
+  // (Customisable, and a personalisable Hamper). Absent = feature off.
+  imageUpload: z
+    .object({ maxImages: z.coerce.number().int().min(1).max(10), required: z.boolean() })
+    .optional(),
   colors: z.array(z.object({ name: z.string().min(1), hex: z.string().min(1) })).optional(),
   variantLabel: z.string().trim().optional(),
   variantOptions: z.array(z.string().min(1)).optional(),

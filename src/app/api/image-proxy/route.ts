@@ -50,7 +50,35 @@ export async function GET(request: Request) {
     try {
       sourceBytes = await fs.readFile(resolved);
     } catch {
-      return NextResponse.json({ error: "Image not found." }, { status: 404 });
+      // Not a file in public/ — it may still be a file this app serves at
+      // that path (e.g. src/app/icon.png is served at /icon.png, and Next's
+      // built-in optimizer used to reach it by fetching the running site).
+      // Try the same origin, but only for a plain same-site path: no
+      // protocol-relative "//host", nothing that resolves off-origin, and
+      // never this route or Next internals (no request loops).
+      const origin = new URL(request.url).origin;
+      let sameSite: URL | null = null;
+      try {
+        sameSite = new URL(decoded, origin);
+      } catch {}
+      if (
+        !sameSite ||
+        sameSite.origin !== origin ||
+        decoded.startsWith("//") ||
+        sameSite.pathname.startsWith("/api/") ||
+        sameSite.pathname.startsWith("/_next/")
+      ) {
+        return NextResponse.json({ error: "Image not found." }, { status: 404 });
+      }
+      try {
+        const res = await fetch(sameSite.toString());
+        if (!res.ok || !(res.headers.get("content-type") ?? "").startsWith("image/")) {
+          return NextResponse.json({ error: "Image not found." }, { status: 404 });
+        }
+        sourceBytes = Buffer.from(await res.arrayBuffer());
+      } catch {
+        return NextResponse.json({ error: "Image not found." }, { status: 404 });
+      }
     }
   } else {
     let parsed: URL;

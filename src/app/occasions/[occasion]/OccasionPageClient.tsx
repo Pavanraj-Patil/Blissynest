@@ -27,6 +27,7 @@ function pillKey(type: OccasionPillFilter["type"], value: string) {
 }
 
 function productMatchesPill(product: ListProduct, pill: OccasionPillFilter) {
+  if (pill.type === "occasion") return product.occasions.includes(pill.value);
   if (pill.type === "audience") return product.audience.includes(pill.value as ListProduct["audience"][number]);
   if (pill.type === "recipient") {
     const tags = recipientPillGroups[pill.value] ?? [];
@@ -255,7 +256,7 @@ export function OccasionPageClient({
           </div>
         </div>
 
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-14">
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-14 empty:hidden">
           <ShopGiftBanner />
         </div>
 

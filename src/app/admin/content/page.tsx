@@ -1,7 +1,8 @@
 import { requireAdmin } from "@/lib/admin/require-admin";
 import { contentSchema } from "@/lib/content-schema";
-import { getPageContent } from "@/lib/content-service";
+import { getPageContent, getSectionVisibility } from "@/lib/content-service";
 import { ContentSectionForm } from "./ContentSectionForm";
+import { SectionVisibilityToggle } from "./SectionVisibilityToggle";
 import { ContentSidebar, type ContentPageGroup } from "./ContentSidebar";
 
 const pageLabels: Record<string, string> = {
@@ -31,13 +32,24 @@ export default async function AdminContentPage({
   const activeSection =
     sectionParam && contentSchema[activePage]?.[sectionParam] ? sectionParam : sections[0]?.[0];
 
-  const pageContent = await getPageContent(activePage);
+  const [pageContent, visibilityByPage] = await Promise.all([
+    getPageContent(activePage),
+    // Every page, not just the open one — the sidebar flags hidden sections
+    // across all of them.
+    Promise.all(pages.map(async (p) => [p, await getSectionVisibility(p)] as const)).then(
+      (entries) => Object.fromEntries(entries)
+    ),
+  ]);
   const schema = activeSection ? contentSchema[activePage][activeSection] : undefined;
 
   const groups: ContentPageGroup[] = pages.map((p) => ({
     slug: p,
     label: pageLabels[p] ?? p,
-    sections: Object.entries(contentSchema[p]).map(([key, s]) => ({ key, title: s.title })),
+    sections: Object.entries(contentSchema[p]).map(([key, s]) => ({
+      key,
+      title: s.title,
+      hidden: s.hideable ? !visibilityByPage[p][key] : false,
+    })),
   }));
 
   return (
@@ -53,13 +65,26 @@ export default async function AdminContentPage({
         <ContentSidebar groups={groups} activePage={activePage} activeSection={activeSection} />
 
         {schema && activeSection ? (
-          <ContentSectionForm
-            key={`${activePage}.${activeSection}`}
-            page={activePage}
-            section={activeSection}
-            schema={schema}
-            initial={pageContent[activeSection]}
-          />
+          <div className="space-y-4">
+            {schema.hideable && (
+              <SectionVisibilityToggle
+                key={`${activePage}.${activeSection}.visibility`}
+                page={activePage}
+                section={activeSection}
+                initialVisible={visibilityByPage[activePage][activeSection]}
+                hasFields={Object.keys(schema.fields).length > 0}
+              />
+            )}
+            {Object.keys(schema.fields).length > 0 && (
+              <ContentSectionForm
+                key={`${activePage}.${activeSection}`}
+                page={activePage}
+                section={activeSection}
+                schema={schema}
+                initial={pageContent[activeSection]}
+              />
+            )}
+          </div>
         ) : (
           <div className="rounded-2xl border border-charcoal/10 bg-white p-8 text-center text-sm text-ink-muted">
             Nothing here yet.

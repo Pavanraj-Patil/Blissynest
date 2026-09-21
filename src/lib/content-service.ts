@@ -32,11 +32,38 @@ export async function getPageContent(page: string): Promise<Record<string, Recor
   return result;
 }
 
+// Stored as an ordinary ContentBlock row under a reserved key, so it needs no
+// table of its own. It isn't in content-schema's field lists, which means
+// getPageContent never returns it and admins can't collide with it.
+const VISIBILITY_KEY = "__visible";
+
+// Whether each section of a page should render. Only sections marked
+// `hideable` in the schema can ever be hidden; everything else is always
+// true. A hideable section the admin has never toggled falls back to its
+// schema default (shown, unless it declares defaultVisible: false).
+export async function getSectionVisibility(page: string): Promise<Record<string, boolean>> {
+  const blocks = await getContentBlocks(page);
+  const result: Record<string, boolean> = {};
+  for (const [section, sectionSchema] of Object.entries(contentSchema[page] ?? {})) {
+    if (!sectionSchema.hideable) {
+      result[section] = true;
+      continue;
+    }
+    const stored = blocks.get(`${section}.${VISIBILITY_KEY}`);
+    result[section] = typeof stored === "boolean" ? stored : (sectionSchema.defaultVisible ?? true);
+  }
+  return result;
+}
+
+export async function setSectionVisibility(page: string, section: string, visible: boolean): Promise<void> {
+  await setContentBlock(page, section, VISIBILITY_KEY, "BOOLEAN", visible);
+}
+
 export async function setContentBlock(
   page: string,
   section: string,
   key: string,
-  type: ContentFieldType,
+  type: ContentFieldType | "BOOLEAN",
   value: unknown
 ): Promise<void> {
   await db.contentBlock.upsert({

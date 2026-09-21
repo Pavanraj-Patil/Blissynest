@@ -4,15 +4,7 @@ import { collectionContent, isCollectionSlug, type CollectionSlug } from "@/lib/
 import { db } from "@/lib/db";
 import { toListProduct } from "@/lib/product-adapters";
 import { TopBar } from "@/components/layout/TopBar";
-import { getPageContent } from "@/lib/content-service";
 import { CollectionPageClient } from "./CollectionPageClient";
-
-const bannerFieldBySlug: Record<CollectionSlug, string> = {
-  minimalist: "minimalistBanner",
-  celebration: "celebrationBanner",
-  luxury: "luxuryBanner",
-  hampers: "hampersBanner",
-};
 
 type Props = {
   params: Promise<{ collection: string }>;
@@ -40,14 +32,10 @@ export default async function CollectionPage({ params }: Props) {
   }
   const slug: CollectionSlug = collection;
 
-  const [rows, layoutContent] = await Promise.all([
-    db.product.findMany({
-      where: { status: "PUBLISHED", corporateOnly: false, collectionSlug: slug },
-      orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
-    }),
-    getPageContent("layout"),
-  ]);
-  const bannerImage = layoutContent["collection-banners"]?.[bannerFieldBySlug[slug]] as string | undefined;
+  const rows = await db.product.findMany({
+    where: { status: "PUBLISHED", corporateOnly: false, collectionSlug: slug },
+    orderBy: [{ sortRank: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
+  });
 
   return (
     <>
@@ -55,7 +43,6 @@ export default async function CollectionPage({ params }: Props) {
       <CollectionPageClient
         collection={slug}
         initialProducts={rows.map(toListProduct)}
-        bannerImage={bannerImage}
       />
     </>
   );
