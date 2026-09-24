@@ -28,7 +28,7 @@ const CSP = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval' "}https://checkout.razorpay.com`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: https://placehold.co https://res.cloudinary.com https://imagedelivery.net${r2ImgOrigin}`,
+  `img-src 'self' data: https://placehold.co https://res.cloudinary.com${r2ImgOrigin}`,
   "font-src 'self' data:",
   "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com",
   "frame-src https://api.razorpay.com https://checkout.razorpay.com",
@@ -39,15 +39,25 @@ const CSP = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // uat.blissynest.com is a Cloudflare tunnel to a laptop running `next dev`.
+  // In dev, Next blocks its hot-reload connection (/_next/hmr) from any host
+  // it isn't told about, and a page that can't complete it never hydrates —
+  // it renders, but no button or menu responds. Development only: ignored by
+  // `next build`/`next start`.
+  allowedDevOrigins: ["uat.blissynest.com"],
+  // Read by src/lib/image-loader.ts in the browser. Public by nature: the R2
+  // origin is the bucket's public URL, and the flag is just on/off.
+  env: {
+    NEXT_PUBLIC_R2_ORIGIN: r2ImgOrigin.trim(),
+    NEXT_PUBLIC_CF_TRANSFORMS: process.env.CLOUDFLARE_IMAGE_TRANSFORMS ?? "",
+  },
   images: {
     // A custom loader replaces Next's built-in optimizer for every <Image>
-    // in the app — see src/lib/cloudflare-images-loader.ts for why it still
-    // behaves identically for every source that isn't a new Cloudflare
-    // Images URL. remotePatterns below is still enforced: the loader's
-    // fallback branch routes through Next's own internal /_next/image
-    // route, which checks this allowlist itself.
+    // in the app — see src/lib/image-loader.ts. (remotePatterns below only
+    // applies to Next's own optimizer, which a custom loader disables;
+    // /api/image-proxy keeps its own host allowlist.)
     loader: "custom",
-    loaderFile: "./src/lib/cloudflare-images-loader.ts",
+    loaderFile: "./src/lib/image-loader.ts",
     remotePatterns: [
       {
         protocol: "https",
@@ -56,10 +66,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-      },
-      {
-        protocol: "https",
-        hostname: "imagedelivery.net",
       },
     ],
   },
