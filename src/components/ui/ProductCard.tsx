@@ -13,7 +13,6 @@ type ProductCardProps = {
   reviews: number;
   image: string;
   href?: string;
-  layout?: "grid" | "list";
   priority?: boolean;
   badge?: string;
   inStock?: boolean;
@@ -26,7 +25,6 @@ export function ProductCard({
   reviews,
   image,
   href = "#",
-  layout = "grid",
   priority = false,
   badge,
   inStock = true,
@@ -71,46 +69,6 @@ export function ProductCard({
       <Heart size={15} className={wishlisted ? "fill-current" : ""} />
     </button>
   );
-
-  if (layout === "list") {
-    return (
-      <div className="group flex items-center gap-4 rounded-2xl border border-charcoal/10 bg-white p-3 sm:p-4">
-        <Link
-          href={href}
-          className="relative block h-24 w-24 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-cream-dark"
-        >
-          <Image
-            src={image}
-            alt={name}
-            fill
-            className={cn(
-              "object-cover transition-transform duration-300 group-hover:scale-105",
-              !inStock && "opacity-50"
-            )}
-            sizes="112px"
-          />
-        </Link>
-        <div className="min-w-0 flex-1">
-          <Link
-            href={href}
-            className="text-sm sm:text-base font-medium text-charcoal hover:text-terracotta-dark transition-colors"
-          >
-            {name}
-          </Link>
-          <p className="mt-1 text-sm font-semibold text-charcoal">
-            ₹{price.toLocaleString("en-IN")}
-          </p>
-          {!inStock && (
-            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-terracotta-dark">
-              Out of Stock
-            </p>
-          )}
-          {stars}
-        </div>
-        {wishlistButton}
-      </div>
-    );
-  }
 
   return (
     <div className="group w-full">

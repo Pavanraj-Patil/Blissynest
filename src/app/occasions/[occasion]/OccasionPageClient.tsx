@@ -56,7 +56,6 @@ export function OccasionPageClient({
   const [priceMax, setPriceMax] = useState(PRICE_BOUNDS.max);
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("best-selling");
-  const [view, setView] = useState<"grid" | "list">("grid");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
@@ -208,8 +207,6 @@ export function OccasionPageClient({
                   setSort(s);
                   setVisibleCount(ITEMS_PER_PAGE);
                 }}
-                view={view}
-                onViewChange={setView}
                 onOpenFilters={() => setMobileFiltersOpen(true)}
                 activeFilterCount={activeFilterCount}
               />
@@ -220,13 +217,7 @@ export function OccasionPageClient({
                   searching again.
                 </p>
               ) : (
-                <div
-                  className={
-                    view === "grid"
-                      ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 py-6"
-                      : "flex flex-col gap-3 py-6"
-                  }
-                >
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 py-6">
                   {pageProducts.map((p, i) => (
                     <ProductCard
                       key={p.id}
@@ -237,7 +228,6 @@ export function OccasionPageClient({
                       inStock={p.inStock}
                       image={p.image}
                       href={`/product/${p.id}`}
-                      layout={view}
                       priority={i < 4}
                     />
                   ))}

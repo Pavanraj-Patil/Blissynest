@@ -29,54 +29,44 @@ export function CategoryPillRow({
   ];
 
   return (
-    <div className="relative">
-      <div className="flex gap-5 sm:gap-8 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-        {items.map((item) => {
-          const Icon = item.icon ?? categoryIcons[item.slug] ?? Gift;
-          const photo = categoryPillImages[item.slug];
-          const isActive =
-            item.slug === "all" ? selected === null : selected === item.slug;
-          return (
-            <button
-              key={item.slug}
-              type="button"
-              onClick={() => onSelect(item.slug === "all" ? null : item.slug)}
-              className="flex flex-col items-center gap-2 shrink-0"
+    <div className="flex gap-5 sm:gap-8 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+      {items.map((item) => {
+        const Icon = item.icon ?? categoryIcons[item.slug] ?? Gift;
+        const photo = categoryPillImages[item.slug];
+        const isActive =
+          item.slug === "all" ? selected === null : selected === item.slug;
+        return (
+          <button
+            key={item.slug}
+            type="button"
+            onClick={() => onSelect(item.slug === "all" ? null : item.slug)}
+            className="flex flex-col items-center gap-2 shrink-0"
+          >
+            <span
+              className={cn(
+                "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border transition-colors",
+                isActive
+                  ? "border-terracotta text-terracotta bg-terracotta/10"
+                  : "border-charcoal/15 text-charcoal-light hover:border-charcoal/30"
+              )}
             >
-              <span
-                className={cn(
-                  "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border transition-colors",
-                  isActive
-                    ? "border-terracotta text-terracotta bg-terracotta/10"
-                    : "border-charcoal/15 text-charcoal-light hover:border-charcoal/30"
-                )}
-              >
-                {photo ? (
-                  <Image src={photo} alt="" fill className="object-cover" sizes="56px" />
-                ) : (
-                  <Icon size={22} strokeWidth={1.5} />
-                )}
-              </span>
-              <span
-                className={cn(
-                  "text-xs font-medium whitespace-nowrap",
-                  isActive ? "text-terracotta-dark" : "text-charcoal-light"
-                )}
-              >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      {/* Fades the trailing edge instead of letting the scroll strip cut
-          the last pill off abruptly — a clearer "swipe for more" cue than
-          a hard clip. Harmless when nothing actually overflows: the
-          gradient just fades cream into cream. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-cream to-transparent sm:hidden"
-      />
+              {photo ? (
+                <Image src={photo} alt="" fill className="object-cover" sizes="56px" />
+              ) : (
+                <Icon size={22} strokeWidth={1.5} />
+              )}
+            </span>
+            <span
+              className={cn(
+                "text-xs font-medium whitespace-nowrap",
+                isActive ? "text-terracotta-dark" : "text-charcoal-light"
+              )}
+            >
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }

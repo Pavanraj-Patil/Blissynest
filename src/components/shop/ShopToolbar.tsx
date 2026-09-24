@@ -1,7 +1,6 @@
 "use client";
 
-import { SlidersHorizontal, LayoutGrid, List } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { SlidersHorizontal } from "lucide-react";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 
 export type SortOption =
@@ -23,8 +22,6 @@ type ShopToolbarProps = {
   resultCount: number;
   sort: SortOption;
   onSortChange: (sort: SortOption) => void;
-  view: "grid" | "list";
-  onViewChange: (view: "grid" | "list") => void;
   onOpenFilters: () => void;
   activeFilterCount: number;
 };
@@ -33,8 +30,6 @@ export function ShopToolbar({
   resultCount,
   sort,
   onSortChange,
-  view,
-  onViewChange,
   onOpenFilters,
   activeFilterCount,
 }: ShopToolbarProps) {
@@ -74,33 +69,6 @@ export function ShopToolbar({
           triggerClassName="max-w-[9rem] sm:max-w-none"
           panelClassName="right-0 left-auto"
         />
-
-        <div className="flex items-center rounded-lg border border-charcoal/15 overflow-hidden">
-          <button
-            type="button"
-            aria-label="Grid view"
-            aria-pressed={view === "grid"}
-            onClick={() => onViewChange("grid")}
-            className={cn(
-              "p-2.5",
-              view === "grid" ? "bg-charcoal text-cream" : "text-charcoal-light"
-            )}
-          >
-            <LayoutGrid size={16} />
-          </button>
-          <button
-            type="button"
-            aria-label="List view"
-            aria-pressed={view === "list"}
-            onClick={() => onViewChange("list")}
-            className={cn(
-              "p-2.5",
-              view === "list" ? "bg-charcoal text-cream" : "text-charcoal-light"
-            )}
-          >
-            <List size={16} />
-          </button>
-        </div>
       </div>
     </div>
   );

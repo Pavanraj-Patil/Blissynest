@@ -2,13 +2,12 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { User, CalendarHeart, Gift, Tag, LayoutGrid, List } from "lucide-react";
+import { User, CalendarHeart, Gift, Tag } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { type SortOption, sortLabels } from "@/components/shop/ShopToolbar";
 import { LoadMoreButton } from "@/components/shop/LoadMoreButton";
-import { cn } from "@/lib/cn";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { ProductCard } from "@/components/ui/ProductCard";
@@ -44,7 +43,6 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
   const [budget, setBudget] = useState(searchParams.get("budget") ?? "");
   const [category, setCategory] = useState(searchParams.get("category") ?? "");
   const [sort, setSort] = useState<SortOption>("best-selling");
-  const [view, setView] = useState<"grid" | "list">("grid");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
   const selections: Record<string, string> = { who, occasion, budget, category };
@@ -168,27 +166,6 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
                 triggerClassName="max-w-[7.5rem] sm:max-w-none"
                 panelClassName="right-0 left-auto"
               />
-
-              <div className="flex items-center rounded-lg border border-charcoal/15 overflow-hidden">
-                <button
-                  type="button"
-                  aria-label="Grid view"
-                  aria-pressed={view === "grid"}
-                  onClick={() => setView("grid")}
-                  className={cn("p-2.5", view === "grid" ? "bg-charcoal text-cream" : "text-charcoal-light")}
-                >
-                  <LayoutGrid size={16} />
-                </button>
-                <button
-                  type="button"
-                  aria-label="List view"
-                  aria-pressed={view === "list"}
-                  onClick={() => setView("list")}
-                  className={cn("p-2.5", view === "list" ? "bg-charcoal text-cream" : "text-charcoal-light")}
-                >
-                  <List size={16} />
-                </button>
-              </div>
             </div>
           </div>
 
@@ -197,13 +174,7 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
               No gifts match those filters yet. Try widening your search above.
             </p>
           ) : (
-            <div
-              className={
-                view === "grid"
-                  ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 py-6"
-                  : "flex flex-col gap-3 py-6"
-              }
-            >
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 py-6">
               {pageProducts.map((p, i) => (
                 <ProductCard
                   key={p.id}
@@ -214,7 +185,6 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
                   inStock={p.inStock}
                   image={p.image}
                   href={`/product/${p.id}`}
-                  layout={view}
                   priority={i < 4}
                 />
               ))}
