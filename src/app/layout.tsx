@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Work_Sans } from "next/font/google";
+import { Suspense } from "react";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { TopProgress } from "@/components/layout/TopProgress";
 import { auth } from "@/auth";
 import { getPageContent, getSectionVisibility } from "@/lib/content-service";
 import type { ResponsiveImageValue } from "@/lib/content-schema";
@@ -74,6 +76,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${playfair.variable} ${workSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-charcoal font-sans">
+        {/* Needs Suspense because it reads the URL's query string. */}
+        <Suspense fallback={null}>
+          <TopProgress />
+        </Suspense>
         <AppProviders
           session={session}
           shopGiftBannerImage={shopGiftBannerImage}

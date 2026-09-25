@@ -3,12 +3,15 @@
 import { useRouter } from "next/navigation";
 import { ShoppingBag, Zap } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { Spinner } from "@/components/ui/Spinner";
+import { startNavigationProgress } from "@/components/layout/TopProgress";
 
 type BuyNowOrViewCartButtonProps = {
   productSlug: string;
   onBuyNow: () => void;
   buyNowLabel?: string;
   disabled?: boolean;
+  loading?: boolean;
   className?: string;
   iconSize?: number;
 };
@@ -24,6 +27,7 @@ export function BuyNowOrViewCartButton({
   onBuyNow,
   buyNowLabel = "Buy Now",
   disabled = false,
+  loading = false,
   className = "",
   iconSize = 15,
 }: BuyNowOrViewCartButtonProps) {
@@ -35,7 +39,10 @@ export function BuyNowOrViewCartButton({
     return (
       <button
         type="button"
-        onClick={() => router.push("/cart")}
+        onClick={() => {
+          startNavigationProgress();
+          router.push("/cart");
+        }}
         className={`relative ${className}`}
       >
         <ShoppingBag size={iconSize} />
@@ -48,9 +55,9 @@ export function BuyNowOrViewCartButton({
   }
 
   return (
-    <button type="button" onClick={onBuyNow} disabled={disabled} className={className}>
-      <Zap size={iconSize} />
-      {buyNowLabel}
+    <button type="button" onClick={onBuyNow} disabled={disabled} aria-busy={loading} className={className}>
+      {loading ? <Spinner size={iconSize} /> : <Zap size={iconSize} />}
+      {loading ? "Just a moment…" : buyNowLabel}
     </button>
   );
 }

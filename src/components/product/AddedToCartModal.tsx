@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { CheckCircle2 } from "lucide-react";
+import { startNavigationProgress } from "@/components/layout/TopProgress";
 
 export function AddedToCartModal({
   open,
@@ -70,7 +71,10 @@ export function AddedToCartModal({
         <div className="mt-6 flex flex-col sm:flex-row gap-3">
           <button
             type="button"
-            onClick={() => router.push("/cart")}
+            onClick={() => {
+              startNavigationProgress();
+              router.push("/cart");
+            }}
             className="flex-1 rounded-xl bg-olive text-cream px-4 py-3 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
           >
             Buy Now

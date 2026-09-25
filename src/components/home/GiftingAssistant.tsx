@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, CalendarHeart, Gift, ArrowRight } from "lucide-react";
+import { startNavigationProgress } from "@/components/layout/TopProgress";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { whoOptions, whoToAudience, occasionOptions, budgetOptions } from "@/lib/gifting-assistant-data";
 
@@ -29,6 +30,7 @@ export function GiftingAssistant() {
     const query = params.toString();
     const audience = selections.who ? whoToAudience[selections.who] : null;
     const base = audience ? `/shop/${audience}` : "/shop";
+    startNavigationProgress();
     router.push(`${base}${query ? `?${query}` : ""}`);
   }
 

@@ -1,11 +1,14 @@
 import { ShoppingBag, Check } from "lucide-react";
 import { BuyNowOrViewCartButton } from "./BuyNowOrViewCartButton";
+import { Spinner } from "@/components/ui/Spinner";
 
 type MobileStickyCTAProps = {
   productSlug: string;
   onAddToCart: () => void;
   onBuyNow: () => void;
   added?: boolean;
+  adding?: boolean;
+  buying?: boolean;
   addToCartLabel?: string;
   buyNowLabel?: string;
   disabled?: boolean;
@@ -16,6 +19,8 @@ export function MobileStickyCTA({
   onAddToCart,
   onBuyNow,
   added = false,
+  adding = false,
+  buying = false,
   addToCartLabel = "Add to Cart",
   buyNowLabel = "Buy Now",
   disabled = false,
@@ -28,14 +33,15 @@ export function MobileStickyCTA({
         disabled={disabled}
         className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-4 py-3 text-xs font-semibold tracking-[0.1em] uppercase text-charcoal disabled:opacity-40 disabled:pointer-events-none"
       >
-        {added ? <Check size={14} /> : <ShoppingBag size={14} />}
-        {added ? "Added" : addToCartLabel}
+        {adding ? <Spinner size={14} /> : added ? <Check size={14} /> : <ShoppingBag size={14} />}
+        {adding ? "Adding…" : added ? "Added" : addToCartLabel}
       </button>
       <BuyNowOrViewCartButton
         productSlug={productSlug}
         onBuyNow={onBuyNow}
         buyNowLabel={buyNowLabel}
         disabled={disabled}
+        loading={buying}
         iconSize={14}
         className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-4 py-3 text-xs font-semibold tracking-[0.1em] uppercase disabled:opacity-40 disabled:pointer-events-none"
       />

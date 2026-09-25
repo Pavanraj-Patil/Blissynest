@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, Tag, X, Info, Truck, PackageCheck, Clock, Heart, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { CartItem } from "@/lib/cart-context";
+import { Spinner } from "@/components/ui/Spinner";
 
 type AppliedCoupon = { code: string; discount: number };
 
@@ -234,7 +235,14 @@ export function OrderSummarySidebar({
                     onClick={() => couponInput.trim() && onApplyCoupon(couponInput.trim())}
                     className="shrink-0 rounded-lg bg-olive text-cream px-5 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
                   >
-                    {couponApplying ? "Checking…" : "Apply"}
+                    {couponApplying ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Spinner size={12} />
+                        Checking…
+                      </span>
+                    ) : (
+                      "Apply"
+                    )}
                   </button>
                 </div>
                 {couponError && <p className="mt-2 text-xs text-terracotta-dark">{couponError}</p>}

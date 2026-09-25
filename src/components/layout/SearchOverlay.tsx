@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Search, X, ArrowRight, SearchX, TrendingUp, Loader2 } from "lucide-react";
 import type { RelatedProduct } from "@/lib/product-adapters";
+import { startNavigationProgress } from "./TopProgress";
 
 const popularSearches = [
   { label: "Scented Candles", href: "/search?q=candle" },
@@ -92,6 +93,7 @@ export function SearchOverlay({
 
   function goToResults() {
     if (!query.trim()) return;
+    startNavigationProgress();
     router.push(`/search?q=${encodeURIComponent(query.trim())}`);
     handleClose();
   }

@@ -18,13 +18,13 @@ function CountBadge({ count, loading }: { count: number; loading: boolean }) {
     return (
       <span
         aria-hidden
-        className="absolute -top-2 -right-2 h-4 w-4 rounded-full bg-charcoal/10 animate-pulse"
+        className="absolute top-0 right-0 h-4 w-4 rounded-full bg-charcoal/10 animate-pulse"
       />
     );
   }
   if (count <= 0) return null;
   return (
-    <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-terracotta-dark text-[9px] font-semibold text-cream">
+    <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-terracotta-dark text-[9px] font-semibold text-cream">
       {count > 9 ? "9+" : count}
     </span>
   );

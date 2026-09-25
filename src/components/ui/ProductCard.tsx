@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Heart, Star } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useWishlist } from "@/lib/wishlist-context";
+import { FadeImage } from "@/components/ui/FadeImage";
 
 type ProductCardProps = {
   name: string;
@@ -77,13 +77,13 @@ export function ProductCard({
     <div className="group w-full">
       <div className="relative block aspect-square overflow-hidden rounded-2xl bg-cream-dark">
         <Link href={href} className="absolute inset-0">
-          <Image
+          <FadeImage
             src={image}
             alt={name}
             fill
             priority={priority}
             className={cn(
-              "object-cover transition-transform duration-300 group-hover:scale-105",
+              "object-cover transition-[opacity,transform] duration-500 group-hover:scale-105",
               !inStock && "opacity-50"
             )}
             sizes="(min-width: 1024px) 19vw, 45vw"

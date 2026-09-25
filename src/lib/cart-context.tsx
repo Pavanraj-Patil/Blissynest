@@ -44,7 +44,7 @@ type CartContextValue = {
   addItem: (
     item: Omit<CartItem, "id" | "quantity">,
     quantity?: number
-  ) => void;
+  ) => Promise<void>;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -109,12 +109,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const items = authenticated ? (serverItems ?? []) : localItems;
   const loading = status === "loading" || (authenticated && serverItems === null);
 
-  function addItem(item: Omit<CartItem, "id" | "quantity">, quantity = 1) {
+  // Resolves once the cart is actually updated (immediately for guests; after
+  // the server confirms for signed-in shoppers), so buttons can show "Adding…".
+  async function addItem(item: Omit<CartItem, "id" | "quantity">, quantity = 1): Promise<void> {
     if (authenticated) {
-      fetchJson("/api/cart", {
+      const data = await fetchJson("/api/cart", {
         method: "POST",
         body: JSON.stringify({ slug: item.slug, quantity, customization: item.customization }),
-      }).then((data) => setServerItems(data.items));
+      });
+      setServerItems(data.items);
       return;
     }
     const current = localStore.getSnapshot();

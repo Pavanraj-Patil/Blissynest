@@ -35,6 +35,7 @@ import {
   STANDARD_SHIPPING_FEE,
   type Address,
 } from "@/lib/checkout-data";
+import { OrderProcessingOverlay } from "@/components/checkout/OrderProcessingOverlay";
 
 type AppliedCoupon = { code: string; discount: number };
 
@@ -130,6 +131,9 @@ export function CheckoutPageClient() {
   const [couponApplying, setCouponApplying] = useState(false);
 
   const [placingOrder, setPlacingOrder] = useState(false);
+  // True while Razorpay's own payment window is on screen — the "wrapping up"
+  // overlay steps aside for it, and comes back when the payment is confirmed.
+  const [paymentWindowOpen, setPaymentWindowOpen] = useState(false);
   const [placeOrderError, setPlaceOrderError] = useState<string | null>(null);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
@@ -405,6 +409,7 @@ export function CheckoutPageClient() {
       method: razorpayMethodFlags[effectivePaymentMethod],
       theme: { color: "#6b7a4f" },
       handler: async (response) => {
+        setPaymentWindowOpen(false);
         try {
           const verifyRes = await fetch("/api/checkout/razorpay/verify", {
             method: "POST",
@@ -436,12 +441,14 @@ export function CheckoutPageClient() {
       },
       modal: {
         ondismiss: () => {
+          setPaymentWindowOpen(false);
           setPlaceOrderError("Payment was cancelled.");
           setPlacingOrder(false);
         },
       },
     });
 
+    setPaymentWindowOpen(true);
     razorpay.open();
   }
 
@@ -537,6 +544,7 @@ export function CheckoutPageClient() {
 
   return (
     <>
+      {placingOrder && !paymentWindowOpen && <OrderProcessingOverlay />}
       <CheckoutHeader />
       <main>
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 pb-4">

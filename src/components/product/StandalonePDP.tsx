@@ -19,6 +19,8 @@ import type { StandaloneProduct } from "@/lib/product-mock-data";
 import type { RelatedProduct } from "@/lib/product-adapters";
 import type { ApprovedReview } from "@/lib/review-service";
 import { useCart } from "@/lib/cart-context";
+import { Spinner } from "@/components/ui/Spinner";
+import { startNavigationProgress } from "@/components/layout/TopProgress";
 
 export function StandalonePDP({
   product,
@@ -35,6 +37,8 @@ export function StandalonePDP({
   const { addItem } = useCart();
   const quantity = 1;
   const [added, setAdded] = useState(false);
+  // Which button's request is in flight (shows a spinner, ignores double taps).
+  const [busy, setBusy] = useState<"add" | "buy" | null>(null);
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(
     () =>
@@ -57,8 +61,10 @@ export function StandalonePDP({
     return product.images;
   }, [product.variants, product.variantImages, product.images, selectedVariants]);
 
-  function handleAddToCart() {
-    addItem(
+  async function handleAddToCart() {
+    if (busy) return;
+    setBusy("add");
+    await addItem(
       {
         slug: product.slug,
         name: product.name,
@@ -68,13 +74,16 @@ export function StandalonePDP({
       },
       quantity
     );
+    setBusy(null);
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
     setCartModalOpen(true);
   }
 
-  function handleBuyNow() {
-    addItem(
+  async function handleBuyNow() {
+    if (busy) return;
+    setBusy("buy");
+    await addItem(
       {
         slug: product.slug,
         name: product.name,
@@ -84,6 +93,7 @@ export function StandalonePDP({
       },
       quantity
     );
+    startNavigationProgress();
     router.push("/cart");
   }
 
@@ -198,11 +208,12 @@ export function StandalonePDP({
                 disabled={!product.inStock}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors disabled:opacity-40 disabled:pointer-events-none"
               >
-                {added ? <Check size={15} /> : <ShoppingBag size={15} />}
-                {added ? "Added" : "Add to Cart"}
+                {busy === "add" ? <Spinner size={15} /> : added ? <Check size={15} /> : <ShoppingBag size={15} />}
+                {busy === "add" ? "Adding…" : added ? "Added" : "Add to Cart"}
               </button>
               <BuyNowOrViewCartButton
                 productSlug={product.slug}
+                loading={busy === "buy"}
                 onBuyNow={handleBuyNow}
                 disabled={!product.inStock}
                 className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
@@ -218,6 +229,8 @@ export function StandalonePDP({
           onAddToCart={handleAddToCart}
           onBuyNow={handleBuyNow}
           added={added}
+          adding={busy === "add"}
+          buying={busy === "buy"}
           disabled={!product.inStock}
         />
       </div>
