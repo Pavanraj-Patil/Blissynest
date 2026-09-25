@@ -250,6 +250,7 @@ export function AudienceShopPageClient({
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8">
           <CategoryPillRow
+            scope={audience}
             categories={visibleCategories}
             selected={selectedCategories.length === 1 ? selectedCategories[0] : null}
             onSelect={(slug) => toggleCategory(slug ?? "__all__")}
