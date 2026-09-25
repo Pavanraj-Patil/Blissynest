@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getCartItemsForUser, addQuantityToCart } from "@/lib/cart-service";
 import { addCartItemSchema, updateCartItemSchema } from "@/lib/validations/cart";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // GET /api/cart — the signed-in user's cart. Guests keep using the existing
 // localStorage cart (src/lib/cart-context.tsx); this route only exists for
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
   const parsed = addCartItemSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }
@@ -57,7 +58,7 @@ export async function PATCH(request: Request) {
   const parsed = updateCartItemSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

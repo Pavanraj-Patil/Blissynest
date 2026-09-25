@@ -53,9 +53,17 @@ export default async function AdminOrdersPage({
 
   return (
     <div className="max-w-[1300px] mx-auto space-y-5">
-      <div>
-        <h1 className="font-serif text-2xl text-charcoal">Orders</h1>
-        <p className="mt-1 text-sm text-ink-muted">{total} order{total === 1 ? "" : "s"}</p>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-2xl text-charcoal">Orders</h1>
+          <p className="mt-1 text-sm text-ink-muted">{total} order{total === 1 ? "" : "s"}</p>
+        </div>
+        <a
+          href={`/admin/orders/export?${new URLSearchParams({ ...(query ? { q: query } : {}), ...(activeStatus ? { status: activeStatus } : {}) }).toString()}`}
+          className="shrink-0 rounded-lg border border-charcoal/15 px-3.5 py-2 text-xs font-semibold text-charcoal hover:bg-cream-dark"
+        >
+          Export CSV
+        </a>
       </div>
 
       <div className="rounded-2xl border border-charcoal/10 bg-white p-4">

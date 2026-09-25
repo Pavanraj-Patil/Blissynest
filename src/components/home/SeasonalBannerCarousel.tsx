@@ -99,7 +99,7 @@ export function SeasonalBannerCarousel({ slides }: { slides: SlideInput[] }) {
                 />
               )}
               <div className="relative max-w-sm">
-                <span className="text-[10px] tracking-[0.15em] uppercase text-cream/70">
+                <span className="text-[11px] tracking-[0.15em] uppercase text-cream/70">
                   Featured this season
                 </span>
                 <h2 className="mt-1.5 font-serif text-xl sm:text-2xl text-cream leading-snug">
@@ -126,7 +126,7 @@ export function SeasonalBannerCarousel({ slides }: { slides: SlideInput[] }) {
                 onClick={() => goTo(i)}
                 aria-label={`Show ${slide.title}`}
                 aria-current={i === active}
-                className={`h-1.5 rounded-full transition-all ${
+                className={`relative h-1.5 rounded-full transition-all before:absolute before:-inset-x-1 before:-inset-y-3 before:content-[''] ${
                   i === active ? "w-5 bg-cream" : "w-1.5 bg-cream/40 hover:bg-cream/60"
                 }`}
               />

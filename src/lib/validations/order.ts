@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { customizationSchema } from "./cart";
+import { phoneField, pincodeField, stateField } from "./common";
 
 export const shippingAddressSchema = z.object({
   label: z.string().trim().min(1),
@@ -7,9 +8,9 @@ export const shippingAddressSchema = z.object({
   line1: z.string().trim().min(1),
   line2: z.string().trim().optional(),
   city: z.string().trim().min(1),
-  state: z.string().trim().min(1),
-  pincode: z.string().trim().min(1),
-  phone: z.string().trim().min(1),
+  state: stateField,
+  pincode: pincodeField,
+  phone: phoneField,
 });
 
 export const paymentMethodSchema = z.enum(["card", "upi", "netbanking", "cod"]);
@@ -31,16 +32,13 @@ export const createOrderSchema = z.object({
   // handler (via resolveCartSourceForRequest) requires these when there's
   // no session.
   guestEmail: z.string().trim().email().optional(),
-  guestPhone: z.string().trim().min(1).optional(),
+  guestPhone: phoneField.optional(),
   guestItems: z.array(guestCartItemSchema).max(50).optional(),
 });
 
-export const razorpayCheckoutSessionSchema = z.object({
-  couponCode: z.string().trim().optional(),
-  guestEmail: z.string().trim().email().optional(),
-  guestPhone: z.string().trim().min(1).optional(),
-  guestItems: z.array(guestCartItemSchema).max(50).optional(),
-});
+// Same fields as placing an order: the payment snapshot has to carry the delivery
+// details so a paid order can be recovered without the browser.
+export const razorpayCheckoutSessionSchema = createOrderSchema;
 
 export const razorpayVerifySchema = createOrderSchema.extend({
   razorpayOrderId: z.string().min(1),

@@ -19,7 +19,7 @@ export function AccordionItem({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-left text-sm font-semibold text-charcoal"
+        className="-my-2 flex w-full items-center justify-between py-2 text-left text-sm font-semibold text-charcoal"
       >
         {title}
         {open ? (

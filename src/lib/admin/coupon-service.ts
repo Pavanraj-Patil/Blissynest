@@ -14,6 +14,9 @@ function toPaiseFields(input: AdminCouponInput) {
     usageLimit: input.usageLimit ?? null,
     active: input.active,
     firstOrderOnly: input.firstOrderOnly,
+    // Valid through the end of the chosen day (India time), so a coupon set to
+    // expire on the 30th still works all day on the 30th.
+    expiresAt: input.expiresAt ? new Date(`${input.expiresAt}T23:59:59+05:30`) : null,
   };
 }
 

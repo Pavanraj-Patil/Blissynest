@@ -58,6 +58,13 @@ const nextConfig: NextConfig = {
     // /api/image-proxy keeps its own host allowlist.)
     loader: "custom",
     loaderFile: "./src/lib/image-loader.ts",
+    // Widths <Image> may ask for. Next's defaults list 16 sizes (up to 3840px),
+    // so a single photo could be requested — and resized — at a dozen different
+    // widths, each one a separate cold cache entry and, on Cloudflare's free
+    // plan, a separate "unique transformation". A short list means far more
+    // requests hit an already-made copy, and phones/desktops share them.
+    deviceSizes: [640, 828, 1080, 1440, 1920],
+    imageSizes: [64, 128, 256, 384],
     remotePatterns: [
       {
         protocol: "https",
@@ -68,6 +75,10 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+  },
+  async redirects() {
+    // Browsers and crawlers ask for /favicon.ico by habit; the real icon is a PNG.
+    return [{ source: "/favicon.ico", destination: "/favicon.png", permanent: false }];
   },
   async headers() {
     return [
@@ -84,7 +95,10 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Strict-Transport-Security",
-            value: "max-age=63072000; includeSubDomains; preload",
+            // No "preload": that submits the whole domain (every subdomain)
+            // to browsers' built-in HTTPS-only list, which is very hard to
+            // undo if any subdomain ever needs plain HTTP.
+            value: "max-age=31536000; includeSubDomains",
           },
         ],
       },

@@ -82,7 +82,7 @@ export function OrderSummarySidebar({
             Order Summary <span className="text-ink-muted">({itemCount} items)</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="font-serif text-lg text-charcoal">₹{total.toLocaleString("en-IN")}</span>
+            <span className="text-lg font-semibold text-charcoal">₹{total.toLocaleString("en-IN")}</span>
             <ChevronDown
               size={16}
               className={cn("text-charcoal/40 transition-transform", mobileExpanded && "rotate-180")}
@@ -160,7 +160,7 @@ export function OrderSummarySidebar({
             <span className="font-semibold text-charcoal">Total Amount</span>
             <p className="text-xs text-ink-muted">Inclusive of all taxes</p>
           </div>
-          <span className="font-serif text-2xl text-charcoal">₹{total.toLocaleString("en-IN")}</span>
+          <span className="text-2xl font-semibold text-charcoal">₹{total.toLocaleString("en-IN")}</span>
         </div>
 
         {discount > 0 && (
@@ -273,6 +273,18 @@ export function OrderSummarySidebar({
         {placingOrder ? "Placing Order…" : "Place Order"}
         {!placingOrder && <ArrowRight size={14} />}
       </button>
+
+      <p className="mt-3 text-center text-[11px] leading-relaxed text-ink-muted">
+        By placing your order you agree to our{" "}
+        <a href="/terms" target="_blank" rel="noopener" className="underline hover:text-terracotta-dark">
+          Terms &amp; Conditions
+        </a>{" "}
+        and{" "}
+        <a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-terracotta-dark">
+          Privacy Policy
+        </a>
+        .
+      </p>
     </div>
   );
 }

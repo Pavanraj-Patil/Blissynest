@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/require-admin";
 import { updateOrderAdmin } from "@/lib/admin/order-service";
 import { updateOrderSchema } from "@/lib/validations/admin-order";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 export async function PATCH(
   request: Request,
@@ -17,7 +18,7 @@ export async function PATCH(
   const parsed = updateOrderSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

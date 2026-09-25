@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/require-admin";
 import { updateSiteSettings } from "@/lib/admin/settings-service";
 import { siteSettingsSchema } from "@/lib/validations/admin-settings";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 export async function PATCH(request: Request) {
   const check = await requireAdminApi("settings");
@@ -13,7 +14,7 @@ export async function PATCH(request: Request) {
   const parsed = siteSettingsSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

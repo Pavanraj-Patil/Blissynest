@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { phoneField } from "./common";
 
 export const newsletterSchema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid email address"),
@@ -14,7 +15,7 @@ export const contactMessageSchema = z.object({
 export const corporateLeadSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   workEmail: z.string().trim().toLowerCase().email("Enter a valid work email"),
-  phone: z.string().trim().min(1, "Phone is required"),
+  phone: phoneField,
   companyName: z.string().trim().min(1, "Company name is required"),
   teamSize: z.string().trim().optional(),
   interest: z.string().trim().optional(),

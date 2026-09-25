@@ -26,6 +26,8 @@ import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { useCart } from "@/lib/cart-context";
 import { cn } from "@/lib/cn";
 import { loadRazorpayScript } from "@/lib/load-razorpay-script";
+import { PhoneInput } from "@/components/ui/PhoneInput";
+import { isValidIndianMobile } from "@/lib/phone";
 import {
   paymentMethods,
   razorpayMethodFlags,
@@ -103,7 +105,7 @@ function isValidEmail(value: string): boolean {
 }
 
 function isValidPhone(value: string): boolean {
-  return value.replace(/\D/g, "").length >= 10;
+  return isValidIndianMobile(value);
 }
 
 export function CheckoutPageClient() {
@@ -368,7 +370,15 @@ export function CheckoutPageClient() {
     const createRes = await fetch("/api/checkout/razorpay/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ couponCode: appliedCoupon?.code, ...buildGuestFields() }),
+      body: JSON.stringify({
+        shippingAddress: buildShippingAddress(),
+        paymentMethod: effectivePaymentMethod,
+        isGift,
+        giftNote: isGift ? giftNote : undefined,
+        hidePricesOnSlip: isGift ? hidePrices : false,
+        couponCode: appliedCoupon?.code,
+        ...buildGuestFields(),
+      }),
     });
     const session = await createRes.json();
     if (!createRes.ok) {
@@ -575,12 +585,10 @@ export function CheckoutPageClient() {
                         <span className="text-xs font-medium text-charcoal">
                           Mobile Number (for order updates) <span className="text-terracotta-dark">*</span>
                         </span>
-                        <input
-                          type="tel"
+                        <PhoneInput
                           required
                           value={guestPhone}
                           onChange={(e) => setGuestPhone(e.target.value)}
-                          placeholder="+91 98765 43210"
                           className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
                         />
                       </label>

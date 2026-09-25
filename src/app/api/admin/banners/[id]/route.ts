@@ -3,6 +3,7 @@ import { requireAdminApi } from "@/lib/admin/require-admin";
 import { updateBanner, setBannerActive, deleteBanner } from "@/lib/banner-service";
 import { bannerInputSchema } from "@/lib/validations/banner";
 import { z } from "zod";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 const toggleSchema = z.object({ active: z.boolean() });
 
@@ -28,7 +29,7 @@ export async function PATCH(
   const parsed = bannerInputSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

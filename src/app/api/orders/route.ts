@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { getOrdersForUser, createOrder, resolveCartSourceForRequest } from "@/lib/order-service";
 import { createOrderSchema } from "@/lib/validations/order";
 import { checkRateLimit, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // GET /api/orders — the signed-in user's order history.
 export async function GET() {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
   const parsed = createOrderSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

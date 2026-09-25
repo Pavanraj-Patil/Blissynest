@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { toAddressDTO } from "@/lib/address-adapters";
 import { addressInputSchema } from "@/lib/validations/address";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // GET /api/addresses — the signed-in user's saved addresses, oldest first
 // (the account UI and checkout both treat the first one as "Default").
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
   const parsed = addressInputSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

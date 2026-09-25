@@ -66,7 +66,7 @@ function StatCard({
           <Icon size={15} strokeWidth={1.75} />
         </span>
       </div>
-      <p className="mt-2 font-serif text-2xl text-charcoal">{value}</p>
+      <p className="mt-2 text-2xl font-semibold text-charcoal">{value}</p>
       <div className="mt-1.5">
         <ChangeBadge pct={changePct} />
       </div>

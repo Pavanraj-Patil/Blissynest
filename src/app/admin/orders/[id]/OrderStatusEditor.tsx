@@ -103,6 +103,11 @@ export function OrderStatusEditor({
         </label>
       </div>
 
+      <p className="text-xs leading-relaxed text-ink-muted">
+        The customer is emailed when you change the status to Shipped, Delivered or Cancelled. Cancelling puts the
+        items back in stock; moving a cancelled order back takes them out again.
+      </p>
+
       <button
         type="button"
         onClick={handleSave}

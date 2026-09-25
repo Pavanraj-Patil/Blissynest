@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyWebhookSignature } from "@/lib/razorpay";
+import { recoverPaidOrder } from "@/lib/order-service";
 
 // POST /api/webhooks/razorpay — configure this URL in the Razorpay
 // Dashboard (Settings → Webhooks) once RAZORPAY_WEBHOOK_SECRET is set.
@@ -47,6 +48,10 @@ export async function POST(request: Request) {
         where: { id: order.id },
         data: { paymentStatus: "PAID", razorpayPaymentId: payment.id },
       });
+    } else if (!order) {
+      // Paid, but our confirmation call never arrived: build the order from
+      // the snapshot taken when the payment was opened.
+      await recoverPaidOrder(payment.order_id, payment.id);
     }
   } else if (event === "payment.failed") {
     const order = await db.order.findFirst({ where: { razorpayOrderId: payment.order_id } });

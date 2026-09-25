@@ -17,6 +17,16 @@ type SiteContent = {
   // CategoryPillRow.tsx) — falls back to a Lucide icon wherever a slug has
   // no value here.
   categoryPillImages: Record<string, string>;
+  // Footer bits that inner pages' ShopFooter (a client component) shows, so
+  // they follow Site Content → Footer instead of being hardcoded there.
+  footer: {
+    newsletterHeading: string;
+    newsletterSubcopy: string;
+    instagramUrl: string;
+    facebookUrl: string;
+    pinterestUrl: string;
+    youtubeUrl: string;
+  };
 };
 
 const SiteContentContext = createContext<SiteContent | null>(null);

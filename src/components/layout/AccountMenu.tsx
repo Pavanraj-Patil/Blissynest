@@ -32,7 +32,7 @@ export function AccountMenu() {
           type="button"
           aria-label="Account menu"
           onClick={() => setMenuOpen((v) => !v)}
-          className="hover:text-terracotta-dark transition-colors"
+          className="-m-2 p-2 hover:text-terracotta-dark transition-colors"
         >
           <User size={19} />
         </button>
@@ -82,7 +82,7 @@ export function AccountMenu() {
         type="button"
         aria-label="Account"
         onClick={() => setAuthOpen(true)}
-        className="hover:text-terracotta-dark transition-colors"
+        className="-m-2 p-2 hover:text-terracotta-dark transition-colors"
       >
         <User size={19} />
       </button>

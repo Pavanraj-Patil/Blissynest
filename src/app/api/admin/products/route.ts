@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/require-admin";
 import { createProduct } from "@/lib/admin/product-service";
 import { adminProductSchema } from "@/lib/validations/admin-product";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 export async function POST(request: Request) {
   const check = await requireAdminApi("products");
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
   const parsed = adminProductSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

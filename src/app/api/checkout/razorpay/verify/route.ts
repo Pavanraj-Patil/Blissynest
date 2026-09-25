@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { verifyAndCreateOrder, resolveCartSourceForRequest } from "@/lib/order-service";
 import { razorpayVerifySchema } from "@/lib/validations/order";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // POST /api/checkout/razorpay/verify — called from the client's Razorpay
 // Checkout.js success handler. Verifies the payment signature and only then
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
   const parsed = razorpayVerifySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

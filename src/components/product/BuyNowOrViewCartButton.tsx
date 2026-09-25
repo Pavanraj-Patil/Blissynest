@@ -40,7 +40,7 @@ export function BuyNowOrViewCartButton({
       >
         <ShoppingBag size={iconSize} />
         View Cart
-        <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-terracotta text-[10px] font-semibold text-cream">
+        <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-terracotta-dark text-[10px] font-semibold text-cream">
           {count > 9 ? "9+" : count}
         </span>
       </button>

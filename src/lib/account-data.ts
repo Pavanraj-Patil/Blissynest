@@ -69,6 +69,6 @@ export const accountAddresses: Address[] = [
     city: "Pune",
     state: "Maharashtra",
     pincode: "411006",
-    phone: "+91 98765 43210",
+    phone: "98765 43210",
   },
 ];

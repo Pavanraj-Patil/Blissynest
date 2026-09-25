@@ -29,10 +29,12 @@ export function CorporateFinalCta({ content }: { content: Record<string, unknown
             <Mail size={15} />
             {email}
           </a>
-          <a href={`tel:${phone}`} className="flex items-center gap-2 hover:text-cream transition-colors">
-            <Phone size={15} />
-            {phone}
-          </a>
+          {phone && (
+            <a href={`tel:${phone}`} className="flex items-center gap-2 hover:text-cream transition-colors">
+              <Phone size={15} />
+              {phone}
+            </a>
+          )}
         </div>
       </div>
     </section>

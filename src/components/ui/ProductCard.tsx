@@ -33,7 +33,10 @@ export function ProductCard({
   const slug = href.replace(/^\/product\//, "");
   const wishlisted = isWishlisted(slug);
 
-  const stars = (
+  // No stars until there are real reviews — an empty "(0)" row would only
+  // advertise that nobody has bought this yet.
+  const stars =
+    reviews > 0 ? (
     <div className="mt-1 flex items-center gap-1">
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
@@ -48,7 +51,7 @@ export function ProductCard({
       ))}
       <span className="text-xs text-ink-muted ml-1">({reviews})</span>
     </div>
-  );
+  ) : null;
 
   const wishlistButton = (
     <button
@@ -60,7 +63,7 @@ export function ProductCard({
         toggleItem({ slug, name, price, image, rating, reviews });
       }}
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition-colors shrink-0",
+        "flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm transition-colors shrink-0",
         wishlisted
           ? "text-terracotta-dark"
           : "text-charcoal hover:text-terracotta-dark"
@@ -88,12 +91,12 @@ export function ProductCard({
         </Link>
         <div className="absolute top-3 right-3">{wishlistButton}</div>
         {!inStock ? (
-          <span className="absolute bottom-3 left-3 rounded-full bg-terracotta-dark px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-cream">
+          <span className="absolute bottom-3 left-3 rounded-full bg-terracotta-dark px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-cream">
             Out of Stock
           </span>
         ) : (
           badge && (
-            <span className="absolute bottom-3 left-3 rounded-full bg-charcoal/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-cream">
+            <span className="absolute bottom-3 left-3 rounded-full bg-charcoal/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-cream">
               {badge}
             </span>
           )

@@ -76,8 +76,8 @@ function fromShopProduct(p: ShopProductWithAudience) {
     basePrice: p.price * 100,
     images: [p.image],
     breadcrumbCategory: titleCase(p.category),
-    rating: p.rating,
-    reviewCount: p.reviews,
+    rating: 0, // real ratings only — see recomputeProductRating
+    reviewCount: 0,
     stockQuantity: stockFor(p.id),
     benefits: genericBenefits,
     productDetails: {
@@ -105,8 +105,8 @@ function fromCollectionProduct(slug: CollectionSlug, p: CollectionProduct) {
     basePrice: p.price * 100,
     images: [p.image],
     breadcrumbCategory: titleCase(p.category),
-    rating: p.rating,
-    reviewCount: p.reviews,
+    rating: 0, // real ratings only — see recomputeProductRating
+    reviewCount: 0,
     stockQuantity: stockFor(p.id),
     benefits: genericBenefits,
     productDetails: {
@@ -131,8 +131,8 @@ function fromBestseller(b: (typeof bestsellers)[number]) {
     basePrice: b.price * 100,
     images: [b.image],
     breadcrumbCategory: "Bestsellers",
-    rating: b.rating,
-    reviewCount: b.reviews,
+    rating: 0,
+    reviewCount: 0,
     stockQuantity: stockFor(slugify(b.name)),
     benefits: genericBenefits,
     productDetails: {

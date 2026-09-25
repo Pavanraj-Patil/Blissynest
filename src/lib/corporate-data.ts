@@ -49,7 +49,7 @@ export const corporateNeeds: CorporateNeed[] = [
     slug: "festive",
     title: "Festival Gifting",
     subtitle: "Celebrate togetherness",
-    image: ph(700, 400, "cfb587", "2a2621", "Festival Gifting"),
+    image: "/moment-festivals.png",
   },
   {
     slug: "milestone",

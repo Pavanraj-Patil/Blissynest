@@ -39,14 +39,14 @@ export async function Hero() {
           <Button
             href={primaryCta.href}
             variant="primary"
-            className="px-5 py-2.5 text-[10px] sm:px-7 sm:py-3.5 sm:text-xs"
+            className="px-5 py-3 text-[11px] sm:px-7 sm:py-3.5 sm:text-xs"
           >
             {primaryCta.label}
           </Button>
           <Button
             href={secondaryCta.href}
             variant="dark"
-            className="px-5 py-2.5 text-[10px] sm:px-7 sm:py-3.5 sm:text-xs"
+            className="px-5 py-3 text-[11px] sm:px-7 sm:py-3.5 sm:text-xs"
           >
             {secondaryCta.label}
           </Button>

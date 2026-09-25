@@ -72,3 +72,23 @@ export async function setContentBlock(
     create: { page, section, key, type, value: value as Prisma.InputJsonValue },
   });
 }
+
+export type BusinessDetails = {
+  legalName: string;
+  address: string;
+  gstin: string;
+  contactEmail: string;
+  contactPhone: string;
+  grievanceName: string;
+  grievanceEmail: string;
+  grievancePhone: string;
+  policiesUpdated: string;
+};
+
+// Seller / support / grievance details entered in Admin → Site Content →
+// Legal & Business. Blank strings mean "not provided" — callers must skip
+// them rather than print an empty label.
+export async function getBusinessDetails(): Promise<BusinessDetails> {
+  const content = await getPageContent("legal");
+  return content.business as unknown as BusinessDetails;
+}

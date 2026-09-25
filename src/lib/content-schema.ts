@@ -200,7 +200,7 @@ export const contentSchema: Record<string, PageSchema> = {
             label: o.label,
             slug: o.slug,
             image: o.image,
-            dark: o.label === "Festivals",
+            dark: false,
           })),
         },
       },
@@ -211,6 +211,11 @@ export const contentSchema: Record<string, PageSchema> = {
       fields: {
         sectionTitle: { type: "TEXT", label: "Section Title", default: "The Blissynest Edit" },
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Curated Collections" },
+        description: {
+          type: "TEXT",
+          label: "Description (under the title)",
+          default: "",
+        },
         tiles: {
           type: "LIST",
           label: "Collection Tiles",
@@ -382,7 +387,7 @@ export const contentSchema: Record<string, PageSchema> = {
           ],
           emptyItem: { icon: contentIconOptions[0], title: "", body: "" },
           default: [
-            { icon: "RotateCcw", title: "Return window", body: "Most items can be returned within 7 days of delivery, as long as they're unused and in their original packaging. Start a return from your order confirmation email or the Track Order page." },
+            { icon: "RotateCcw", title: "Return window", body: "Most items can be returned within 7 days of delivery, as long as they're unused and in their original packaging. To start a return, email us at enquiry@blissynest.com with your order number and we'll guide you through it." },
             { icon: "Ban", title: "What can't be returned", body: "Personalised items (engraved, monogrammed, or made to order), perishables like sweets and gourmet hampers, and gift cards can't be returned once made — these are called out on the product page before you order." },
             { icon: "Wallet", title: "Refunds", body: "Once a returned item reaches us and passes a quick quality check, refunds are processed to your original payment method within 5–7 business days." },
             { icon: "MessageCircle", title: "Something arrived damaged?", body: "That's on us — reach out within 48 hours of delivery with a photo and your order number, and we'll sort a replacement or refund, no return needed." },
@@ -442,7 +447,6 @@ export const contentSchema: Record<string, PageSchema> = {
           emptyItem: { icon: contentIconOptions[0], label: "", value: "" },
           default: [
             { icon: "Mail", label: "Email", value: "enquiry@blissynest.com" },
-            { icon: "Phone", label: "Phone", value: "1800-123-456" },
             { icon: "MapPin", label: "Studio", value: "Koregaon Park, Pune, Maharashtra" },
           ],
         },
@@ -711,7 +715,8 @@ export const contentSchema: Record<string, PageSchema> = {
         },
         cta: { type: "LINK", label: "Button", default: { label: "Request a Quote", href: "/corporate/quote" } },
         email: { type: "TEXT", label: "Email", default: "enquiry@blissynest.com" },
-        phone: { type: "TEXT", label: "Phone", default: "1800-123-456" },
+        // Empty by default: only shown once a real number is entered.
+        phone: { type: "TEXT", label: "Phone (leave empty to hide)", default: "" },
       },
     },
   },
@@ -720,6 +725,26 @@ export const contentSchema: Record<string, PageSchema> = {
   // the TopBar regression fixed earlier), so making it async would need
   // the same 14-file page.tsx migration all over again for a few words of
   // structural nav-category text. Not worth repeating that for this.
+  legal: {
+    business: {
+      title: "Business & Legal Details",
+      fields: {
+        // Shown on the Privacy Policy and Terms pages (and in the footer's
+        // legal line). Indian e-commerce rules expect the seller's name,
+        // address and a grievance contact to be visible — anything left
+        // blank here is simply left out of those pages, never shown empty.
+        legalName: { type: "TEXT", label: "Registered business name", default: "Blissynest" },
+        address: { type: "TEXT", label: "Registered address", default: "" },
+        gstin: { type: "TEXT", label: "GSTIN (if registered)", default: "" },
+        contactEmail: { type: "TEXT", label: "Customer support email", default: "enquiry@blissynest.com" },
+        contactPhone: { type: "TEXT", label: "Customer support phone", default: "" },
+        grievanceName: { type: "TEXT", label: "Grievance officer — name", default: "" },
+        grievanceEmail: { type: "TEXT", label: "Grievance officer — email", default: "" },
+        grievancePhone: { type: "TEXT", label: "Grievance officer — phone", default: "" },
+        policiesUpdated: { type: "TEXT", label: "Policies last updated (date shown on the pages)", default: "25 September 2026" },
+      },
+    },
+  },
   layout: {
     "shop-gift-banner": {
       title: "Shop Gift Banner",

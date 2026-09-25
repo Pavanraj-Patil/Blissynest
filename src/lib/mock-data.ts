@@ -145,6 +145,8 @@ export const footerLinks: SimpleLink[] = [
   { label: "Returns", href: "/returns" },
   { label: "FAQs", href: "/faqs" },
   { label: "Contact Us", href: "/contact" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms & Conditions", href: "/terms" },
 ];
 
 export const heroImage = "/home-hero-desktop.png";

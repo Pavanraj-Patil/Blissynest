@@ -102,13 +102,23 @@ export default async function AdminOrderDetailPage({
             Placed {order.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
-        {order.userId ? (
-          <Link href={`/admin/customers/${order.userId}`} className="text-xs text-ink-muted hover:text-terracotta-dark">
-            View customer →
-          </Link>
-        ) : (
-          <span className="text-xs text-ink-muted">Guest checkout — no account</span>
-        )}
+        <div className="flex items-center gap-4">
+          <a
+            href={`/admin/orders/${order.id}/slip`}
+            target="_blank"
+            rel="noopener"
+            className="rounded-lg border border-charcoal/15 px-3 py-1.5 text-xs font-medium text-charcoal hover:bg-cream-dark"
+          >
+            Print packing slip
+          </a>
+          {order.userId ? (
+            <Link href={`/admin/customers/${order.userId}`} className="text-xs text-ink-muted hover:text-terracotta-dark">
+              View customer →
+            </Link>
+          ) : (
+            <span className="text-xs text-ink-muted">Guest checkout — no account</span>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-5">

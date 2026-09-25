@@ -45,7 +45,7 @@ export function ShopToolbar({
           <SlidersHorizontal size={15} />
           <span className="hidden sm:inline">Filter</span>
           {activeFilterCount > 0 && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-terracotta text-[10px] font-semibold text-white">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-terracotta-dark text-[10px] font-semibold text-white">
               {activeFilterCount}
             </span>
           )}

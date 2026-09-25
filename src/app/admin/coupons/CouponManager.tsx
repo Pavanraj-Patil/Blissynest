@@ -13,6 +13,7 @@ type CouponFormValues = {
   usageLimit: number | "";
   active: boolean;
   firstOrderOnly: boolean;
+  expiresAt: string; // YYYY-MM-DD or ""
 };
 
 const emptyForm: CouponFormValues = {
@@ -23,6 +24,7 @@ const emptyForm: CouponFormValues = {
   usageLimit: "",
   active: true,
   firstOrderOnly: false,
+  expiresAt: "",
 };
 
 const inputClass =
@@ -38,6 +40,7 @@ function toFormValues(c: Coupon): CouponFormValues {
     usageLimit: c.usageLimit ?? "",
     active: c.active,
     firstOrderOnly: c.firstOrderOnly,
+    expiresAt: c.expiresAt ? new Date(c.expiresAt.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10) : "",
   };
 }
 
@@ -130,6 +133,17 @@ function CouponForm({
         </label>
       </div>
 
+      <label className="block max-w-xs">
+        <span className={labelClass}>Expires on (optional)</span>
+        <input
+          type="date"
+          value={values.expiresAt}
+          onChange={(e) => set("expiresAt", e.target.value)}
+          className={inputClass}
+        />
+        <span className="mt-1 block text-[11px] text-ink-muted">Works through the end of this day. Leave empty for no expiry.</span>
+      </label>
+
       <label className="flex items-center gap-2.5 cursor-pointer">
         <input
           type="checkbox"
@@ -173,6 +187,8 @@ function CouponForm({
 }
 
 export function CouponManager({ initial }: { initial: Coupon[] }) {
+  // Fixed at mount so the "Expired" badge is stable across re-renders.
+  const [now] = useState(() => Date.now());
   const [coupons, setCoupons] = useState(initial);
   const [mode, setMode] = useState<"list" | "add" | "edit">("list");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -296,6 +312,7 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
                 <th className="py-3 px-3 font-medium">Discount</th>
                 <th className="py-3 px-3 font-medium">Min Order</th>
                 <th className="py-3 px-3 font-medium">Used</th>
+                <th className="py-3 px-3 font-medium">Expires</th>
                 <th className="py-3 px-3 font-medium">Active</th>
                 <th className="py-3 pr-5 pl-3 font-medium text-right">Actions</th>
               </tr>
@@ -320,6 +337,17 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
                   <td className="py-2.5 px-3 text-charcoal-light">
                     {c.usedCount}
                     {c.usageLimit ? ` / ${c.usageLimit}` : ""}
+                  </td>
+                  <td className="py-2.5 px-3 text-charcoal-light">
+                    {c.expiresAt ? (
+                      new Date(c.expiresAt).getTime() < now ? (
+                        <span className="rounded-full bg-charcoal/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-charcoal-light">Expired</span>
+                      ) : (
+                        new Date(c.expiresAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                      )
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td className="py-2.5 px-3">
                     <label className="flex items-center cursor-pointer">

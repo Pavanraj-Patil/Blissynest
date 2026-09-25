@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
@@ -194,7 +195,7 @@ export function AccountAuthModal({
               edge. Centered on the boundary between the banner (h-24) and
               this badge (h-20): top-14 (56px) = 96px - 80px/2. */}
           <div className="absolute top-14 left-1/2 -translate-x-1/2 flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-md">
-            <Image src="/icon.png" alt="" width={56} height={56} className="h-14 w-14" />
+            <Image src="/logo-mark.png" alt="" width={56} height={56} className="h-14 w-14" />
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 pb-8 pt-14 text-center">
@@ -253,14 +254,13 @@ export function AccountAuthModal({
                   size={16}
                   className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal/35"
                 />
-                <input
+                <PasswordInput
                   required
-                  type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                   minLength={mode === "signup" ? 8 : undefined}
-                  className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 pr-3.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+                  className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
                 />
               </label>
 
@@ -270,15 +270,22 @@ export function AccountAuthModal({
                     size={16}
                     className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal/35"
                   />
-                  <input
+                  <PasswordInput
                     required
-                    type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm password"
-                    className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 pr-3.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
+                    className="w-full rounded-lg border border-charcoal/15 py-3 pl-10 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
                   />
                 </label>
+              )}
+
+              {mode === "login" && (
+                <div className="-mt-1 text-right">
+                  <a href="/forgot-password" className="text-xs text-ink-muted underline hover:text-terracotta-dark">
+                    Forgot password?
+                  </a>
+                </div>
               )}
 
               <button
@@ -319,8 +326,15 @@ export function AccountAuthModal({
             </button>
 
             <p className="mt-6 text-[11px] text-ink-muted leading-relaxed">
-              By continuing, you agree to Blissynest&rsquo;s Terms of Use
-              and Privacy Policy.
+              By continuing, you agree to Blissynest&rsquo;s{" "}
+              <a href="/terms" target="_blank" rel="noopener" className="underline hover:text-terracotta-dark">
+                Terms &amp; Conditions
+              </a>{" "}
+              and{" "}
+              <a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-terracotta-dark">
+                Privacy Policy
+              </a>
+              .
             </p>
           </div>
         </div>

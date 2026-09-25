@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useState } from "react";
 import { Info, Check } from "lucide-react";
 
@@ -12,7 +13,7 @@ const notificationCopy: { key: NotificationKey; label: string; hint: string }[] 
   { key: "recs", label: "Product recommendations", hint: "Gift ideas picked for you" },
 ];
 
-function ChangePasswordForm() {
+export function ChangePasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,6 +27,10 @@ function ChangePasswordForm() {
 
     if (newPassword !== confirmPassword) {
       setError("New passwords don't match.");
+      return;
+    }
+    if (newPassword === currentPassword) {
+      setError("Your new password can't be the same as your current password.");
       return;
     }
 
@@ -55,9 +60,8 @@ function ChangePasswordForm() {
       {error && <p className="text-sm text-terracotta-dark">{error}</p>}
       <label className="block">
         <span className="text-xs font-medium text-charcoal">Current Password</span>
-        <input
+        <PasswordInput
           required
-          type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
           placeholder="••••••••"
@@ -66,9 +70,8 @@ function ChangePasswordForm() {
       </label>
       <label className="block">
         <span className="text-xs font-medium text-charcoal">New Password</span>
-        <input
+        <PasswordInput
           required
-          type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           placeholder="••••••••"
@@ -78,9 +81,8 @@ function ChangePasswordForm() {
       </label>
       <label className="block">
         <span className="text-xs font-medium text-charcoal">Confirm New Password</span>
-        <input
+        <PasswordInput
           required
-          type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="••••••••"

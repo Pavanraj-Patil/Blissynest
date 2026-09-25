@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 import { ProductRowActions } from "./ProductRowActions";
 import { ProductSearchInput } from "./ProductSearchInput";
+import { ProductBulkActions } from "./ProductBulkActions";
+import { audienceSlugs, audienceShopContent, categoriesByAudience, shopCategories } from "@/lib/shop-mock-data";
 
 const PAGE_SIZE = 20;
 
@@ -58,6 +60,40 @@ export default async function AdminProductsPage({
   const categories = Array.from(
     new Set(categoryRows.flatMap((r) => r.category as string[]))
   ).sort();
+
+  // The store uses two category vocabularies on purpose (general "shop"
+  // categories, and per-audience ones like "personalised-gifts" for Her/Him),
+  // so the same idea can appear twice. Group and label them so the dropdown is
+  // readable instead of a flat list of raw slugs.
+  const shopLabel = new Map(shopCategories.map((c) => [c.slug, c.label]));
+  const audienceCategory = new Map<string, { label: string; audiences: string[] }>();
+  for (const aud of audienceSlugs) {
+    for (const c of categoriesByAudience[aud]) {
+      const entry = audienceCategory.get(c.slug) ?? { label: c.label, audiences: [] };
+      entry.audiences.push(audienceShopContent[aud].breadcrumbLabel.replace(/^Gifts for /, ""));
+      audienceCategory.set(c.slug, entry);
+    }
+  }
+  const categoryGroups = [
+    {
+      label: "Shop categories",
+      options: categories.filter((c) => shopLabel.has(c)).map((c) => ({ value: c, label: shopLabel.get(c)! })),
+    },
+    {
+      label: "Audience categories",
+      options: categories
+        .filter((c) => !shopLabel.has(c) && audienceCategory.has(c))
+        .map((c) => {
+          const info = audienceCategory.get(c)!;
+          return { value: c, label: `${info.label} — ${info.audiences.join(", ")}` };
+        })
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    },
+    {
+      label: "Other / older categories",
+      options: categories.filter((c) => !shopLabel.has(c) && !audienceCategory.has(c)).map((c) => ({ value: c, label: c })),
+    },
+  ].filter((g) => g.options.length > 0);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -116,10 +152,14 @@ export default async function AdminProductsPage({
             className="rounded-lg border border-charcoal/15 py-2 px-3 text-sm text-charcoal focus:outline-none focus:border-olive"
           >
             <option value="">All categories</option>
-            {categories.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
+            {categoryGroups.map((g) => (
+              <optgroup key={g.label} label={g.label}>
+                {g.options.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
 
@@ -174,6 +214,11 @@ export default async function AdminProductsPage({
           ))}
         </div>
       </div>
+
+      <ProductBulkActions
+        total={total}
+        filters={{ q: query, status: status ?? "", audience: audience ?? "", category: category ?? "" }}
+      />
 
       <div className="rounded-2xl border border-charcoal/10 bg-white overflow-hidden">
         {products.length === 0 ? (

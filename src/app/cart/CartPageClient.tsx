@@ -245,7 +245,7 @@ export function CartPageClient() {
 
                   <div className="mt-4 pt-4 border-t border-charcoal/10 flex items-center justify-between">
                     <span className="font-semibold text-charcoal">Total</span>
-                    <span className="font-serif text-xl text-charcoal">
+                    <span className="text-xl font-semibold text-charcoal">
                       ₹{subtotal.toLocaleString("en-IN")}
                     </span>
                   </div>

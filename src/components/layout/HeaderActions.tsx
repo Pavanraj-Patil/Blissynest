@@ -24,7 +24,7 @@ function CountBadge({ count, loading }: { count: number; loading: boolean }) {
   }
   if (count <= 0) return null;
   return (
-    <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-terracotta text-[9px] font-semibold text-cream">
+    <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-terracotta-dark text-[9px] font-semibold text-cream">
       {count > 9 ? "9+" : count}
     </span>
   );
@@ -37,12 +37,12 @@ export function HeaderActions() {
 
   return (
     <>
-      <div className="flex items-center gap-4 md:gap-5 text-charcoal shrink-0">
+      <div className="flex items-center gap-4 min-[380px]:gap-5 text-charcoal shrink-0">
         <button
           type="button"
           aria-label="Search"
           onClick={() => setSearchOpen(true)}
-          className="hover:text-terracotta-dark transition-colors"
+          className="-m-2 p-2 hover:text-terracotta-dark transition-colors"
         >
           <Search size={19} />
         </button>
@@ -50,12 +50,12 @@ export function HeaderActions() {
         <Link
           href="/wishlist"
           aria-label="Wishlist"
-          className="relative hover:text-terracotta-dark transition-colors"
+          className="relative -m-2 p-2 hover:text-terracotta-dark transition-colors"
         >
           <Heart size={19} />
           <CountBadge count={wishlistCount} loading={wishlistLoading} />
         </Link>
-        <Link href="/cart" aria-label="Cart" className="relative hover:text-terracotta-dark transition-colors">
+        <Link href="/cart" aria-label="Cart" className="relative -m-2 p-2 hover:text-terracotta-dark transition-colors">
           <ShoppingBag size={19} />
           <CountBadge count={cartCount} loading={cartLoading} />
         </Link>

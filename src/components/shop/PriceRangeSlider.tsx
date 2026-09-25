@@ -28,6 +28,7 @@ export function PriceRangeSlider({
         />
         <input
           type="range"
+          aria-label="Minimum price"
           min={min}
           max={max}
           step={step}
@@ -40,6 +41,7 @@ export function PriceRangeSlider({
         />
         <input
           type="range"
+          aria-label="Maximum price"
           min={min}
           max={max}
           step={step}

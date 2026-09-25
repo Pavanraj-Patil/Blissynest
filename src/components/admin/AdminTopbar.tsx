@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Menu, Search, ChevronDown, LogOut, User as UserIcon } from "lucide-react";
@@ -91,7 +92,15 @@ export function AdminTopbar({
         </button>
 
         {menuOpen && (
-          <div className="absolute right-0 top-full mt-2 z-20 w-44 rounded-2xl border border-charcoal/10 bg-white p-1.5 shadow-lg">
+          <div className="absolute right-0 top-full mt-2 z-20 w-48 rounded-2xl border border-charcoal/10 bg-white p-1.5 shadow-lg">
+            <Link
+              href="/admin/account"
+              onClick={() => setMenuOpen(false)}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-charcoal hover:bg-cream-dark transition-colors"
+            >
+              <UserIcon size={16} className="text-charcoal-light" />
+              My account &amp; password
+            </Link>
             <button
               type="button"
               onClick={() => {

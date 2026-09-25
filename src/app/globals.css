@@ -10,7 +10,7 @@
   --color-olive-light: #64754a;
 
   --color-terracotta: #c1693d;
-  --color-terracotta-dark: #a85830;
+  --color-terracotta-dark: #9c4f2a;
   --color-terracotta-light: #e3a37e;
 
   --color-charcoal: #2a2621;
@@ -19,7 +19,7 @@
   --color-gold: #b08d57;
   --color-gold-light: #cfb587;
 
-  --color-ink-muted: #7a7267;
+  --color-ink-muted: #675f54;
 
   --font-serif: "Playfair Display", ui-serif, Georgia, serif;
   --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
@@ -53,6 +53,47 @@
 body {
   background: var(--color-cream);
   color: var(--color-charcoal);
+  /* Long unbroken strings (emails, URLs, order ids) wrap instead of forcing
+     a sideways scroll on narrow phones. */
+  overflow-wrap: break-word;
+}
+
+html {
+  /* Anchor jumps land below the sticky header instead of under it. */
+  scroll-padding-top: 6rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* No 300ms double-tap-zoom delay on tappable things. */
+a,
+button,
+[role="button"],
+summary,
+label {
+  touch-action: manipulation;
+}
+
+/* iOS Safari zooms the whole page when a focused field's text is under 16px.
+   Keep fields at 16px on phones; larger screens keep each field's own size. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .eyebrow {
@@ -68,27 +109,6 @@ body {
 .scrollbar-none {
   scrollbar-width: none;
   -ms-overflow-style: none;
-}
-
-/* Scalloped edges for the Blissynest Edit band — a repeating row of
-   semicircle bumps (drawn as an exact SVG tile, not an approximated
-   gradient) rising out of the band's terracotta into the page's cream, so
-   the band reads as trimmed with a wavy border instead of a hard rectangle.
-   Tile is 28x16: a 14px-radius semicircle centered in a 28px-wide cell, so
-   adjacent bumps meet edge-to-edge with no gap or overlap. */
-.scallop-top-terracotta {
-  height: 16px;
-  background-color: var(--color-cream);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16'%3E%3Cpath d='M0,16 A14,14 0 0 1 28,16 Z' fill='%23edc3ab'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-position: bottom left;
-}
-.scallop-bottom-terracotta {
-  height: 16px;
-  background-color: var(--color-cream);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16'%3E%3Cpath d='M0,0 A14,14 0 0 0 28,0 Z' fill='%23edc3ab'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-position: top left;
 }
 
 /* Continuous logo/strip marquee — the track renders its children twice

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import type { AccountUser } from "@/lib/account-data";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 
 export function ProfileSection({ user }: { user: AccountUser }) {
   const router = useRouter();
@@ -68,7 +69,7 @@ export function ProfileSection({ user }: { user: AccountUser }) {
         </label>
         <label className="block">
           <span className="text-xs font-medium text-charcoal">Phone</span>
-          <input
+          <PhoneInput
             required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}

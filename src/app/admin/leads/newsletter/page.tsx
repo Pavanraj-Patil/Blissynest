@@ -19,11 +19,25 @@ export default async function AdminNewsletterPage({
 
   return (
     <div className="max-w-[700px] mx-auto space-y-5">
-      <div>
-        <h1 className="font-serif text-2xl text-charcoal">Newsletter</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          {total} subscriber{total === 1 ? "" : "s"} signed up via the footer form.
-        </p>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-2xl text-charcoal">Newsletter</h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            {total} subscriber{total === 1 ? "" : "s"} signed up via the footer form.
+          </p>
+        </div>
+        {total > 0 && (
+          <>
+            {/* File download, not a page — a plain link is correct here. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a
+              href="/admin/leads/newsletter/export"
+              className="shrink-0 rounded-lg border border-charcoal/15 px-3.5 py-2 text-xs font-semibold text-charcoal hover:bg-cream-dark"
+            >
+              Export CSV
+            </a>
+          </>
+        )}
       </div>
 
       <div className="rounded-2xl border border-charcoal/10 bg-white overflow-hidden">

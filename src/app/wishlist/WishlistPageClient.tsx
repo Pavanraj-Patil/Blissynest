@@ -51,6 +51,7 @@ function WishlistCard({ item }: { item: WishlistItem }) {
         <p className="mt-1 text-sm font-semibold text-charcoal">
           ₹{item.price.toLocaleString("en-IN")}
         </p>
+        {item.reviews > 0 && (
         <div className="mt-1 flex items-center gap-1">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
@@ -61,6 +62,7 @@ function WishlistCard({ item }: { item: WishlistItem }) {
           ))}
           <span className="text-xs text-ink-muted ml-1">({item.reviews})</span>
         </div>
+        )}
 
         <button
           type="button"

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createReview } from "@/lib/review-service";
 import { createReviewSchema } from "@/lib/validations/review";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // POST /api/reviews — a customer reviewing a product from one of their own
 // orders. Starts at status PENDING; see src/app/admin/reviews for
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
   const parsed = createReviewSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

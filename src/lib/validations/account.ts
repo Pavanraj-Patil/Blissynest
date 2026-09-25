@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { passwordField } from "./auth";
+import { phoneField } from "./common";
 
 export const updateProfileSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   email: z.string().trim().toLowerCase().email("Enter a valid email address"),
-  phone: z.string().trim().min(1, "Phone number is required"),
+  phone: phoneField,
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

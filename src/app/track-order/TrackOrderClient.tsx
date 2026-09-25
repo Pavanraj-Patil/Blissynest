@@ -177,7 +177,7 @@ export function TrackOrderClient({ content: rawContent }: { content: Record<stri
                       </div>
                       <span
                         className={cn(
-                          "text-[10px] text-center leading-tight",
+                          "text-[11px] text-center leading-tight",
                           i <= result.stepIndex ? "text-charcoal font-medium" : "text-ink-muted"
                         )}
                       >

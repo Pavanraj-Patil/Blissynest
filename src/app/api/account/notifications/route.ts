@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { updateNotificationsSchema } from "@/lib/validations/account";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // PATCH /api/account/notifications — updates the signed-in user's
 // notification preferences.
@@ -15,7 +16,7 @@ export async function PATCH(request: Request) {
   const parsed = updateNotificationsSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { signupSchema } from "@/lib/validations/auth";
 import { hashPassword } from "@/lib/password";
 import { checkRateLimit, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // Creates the account only — sign-in itself happens client-side afterward
 // via signIn("password", ...), so this route doesn't have to juggle
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
   const parsed = signupSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

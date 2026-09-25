@@ -6,6 +6,7 @@ import { defineConfig, devices } from "@playwright/test";
 // always talking to the real MySQL dev database.
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
   // The dev DB adapter caps its pool at 5 connections (src/lib/db.ts), and
   // each worker is a real browser process — kept modest so a local run

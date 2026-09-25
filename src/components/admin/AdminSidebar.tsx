@@ -58,7 +58,7 @@ export function AdminSidebar({
   return (
     <div className="flex h-full flex-col bg-cream-dark" onClick={onNavigate}>
       <div className="flex items-center gap-2 px-5 py-5">
-        <Image src="/icon.png" alt="" width={28} height={28} className="h-7 w-7" />
+        <Image src="/logo-mark.png" alt="" width={28} height={28} className="h-7 w-7" />
         <div>
           <p className="font-serif text-lg leading-tight text-charcoal">Blissynest</p>
           <p className="text-[10px] tracking-[0.15em] uppercase text-ink-muted">Admin</p>

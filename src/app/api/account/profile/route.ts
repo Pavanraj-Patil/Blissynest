@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { updateProfileSchema } from "@/lib/validations/account";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // PATCH /api/account/profile — updates the signed-in user's name, email,
 // and phone. No re-verification step for email changes, matching this
@@ -17,7 +18,7 @@ export async function PATCH(request: Request) {
   const parsed = updateProfileSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

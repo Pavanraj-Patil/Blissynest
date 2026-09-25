@@ -119,7 +119,7 @@ export function SelectDropdown({
       className={cn("relative block", compact ? "inline-block" : "flex-1 min-w-0")}
     >
       {label && (
-        <span className="eyebrow block text-[10px] text-charcoal-light mb-2">
+        <span className="eyebrow block text-[11px] text-charcoal-light mb-2">
           {label}
         </span>
       )}

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { Address } from "@/lib/checkout-data";
+import { PhoneInput } from "@/components/ui/PhoneInput";
+import { CityStateFields } from "@/components/ui/CityStateFields";
 
 type AddressFormValues = Omit<Address, "id">;
 
@@ -79,28 +81,12 @@ function AddressForm({
       </label>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <label className="block">
-          <span className="text-xs font-medium text-charcoal">
-            City <span className="text-terracotta-dark">*</span>
-          </span>
-          <input
-            required
-            value={values.city}
-            onChange={(e) => set("city", e.target.value)}
-            className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-medium text-charcoal">
-            State <span className="text-terracotta-dark">*</span>
-          </span>
-          <input
-            required
-            value={values.state}
-            onChange={(e) => set("state", e.target.value)}
-            className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
-          />
-        </label>
+        <CityStateFields
+          city={values.city}
+          state={values.state}
+          onCityChange={(v) => set("city", v)}
+          onStateChange={(v) => set("state", v)}
+        />
         <label className="block">
           <span className="text-xs font-medium text-charcoal">
             Pincode <span className="text-terracotta-dark">*</span>
@@ -110,6 +96,10 @@ function AddressForm({
             maxLength={6}
             value={values.pincode}
             onChange={(e) => set("pincode", e.target.value.replace(/\D/g, ""))}
+            inputMode="numeric"
+            autoComplete="postal-code"
+            pattern="[1-9][0-9]{5}"
+            title="Enter a valid 6-digit pincode"
             className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive"
           />
         </label>
@@ -119,7 +109,7 @@ function AddressForm({
         <span className="text-xs font-medium text-charcoal">
           Phone <span className="text-terracotta-dark">*</span>
         </span>
-        <input
+        <PhoneInput
           required
           value={values.phone}
           onChange={(e) => set("phone", e.target.value)}
@@ -223,7 +213,7 @@ export function AddressesSection({ initial }: { initial: Address[] }) {
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-charcoal">{addr.label}</span>
             {addr.id === addresses[0]?.id && (
-              <span className="rounded-full bg-cream-dark px-2 py-0.5 text-[10px] font-medium text-charcoal-light">
+              <span className="rounded-full bg-cream-dark px-2 py-0.5 text-[11px] font-medium text-charcoal-light">
                 Default
               </span>
             )}

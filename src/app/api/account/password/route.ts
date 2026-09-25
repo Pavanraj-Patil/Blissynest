@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { changePasswordSchema } from "@/lib/validations/account";
 import { checkRateLimit, tooManyRequestsResponse } from "@/lib/rate-limit";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // PATCH /api/account/password — changes the signed-in user's password.
 // Only meaningful for accounts that have one (credentials sign-up); a
@@ -26,7 +27,7 @@ export async function PATCH(request: Request) {
   const parsed = changePasswordSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }
@@ -46,6 +47,15 @@ export async function PATCH(request: Request) {
   const valid = await verifyPassword(currentPassword, user.passwordHash);
   if (!valid) {
     return NextResponse.json({ error: "Current password is incorrect." }, { status: 400 });
+  }
+
+  // Checked only after the current password is verified, so this can't be
+  // used to probe what someone's password is.
+  if (newPassword === currentPassword) {
+    return NextResponse.json(
+      { error: "Your new password can't be the same as your current password." },
+      { status: 400 }
+    );
   }
 
   const passwordHash = await hashPassword(newPassword);

@@ -35,7 +35,7 @@ export function CheckoutMobileStickyCTA({
 
   if (step === 1) {
     return (
-      <div className="md:hidden sticky bottom-0 z-30 mt-6 border-t border-charcoal/10 bg-cream/95 backdrop-blur px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <div className="md:hidden sticky bottom-0 z-30 mt-6 border-t border-charcoal/10 bg-cream/95 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <button
           type="button"
           onClick={onContinueAddress}
@@ -51,7 +51,7 @@ export function CheckoutMobileStickyCTA({
 
   if (step === 2) {
     return (
-      <div className="md:hidden sticky bottom-0 z-30 mt-6 border-t border-charcoal/10 bg-cream/95 backdrop-blur px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <div className="md:hidden sticky bottom-0 z-30 mt-6 border-t border-charcoal/10 bg-cream/95 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         <button
           type="button"
           onClick={onContinuePayment}
@@ -66,18 +66,18 @@ export function CheckoutMobileStickyCTA({
   }
 
   return (
-    <div className="md:hidden sticky bottom-0 z-30 mt-6 flex items-center justify-between gap-3 border-t border-charcoal/10 bg-cream/95 backdrop-blur px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+    <div className="md:hidden sticky bottom-0 z-30 mt-6 flex items-center justify-between gap-3 border-t border-charcoal/10 bg-cream/95 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
       <button
         type="button"
         onClick={scrollToSummary}
         className="text-left"
         aria-label="View full order summary"
       >
-        <span className="flex items-center gap-0.5 text-[10px] uppercase tracking-wide text-ink-muted hover:text-charcoal transition-colors">
+        <span className="flex items-center gap-0.5 text-[11px] uppercase tracking-wide text-ink-muted hover:text-charcoal transition-colors">
           View Total
           <ChevronRight size={11} />
         </span>
-        <p className="font-serif text-lg text-charcoal">₹{total.toLocaleString("en-IN")}</p>
+        <p className="text-lg font-semibold text-charcoal">₹{total.toLocaleString("en-IN")}</p>
       </button>
       <button
         type="button"

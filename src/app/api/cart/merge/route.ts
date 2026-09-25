@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { addQuantityToCart, getCartItemsForUser } from "@/lib/cart-service";
 import { mergeCartSchema } from "@/lib/validations/cart";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // POST /api/cart/merge — folds a just-logged-in user's guest (localStorage)
 // cart into their server cart, adding on top of anything already there.
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
   const parsed = mergeCartSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

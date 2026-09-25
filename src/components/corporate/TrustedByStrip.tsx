@@ -1,6 +1,6 @@
 const monogramTones = [
   "bg-olive text-cream",
-  "bg-terracotta text-cream",
+  "bg-terracotta-dark text-cream",
   "bg-gold text-cream",
   "bg-charcoal text-cream",
   "bg-olive-light text-cream",

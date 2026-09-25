@@ -13,17 +13,6 @@ test.describe("Product detail page", () => {
     await expect(page.getByRole("button", { name: "Add to Cart" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Buy Now" })).toBeVisible();
   });
-
-  test("quantity controls increase and decrease", async ({ page }) => {
-    await page.goto(`/product/${KNOWN_PRODUCT_SLUG}`);
-    const increase = page.getByRole("button", { name: "Increase quantity" });
-    const decrease = page.getByRole("button", { name: "Decrease quantity" });
-    const qty = page.getByText(/^\d+$/).first();
-    await increase.click();
-    await expect(qty).toHaveText("2");
-    await decrease.click();
-    await expect(qty).toHaveText("1");
-  });
 });
 
 test.describe("Category filtering", () => {

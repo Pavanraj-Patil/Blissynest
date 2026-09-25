@@ -108,7 +108,7 @@ export function ShareIconButton({ productName }: { productName: string }) {
         type="button"
         aria-label="Share this product"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark transition-colors"
+        className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark transition-colors"
       >
         <Share2 size={16} />
       </button>
@@ -121,7 +121,7 @@ export function ShareIconButton({ productName }: { productName: string }) {
               type="button"
               aria-label={`Share on ${target.label}`}
               onClick={() => handleShare(target.key)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark transition-colors"
+              className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark transition-colors"
             >
               <target.icon size={16} />
             </button>
@@ -130,7 +130,7 @@ export function ShareIconButton({ productName }: { productName: string }) {
             type="button"
             aria-label="Copy link"
             onClick={handleCopy}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark transition-colors"
+            className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark transition-colors"
           >
             <Link2 size={16} />
           </button>

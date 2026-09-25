@@ -1,3 +1,4 @@
+import { emailOrderConfirmation, emailTeam } from "@/lib/order-emails";
 import { db } from "@/lib/db";
 import type { z } from "zod";
 import type { createOrderSchema } from "@/lib/validations/order";
@@ -277,6 +278,9 @@ export async function resolveCouponDiscount(
   // last slot can only ever over-count by the handful of orders placed in
   // the same instant — an acceptable, self-correcting edge case for a promo
   // code, not a payment-critical invariant.
+  if (coupon.expiresAt && coupon.expiresAt.getTime() < Date.now()) {
+    return { error: "This coupon has expired." };
+  }
   if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
     return { error: "This coupon has reached its usage limit." };
   }
@@ -455,6 +459,8 @@ async function persistOrder(params: {
   // Best-effort, non-blocking: the order is already placed (and paid, if
   // applicable) regardless of whether Shiprocket is configured or reachable.
   void createShipmentForOrder(orderId);
+  // Confirmation to the buyer + a heads-up to the team; never blocks the response.
+  void emailOrderConfirmation(orderId);
 
   return {
     orderNumber,
@@ -523,7 +529,7 @@ export type RazorpaySessionResult =
 // leaves a stray order behind.
 export async function createRazorpayCheckoutSession(
   source: CartSource,
-  couponCode?: string
+  input: CreateOrderInput
 ): Promise<RazorpaySessionResult> {
   if (!isRazorpayConfigured()) {
     return {
@@ -532,12 +538,23 @@ export async function createRazorpayCheckoutSession(
     };
   }
 
-  const pricing = await computeOrderPricing(source, couponCode);
+  const pricing = await computeOrderPricing(source, input.couponCode);
   if ("error" in pricing) return pricing;
 
   const rzpOrder = await createRazorpayOrder({
     amount: pricing.total,
     receipt: generateOrderNumber(),
+  });
+
+  // Snapshot of exactly what is being paid for (see PendingCheckout in
+  // schema.prisma): if the customer pays but their browser never reaches our
+  // confirmation call, the Razorpay webhook rebuilds the order from this.
+  await db.pendingCheckout.create({
+    data: {
+      razorpayOrderId: rzpOrder.id,
+      amount: rzpOrder.amount,
+      payload: JSON.parse(JSON.stringify({ source, input, pricing })),
+    },
   });
 
   return {
@@ -571,6 +588,11 @@ export async function verifyAndCreateOrder(
     return { error: "Payment verification failed.", status: 400 };
   }
 
+  // The webhook may already have created this order (customer paid, our
+  // confirmation call was slow) — answer with it rather than creating a twin.
+  const existing = await findOrderByRazorpayOrderId(razorpay.orderId);
+  if (existing) return existing;
+
   const pricing = await computeOrderPricing(source, input.couponCode);
   if ("error" in pricing) return pricing;
 
@@ -582,14 +604,92 @@ export async function verifyAndCreateOrder(
     };
   }
 
-  return persistOrder({
-    source,
-    input,
-    pricing,
-    paymentStatus: "PAID",
-    razorpayOrderId: razorpay.orderId,
-    razorpayPaymentId: razorpay.paymentId,
-  });
+  let result: CreateOrderResult;
+  try {
+    result = await persistOrder({
+      source,
+      input,
+      pricing,
+      paymentStatus: "PAID",
+      razorpayOrderId: razorpay.orderId,
+      razorpayPaymentId: razorpay.paymentId,
+    });
+  } catch (err) {
+    // The webhook recovered this same payment a moment ago (unique
+    // razorpayOrderId) — the customer's order exists, so show it.
+    const created = await findOrderByRazorpayOrderId(razorpay.orderId);
+    if (created) return created;
+    throw err;
+  }
+  if (!("error" in result)) await markPendingCheckout(razorpay.orderId, "COMPLETED");
+  return result;
+}
+
+async function findOrderByRazorpayOrderId(razorpayOrderId: string): Promise<CreateOrderResult | null> {
+  const order = await db.order.findUnique({ where: { razorpayOrderId } });
+  if (!order) return null;
+  return {
+    orderNumber: order.orderNumber,
+    total: Math.round(order.total / 100),
+    shippingAddress: order.shippingAddress as CreateOrderInput["shippingAddress"],
+  };
+}
+
+async function markPendingCheckout(razorpayOrderId: string, status: "COMPLETED" | "NEEDS_REVIEW", note?: string) {
+  await db.pendingCheckout.updateMany({ where: { razorpayOrderId }, data: { status, ...(note ? { note } : {}) } });
+}
+
+// Safety net for the webhook (payment.captured): Razorpay has the customer's
+// money but no order exists on our side — their tab closed, or the network
+// dropped, before the confirmation call landed. Rebuilds the order from the
+// snapshot taken when the payment was opened (NOT from the live cart, which
+// may have changed or been emptied since). Safe to call repeatedly: the
+// unique razorpayOrderId means a second attempt can never create a twin.
+export async function recoverPaidOrder(
+  razorpayOrderId: string,
+  razorpayPaymentId: string
+): Promise<"created" | "exists" | "unknown" | "failed"> {
+  if (await findOrderByRazorpayOrderId(razorpayOrderId)) return "exists";
+
+  const pending = await db.pendingCheckout.findUnique({ where: { razorpayOrderId } });
+  if (!pending) return "unknown";
+
+  const snapshot = pending.payload as unknown as {
+    source: CartSource;
+    input: CreateOrderInput;
+    pricing: Exclude<PricingResult, ErrorResult>;
+  };
+
+  try {
+    const result = await persistOrder({
+      source: snapshot.source,
+      input: snapshot.input,
+      pricing: snapshot.pricing,
+      paymentStatus: "PAID",
+      razorpayOrderId,
+      razorpayPaymentId,
+    });
+    if ("error" in result) {
+      await markPendingCheckout(razorpayOrderId, "NEEDS_REVIEW", result.error);
+      void emailTeam("Payment received but order could NOT be created", [
+        ["Razorpay order", razorpayOrderId],
+        ["Razorpay payment", razorpayPaymentId],
+        ["Amount", `₹${(pending.amount / 100).toLocaleString("en-IN")}`],
+        ["Reason", result.error],
+        ["Action", "Refund the customer in the Razorpay dashboard, or create the order manually."],
+      ]);
+      return "failed";
+    }
+    await markPendingCheckout(razorpayOrderId, "COMPLETED");
+    return "created";
+  } catch (err) {
+    // A concurrent attempt (webhook retry, or the browser call finishing at the
+    // same moment) won the unique razorpayOrderId race — the order exists.
+    if (await findOrderByRazorpayOrderId(razorpayOrderId)) return "exists";
+    console.error("[recoverPaidOrder] failed", err);
+    await markPendingCheckout(razorpayOrderId, "NEEDS_REVIEW", String(err));
+    return "failed";
+  }
 }
 
 // ---------------------------------------------------------------------

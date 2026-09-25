@@ -7,6 +7,9 @@ type RatingStarsProps = {
 };
 
 export function RatingStars({ rating, reviews, size = 16 }: RatingStarsProps) {
+  // Nothing to show until a real review exists.
+  if (reviews <= 0) return null;
+
   return (
     <div className="flex items-center gap-1.5">
       <div className="flex items-center gap-0.5">

@@ -11,13 +11,14 @@ export function ChangeBadge({ pct }: { pct: number | null }) {
   const up = pct > 0;
   return (
     <span
+      title="Compared with the previous period of the same length"
       className={cn(
         "inline-flex items-center gap-0.5 text-xs font-medium",
         up ? "text-olive-dark" : "text-terracotta-dark"
       )}
     >
       {up ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
-      {Math.abs(pct)}%
+      {Math.abs(pct) > 999 ? "999%+" : `${Math.abs(pct)}%`}
     </span>
   );
 }

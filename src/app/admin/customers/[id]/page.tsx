@@ -43,7 +43,7 @@ export default async function AdminCustomerDetailPage({
             <CalendarDays size={15} />
             <span className="text-xs">Member Since</span>
           </div>
-          <p className="mt-1.5 text-lg font-serif text-charcoal">
+          <p className="mt-1.5 text-lg font-semibold text-charcoal">
             {customer.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
           </p>
         </div>
@@ -52,14 +52,14 @@ export default async function AdminCustomerDetailPage({
             <ShoppingBag size={15} />
             <span className="text-xs">Orders</span>
           </div>
-          <p className="mt-1.5 text-lg font-serif text-charcoal">{customer.orders.length}</p>
+          <p className="mt-1.5 text-lg font-semibold text-charcoal">{customer.orders.length}</p>
         </div>
         <div className="rounded-2xl border border-charcoal/10 bg-white p-5">
           <div className="flex items-center gap-2 text-ink-muted">
             <IndianRupee size={15} />
             <span className="text-xs">Total Spent</span>
           </div>
-          <p className="mt-1.5 text-lg font-serif text-charcoal">₹{customer.totalSpent.toLocaleString("en-IN")}</p>
+          <p className="mt-1.5 text-lg font-semibold text-charcoal">₹{customer.totalSpent.toLocaleString("en-IN")}</p>
         </div>
       </div>
 

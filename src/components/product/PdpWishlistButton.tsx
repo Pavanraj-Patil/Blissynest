@@ -31,7 +31,7 @@ export function PdpWishlistButton({
       aria-pressed={active}
       onClick={() => toggleItem({ slug, name, price, image, rating, reviews })}
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
+        "flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full transition-colors",
         active
           ? "text-terracotta-dark"
           : "text-charcoal-light hover:text-terracotta-dark hover:bg-cream-dark"

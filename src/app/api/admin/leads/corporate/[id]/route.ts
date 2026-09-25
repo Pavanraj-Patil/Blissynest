@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/require-admin";
 import { setCorporateLeadStatus } from "@/lib/admin/lead-service";
 import { leadStatusSchema } from "@/lib/validations/admin-lead";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 export async function PATCH(
   request: Request,
@@ -17,7 +18,7 @@ export async function PATCH(
   const parsed = leadStatusSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

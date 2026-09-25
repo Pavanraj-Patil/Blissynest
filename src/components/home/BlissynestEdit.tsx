@@ -1,38 +1,38 @@
-import { SectionHeader } from "@/components/ui/SectionHeader";
-import { CollectionCard } from "@/components/ui/CollectionCard";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { getPageContent } from "@/lib/content-service";
-
-type CollectionTile = { title: string; subtitle: string; slug: string; image: string };
+import { EditCarousel, type EditTile } from "./EditCarousel";
 
 export async function BlissynestEdit() {
   const content = await getPageContent("home");
   const section = content["blissynest-edit"];
   const sectionTitle = section.sectionTitle as string;
   const eyebrow = section.eyebrow as string;
-  const tiles = section.tiles as CollectionTile[];
+  const description = section.description as string;
+  const tiles = section.tiles as EditTile[];
 
   return (
-    <section>
-      <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-4 md:pt-6">
-        <SectionHeader title={sectionTitle} eyebrow={eyebrow} linkHref="/collections" />
-      </div>
-      <div className="scallop-top-terracotta" />
-      <div className="bg-[#edc3ab] py-6 md:py-8">
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8">
-          <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-            {tiles.map((c) => (
-              <CollectionCard
-                key={c.title}
-                title={c.title}
-                subtitle={c.subtitle}
-                image={c.image}
-                href={`/collections/${c.slug}`}
-              />
-            ))}
-          </div>
+    <section className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 md:pt-8 xl:pt-14">
+      <div className="mb-6 flex items-end justify-between gap-4 md:mb-8 xl:mb-10">
+        <div>
+          {eyebrow && (
+            <p className="eyebrow mb-2 text-terracotta-dark">{eyebrow}</p>
+          )}
+          <h2 className="font-serif text-2xl text-charcoal md:text-3xl xl:text-4xl">{sectionTitle}</h2>
+          {description && (
+            <p className="mt-2 max-w-md text-sm text-ink-muted xl:text-base">{description}</p>
+          )}
         </div>
+        <Link
+          href="/collections"
+          className="hidden shrink-0 items-center gap-1.5 text-sm font-medium text-charcoal transition-colors hover:text-terracotta-dark sm:inline-flex"
+        >
+          Explore all
+          <ArrowRight size={15} />
+        </Link>
       </div>
-      <div className="scallop-bottom-terracotta" />
+
+      <EditCarousel tiles={tiles} />
     </section>
   );
 }

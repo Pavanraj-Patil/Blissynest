@@ -81,7 +81,7 @@ export default function JournalPage() {
                 key={post.title}
                 className="rounded-2xl border border-charcoal/10 bg-white p-6"
               >
-                <span className="eyebrow text-[10px] text-terracotta-dark">{post.tag}</span>
+                <span className="eyebrow text-[11px] text-terracotta-dark">{post.tag}</span>
                 <h2 className="mt-2.5 font-serif text-lg text-charcoal leading-snug">
                   {post.title}
                 </h2>

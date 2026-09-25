@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAdminApi } from "@/lib/admin/require-admin";
 import { updateCoupon, setCouponActive, deleteCoupon } from "@/lib/admin/coupon-service";
 import { adminCouponSchema } from "@/lib/validations/admin-coupon";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 const toggleSchema = z.object({ active: z.boolean() });
 
@@ -27,7 +28,7 @@ export async function PATCH(
   const parsed = adminCouponSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

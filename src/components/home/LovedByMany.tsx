@@ -26,9 +26,9 @@ export async function LovedByMany() {
         linkHref="/shop"
         showLinkOnMobile
       />
-      <div className="flex sm:grid sm:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex lg:grid lg:grid-cols-5 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 md:-mx-8 md:px-8 lg:mx-0 lg:px-0">
         {products.map((p) => (
-          <div key={p.id} className="shrink-0 w-[190px] sm:w-auto">
+          <div key={p.id} className="shrink-0 w-[190px] md:w-[220px] lg:w-auto">
             <ProductCard
               name={p.name}
               price={p.price}

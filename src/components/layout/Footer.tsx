@@ -48,7 +48,7 @@ export async function Footer() {
     { icon: FacebookIcon, label: "Facebook", href: footer.facebookUrl as string },
     { icon: PinterestIcon, label: "Pinterest", href: footer.pinterestUrl as string },
     { icon: YoutubeIcon, label: "YouTube", href: footer.youtubeUrl as string },
-  ];
+  ].filter((s) => /^https?:\/\//i.test(s.href));
 
   return (
     <footer className="bg-cream-dark border-t border-charcoal/10">
@@ -63,29 +63,31 @@ export async function Footer() {
             </p>
           </div>
           <NewsletterForm className="w-full max-w-md mx-auto lg:mx-0" />
+          {socials.length > 0 && (
           <div className="flex flex-col items-center lg:items-end gap-2 shrink-0">
             <span className="text-xs text-ink-muted">Follow us</span>
-            <div className="flex items-center gap-4 text-charcoal">
+            <div className="flex items-center gap-1 text-charcoal">
               {socials.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="hover:text-terracotta-dark transition-colors"
+                  className="flex h-10 w-10 items-center justify-center hover:text-terracotta-dark transition-colors"
                 >
                   <s.icon />
                 </a>
               ))}
             </div>
           </div>
+          )}
         </div>
 
-        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-charcoal-light pt-8">
+        <nav className="flex flex-wrap items-center justify-center gap-x-6 text-[13px] sm:text-xs text-charcoal-light pt-6">
           {links.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="hover:text-terracotta-dark transition-colors"
+              className="py-2.5 hover:text-terracotta-dark transition-colors"
             >
               {link.label}
             </Link>

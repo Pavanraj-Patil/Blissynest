@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getWishlistItemsForUser, addToWishlist } from "@/lib/wishlist-service";
 import { wishlistItemSchema } from "@/lib/validations/wishlist";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // GET /api/wishlist — the signed-in user's wishlist. Guests keep using the
 // existing localStorage wishlist (src/lib/wishlist-context.tsx).
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
   const parsed = wishlistItemSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

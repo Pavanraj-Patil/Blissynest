@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSuperAdminApi } from "@/lib/admin/require-admin";
 import { setUserRoleAndPermissions } from "@/lib/admin/user-service";
 import { ADMIN_PERMISSIONS } from "@/lib/admin/permissions";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // Managing another user's admin role/permissions is exclusively a
 // super-admin action — see the comment on requireSuperAdmin.
@@ -25,7 +26,7 @@ export async function PATCH(
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

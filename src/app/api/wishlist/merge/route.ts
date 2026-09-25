@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { addToWishlist, getWishlistItemsForUser } from "@/lib/wishlist-service";
 import { mergeWishlistSchema } from "@/lib/validations/wishlist";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // POST /api/wishlist/merge — folds a just-logged-in user's guest
 // (localStorage) wishlist into their server wishlist. Same pattern as
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
   const parsed = mergeWishlistSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
+import { useSiteContent } from "@/lib/site-content-context";
 
 function InstagramIcon() {
   return (
@@ -62,42 +65,42 @@ const columns = [
       { label: "About Us", href: "/about" },
       { label: "The Bliss Journal", href: "/journal" },
       { label: "Corporate Gifting", href: "/corporate" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms & Conditions", href: "/terms" },
     ],
   },
 ];
 
-const socials = [
-  { icon: InstagramIcon, label: "Instagram", href: "https://www.instagram.com/blissynest_bn/" },
-  { icon: FacebookIcon, label: "Facebook", href: "#" },
-  { icon: PinterestIcon, label: "Pinterest", href: "#" },
-  { icon: YoutubeIcon, label: "YouTube", href: "#" },
-];
-
 export function ShopFooter() {
+  const { footer } = useSiteContent();
+  // A social link only appears once a real address is set in Site Content —
+  // an icon that goes nowhere ("#") is worse than no icon.
+  const socials = [
+    { icon: InstagramIcon, label: "Instagram", href: footer.instagramUrl },
+    { icon: FacebookIcon, label: "Facebook", href: footer.facebookUrl },
+    { icon: PinterestIcon, label: "Pinterest", href: footer.pinterestUrl },
+    { icon: YoutubeIcon, label: "YouTube", href: footer.youtubeUrl },
+  ].filter((s) => /^https?:\/\//i.test(s.href));
+
   return (
     <footer className="bg-cream-dark border-t border-charcoal/10">
       <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-12 md:py-14">
         <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr_1fr_1fr] gap-10">
           <div className="max-w-sm">
-            <h2 className="font-serif text-2xl text-charcoal">
-              A little inspiration, delivered.
-            </h2>
-            <p className="text-sm text-ink-muted mt-2">
-              Gift ideas, new launches and feel-good stories — straight to
-              your inbox.
-            </p>
+            <h2 className="font-serif text-2xl text-charcoal">{footer.newsletterHeading}</h2>
+            <p className="text-sm text-ink-muted mt-2">{footer.newsletterSubcopy}</p>
             <NewsletterForm className="mt-5" />
           </div>
 
           {columns.map((col) => (
             <div key={col.title}>
               <h3 className="eyebrow text-charcoal mb-4">{col.title}</h3>
-              <ul className="space-y-2.5">
+              <ul className="space-y-0.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-ink-muted hover:text-terracotta-dark transition-colors"
+                      className="block py-1.5 text-sm text-ink-muted hover:text-terracotta-dark transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -107,23 +110,26 @@ export function ShopFooter() {
             </div>
           ))}
 
+          {socials.length > 0 && (
           <div className="lg:hidden">
             <h3 className="eyebrow text-charcoal mb-4">Follow Us</h3>
-            <div className="flex items-center gap-4 text-charcoal">
+            <div className="flex items-center gap-1 text-charcoal">
               {socials.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="hover:text-terracotta-dark transition-colors"
+                  className="flex h-10 w-10 items-center justify-center hover:text-terracotta-dark transition-colors"
                 >
                   <s.icon />
                 </a>
               ))}
             </div>
           </div>
+          )}
         </div>
 
+        {socials.length > 0 && (
         <div className="hidden lg:flex items-center gap-4 text-charcoal mt-8">
           <span className="eyebrow text-charcoal">Follow Us</span>
           {socials.map((s) => (
@@ -137,6 +143,7 @@ export function ShopFooter() {
             </a>
           ))}
         </div>
+        )}
 
         <p className="text-xs text-ink-muted mt-10 pt-6 border-t border-charcoal/10">
           © 2026 Blissynest. All rights reserved.

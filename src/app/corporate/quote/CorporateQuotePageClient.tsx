@@ -19,6 +19,7 @@ import { ShopFooter } from "@/components/shop/ShopFooter";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { corporateNeeds } from "@/lib/corporate-data";
 import { downloadCatalogue } from "@/lib/corporate-catalogue";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 
 const teamSizes = ["1–10", "11–50", "51–200", "201–500", "500+"];
 
@@ -29,7 +30,7 @@ const reassuranceSteps = [
   { icon: Truck, text: "We handle packaging and pan-India delivery, tracked end to end." },
 ];
 
-function QuoteForm() {
+function QuoteForm({ email, phone }: { email: string; phone: string }) {
   const searchParams = useSearchParams();
   const isConsultation = searchParams.get("intent") === "consultation";
   const interestParam = searchParams.get("interest");
@@ -159,11 +160,9 @@ function QuoteForm() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <label className="block">
                       <span className="text-xs font-medium text-charcoal">Phone *</span>
-                      <input
-                        type="tel"
+                      <PhoneInput
                         name="phone"
                         required
-                        placeholder="Your phone number"
                         className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
                       />
                     </label>
@@ -277,19 +276,21 @@ function QuoteForm() {
                 </h2>
                 <div className="mt-4 space-y-3">
                   <a
-                    href="mailto:enquiry@blissynest.com"
+                    href={`mailto:${email}`}
                     className="flex items-center gap-2.5 text-sm text-ink-muted hover:text-terracotta-dark transition-colors"
                   >
                     <Mail size={16} />
-                    enquiry@blissynest.com
+                    {email}
                   </a>
-                  <a
-                    href="tel:+911800123456"
-                    className="flex items-center gap-2.5 text-sm text-ink-muted hover:text-terracotta-dark transition-colors"
-                  >
-                    <Phone size={16} />
-                    1800-123-456
-                  </a>
+                  {phone && (
+                    <a
+                      href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+                      className="flex items-center gap-2.5 text-sm text-ink-muted hover:text-terracotta-dark transition-colors"
+                    >
+                      <Phone size={16} />
+                      {phone}
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
@@ -301,10 +302,10 @@ function QuoteForm() {
   );
 }
 
-export function CorporateQuotePageClient() {
+export function CorporateQuotePageClient({ email, phone }: { email: string; phone: string }) {
   return (
     <Suspense fallback={null}>
-      <QuoteForm />
+      <QuoteForm email={email} phone={phone} />
     </Suspense>
   );
 }

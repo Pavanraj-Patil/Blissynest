@@ -17,8 +17,9 @@ const shopItems: NavDropdownItem[] = audienceSlugs.map((slug) => ({
   icon: audiencePillIcons[slug],
 }));
 
+// "Gifts for Her" -> "For Her": the dropdown is already headed "Personalised".
 const personalisedItems: NavDropdownItem[] = audienceSlugs.map((slug) => ({
-  label: audienceShopContent[slug].title,
+  label: audienceShopContent[slug].title.replace(/^Gifts\s+for\s+/i, "For "),
   href: `/shop/${slug}?category=${personalisedCategoryByAudience[slug]}`,
   icon: audiencePillIcons[slug],
 }));
@@ -42,17 +43,19 @@ export function Header() {
         <div className="flex items-center gap-3 md:gap-4 shrink-0">
           <MobileNav />
           <Link href="/" className="shrink-0">
-            {/* Icon mark only below 380px and again through the md-to-xl
-                tablet/small-laptop band, where the full wordmark is too wide
-                to share a row with the nav — see NavDropdown/HeaderActions
-                widths this has to fit alongside. */}
+            {/* Full wordmark on phones — full size from ~386px up, scaling
+                down smoothly on narrower screens so it always fits beside the
+                menu and action icons — and on xl desktops. Icon mark only
+                through the md-to-xl tablet/small-laptop band, where the
+                wordmark is too wide to share a row with the nav — see
+                NavDropdown/HeaderActions widths this has to fit alongside. */}
             <Image
               src="/mini_logo.png"
               alt="Blissynest"
               width={64}
               height={64}
               priority
-              className="block h-9 w-9 min-[380px]:hidden md:block xl:hidden"
+              className="hidden h-9 w-9 md:block xl:hidden"
             />
             <Image
               src="/blissynest-logo.png"
@@ -60,7 +63,7 @@ export function Header() {
               width={210}
               height={42}
               priority
-              className="hidden h-8 w-auto min-[380px]:block md:hidden xl:block xl:h-11"
+              className="block h-auto w-[clamp(96px,calc(70vw-110px),160px)] md:hidden xl:block xl:h-11 xl:w-auto"
             />
           </Link>
         </div>

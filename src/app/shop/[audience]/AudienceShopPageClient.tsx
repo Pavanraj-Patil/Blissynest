@@ -68,6 +68,33 @@ export function AudienceShopPageClient({
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Menu links like "Personalised > For Her" go to this same route with a
+  // different ?category=, which keeps this component mounted — so the
+  // initial state above (read from the URL only on first render) would
+  // silently ignore the new link. Re-apply each URL filter whenever its own
+  // param changes; adjusting state during render (rather than in an effect)
+  // avoids a flash of the old selection. Each param syncs independently so a
+  // category click doesn't wipe a price range the shopper set by hand.
+  const [syncedCategory, setSyncedCategory] = useState(validCategoryParam);
+  if (validCategoryParam !== syncedCategory) {
+    setSyncedCategory(validCategoryParam);
+    setSelectedCategories(validCategoryParam ? [validCategoryParam] : []);
+    setVisibleCount(ITEMS_PER_PAGE);
+  }
+  const [syncedOccasion, setSyncedOccasion] = useState(validOccasionParam);
+  if (validOccasionParam !== syncedOccasion) {
+    setSyncedOccasion(validOccasionParam);
+    setSelectedOccasions(validOccasionParam ? [validOccasionParam] : []);
+    setVisibleCount(ITEMS_PER_PAGE);
+  }
+  const [syncedBudget, setSyncedBudget] = useState(budgetParam);
+  if (budgetParam !== syncedBudget) {
+    setSyncedBudget(budgetParam);
+    setPriceMin(budgetRangeParam ? budgetRangeParam[0] : PRICE_BOUNDS.min);
+    setPriceMax(budgetRangeParam ? Math.min(budgetRangeParam[1], PRICE_BOUNDS.max) : PRICE_BOUNDS.max);
+    setVisibleCount(ITEMS_PER_PAGE);
+  }
+
   // Quick-access pills only make sense for categories that actually have
   // something in stock — an empty pill just leads to a "no products match"
   // grid with no way to tell that in advance.

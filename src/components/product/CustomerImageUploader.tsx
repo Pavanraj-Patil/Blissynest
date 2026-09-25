@@ -103,7 +103,7 @@ export function CustomerImageUploader({
         {remaining > 0 && (
           <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-charcoal/30 text-charcoal-light hover:border-olive hover:text-olive-dark transition-colors">
             {uploading ? <Loader2 size={18} className="animate-spin" /> : <ImagePlus size={18} />}
-            <span className="text-[10px] font-medium">{uploading ? "Uploading" : "Add photo"}</span>
+            <span className="text-[11px] font-medium">{uploading ? "Uploading" : "Add photo"}</span>
             <input
               ref={inputRef}
               type="file"

@@ -111,10 +111,21 @@ register both on the same OAuth client).
 **Without these set:** the "Continue with Google" button just won't work;
 email/password signup and login are unaffected.
 
-### Email — Resend (not wired up yet)
+### Email — Resend
 
 | Variable | Notes |
 |---|---|
+| `RESEND_API_KEY`, `EMAIL_FROM` | Order confirmations, shipping/delivery updates, password-reset links and internal notifications (new order, contact message, corporate lead) are sent through Resend. In Resend, verify your domain, then use an address on it, e.g. `Blissynest <orders@blissynest.com>`. **If either is empty, nothing is sent** — messages are printed to the server console instead, which is handy locally. |
+| `TEAM_NOTIFY_EMAIL` | Optional. Where internal notifications go; defaults to the support email in Admin → Site Content → Legal & Business. |
+
+### Public address & search engines
+
+| Variable | Notes |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | The live site's origin, e.g. `https://blissynest.com` (no trailing slash). Used for canonical links, the sitemap, share cards and links inside emails. |
+| `ALLOW_SEARCH_INDEXING` | Set to `true` **only on the live production site**. Unset (the default) makes the site tell Google not to index it, so UAT/preview copies stay hidden. Forgetting to set it on the live site means Google will not list you. |
+
+---|---|
 | `RESEND_API_KEY`, `EMAIL_FROM` | Listed in `.env.example` for when order-confirmation and contact-form emails get built. **Nothing in the code reads these yet** — skip this entirely until that feature exists. |
 
 ---

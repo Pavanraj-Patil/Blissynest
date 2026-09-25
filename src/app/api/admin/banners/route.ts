@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/require-admin";
 import { createBanner } from "@/lib/banner-service";
 import { bannerInputSchema } from "@/lib/validations/banner";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // POST /api/admin/banners — create a new homepage promo banner.
 export async function POST(request: Request) {
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
   const parsed = bannerInputSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

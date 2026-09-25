@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/require-admin";
 import { moderateReview, deleteReview } from "@/lib/review-service";
 import { moderateReviewSchema } from "@/lib/validations/review";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // PATCH /api/admin/reviews/:id — approve or reject a pending review.
 export async function PATCH(
@@ -18,7 +19,7 @@ export async function PATCH(
   const parsed = moderateReviewSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

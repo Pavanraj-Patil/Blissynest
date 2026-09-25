@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin/require-admin";
 import { createCoupon } from "@/lib/admin/coupon-service";
 import { adminCouponSchema } from "@/lib/validations/admin-coupon";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 export async function POST(request: Request) {
   const check = await requireAdminApi("coupons");
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
   const parsed = adminCouponSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

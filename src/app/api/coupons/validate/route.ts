@@ -4,6 +4,7 @@ import { resolveCouponDiscount } from "@/lib/order-service";
 import { validateCouponSchema } from "@/lib/validations/coupon";
 import { rupeesToPaise, paiseToRupees } from "@/lib/currency";
 import { checkRateLimit, tooManyRequestsResponse } from "@/lib/rate-limit";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // POST /api/coupons/validate — signed-in users only; guests are asked to
 // sign in to use a coupon (see CheckoutPageClient's coupon-panel gating).
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
   const parsed = validateCouponSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

@@ -12,6 +12,13 @@ export const adminCouponSchema = z
     usageLimit: z.coerce.number().int().min(0).optional(),
     active: z.boolean().default(true),
     firstOrderOnly: z.boolean().default(false),
+    // Last day the code works (YYYY-MM-DD, inclusive). Empty = never expires.
+    expiresAt: z
+      .string()
+      .trim()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Use a valid date")
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
   })
   .refine((data) => data.discountType !== "PERCENT" || data.discountValue <= 100, {
     message: "A percent discount can't exceed 100",

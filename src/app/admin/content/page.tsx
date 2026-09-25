@@ -15,6 +15,7 @@ const pageLabels: Record<string, string> = {
   contact: "Contact",
   "track-order": "Track Order",
   corporate: "Corporate Gifting",
+  legal: "Legal & Business",
   layout: "Site-Wide",
 };
 

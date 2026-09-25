@@ -68,37 +68,38 @@ model Product {
 }
 
 model User {
-  id               String     @id @default(cuid())
-  name             String?
-  email            String     @unique
-  emailVerified    DateTime?
-  phone            String?
-  image            String?
-  passwordHash     String?
-  role             UserRole   @default(CUSTOMER)
+  id                  String               @id @default(cuid())
+  name                String?
+  email               String               @unique
+  emailVerified       DateTime?
+  phone               String?
+  image               String?
+  passwordHash        String?
+  role                UserRole             @default(CUSTOMER)
   // Delegable admin capabilities (see src/lib/admin/permissions.ts) —
   // string[] of AdminPermission keys. Only meaningful when role=ADMIN;
   // SUPER_ADMIN implicitly holds every permission (never reads this field)
   // and CUSTOMER never reads it either. Not itself a grantable permission —
   // admin management is exclusively a super-admin capability, so an ADMIN
   // can never escalate their own or anyone else's access.
-  adminPermissions Json       @default("[]")
-  twoFactorSecret  String?
-  twoFactorEnabled Boolean    @default(false)
+  adminPermissions    Json                 @default("[]")
+  twoFactorSecret     String?
+  twoFactorEnabled    Boolean              @default(false)
   // Account settings notification toggles — surfaced on the account
   // Settings tab. Plain booleans rather than JSON since the set of
   // toggles is small and fixed.
-  notifyOrders     Boolean    @default(true)
-  notifyPromos     Boolean    @default(true)
-  notifyRecs       Boolean    @default(false)
-  createdAt        DateTime   @default(now())
-  accounts         Account[]
-  addresses        Address[]
-  cart             Cart?
-  orders           Order[]
-  reviews          Review[]
-  sessions         Session[]
-  wishlist         Wishlist[]
+  notifyOrders        Boolean              @default(true)
+  notifyPromos        Boolean              @default(true)
+  notifyRecs          Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  accounts            Account[]
+  addresses           Address[]
+  cart                Cart?
+  orders              Order[]
+  reviews             Review[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  wishlist            Wishlist[]
 }
 
 model Account {
@@ -211,7 +212,7 @@ model Order {
   total             Int
   paymentMethod     PaymentMethodType @default(CARD)
   paymentStatus     PaymentStatus     @default(PENDING)
-  razorpayOrderId   String?
+  razorpayOrderId   String?           @unique
   razorpayPaymentId String?
   codOutcome        CodOutcome?
   trackingNumber    String?
@@ -489,4 +490,39 @@ enum ContentBlockType {
   LIST
   NESTED_LIST
   BOOLEAN
+}
+
+// One-time "forgot password" links. Only a SHA-256 hash of the token is stored
+// (the raw token exists only in the emailed link), so a leaked database can't
+// be used to reset anyone's password.
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// A snapshot taken the moment a Razorpay payment is opened: who is buying,
+// what exactly is in the cart, what it costs, and the delivery details. If a
+// customer pays but their browser closes before our confirmation call, Razorpay's
+// webhook uses this to create the order they paid for instead of leaving money
+// taken with no order behind it.
+model PendingCheckout {
+  id              String   @id @default(cuid())
+  razorpayOrderId String   @unique
+  payload         Json
+  amount          Int
+  // OPEN -> COMPLETED (order created) or NEEDS_REVIEW (paid, but the order
+  // could not be created — e.g. sold out meanwhile — so a human must refund
+  // or fulfil it).
+  status          String   @default("OPEN")
+  note            String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
 }

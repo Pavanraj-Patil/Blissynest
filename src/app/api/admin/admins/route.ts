@@ -4,6 +4,7 @@ import { requireSuperAdminApi } from "@/lib/admin/require-admin";
 import { setUserRoleAndPermissions } from "@/lib/admin/user-service";
 import { ADMIN_PERMISSIONS } from "@/lib/admin/permissions";
 import { db } from "@/lib/db";
+import { firstIssueMessage } from "@/lib/validations/format-error";
 
 // POST /api/admin/admins — promotes an existing account (found by email) to
 // ADMIN/SUPER_ADMIN with the given permissions. Deliberately doesn't create
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+      { error: firstIssueMessage(parsed.error) },
       { status: 400 }
     );
   }

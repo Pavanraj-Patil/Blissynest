@@ -51,6 +51,14 @@ function AccountDashboard({
   const [activeTab, setActiveTab] = useState<TabKey>(
     isTabKey(initialTab) ? initialTab : "profile"
   );
+  // The menu's "Profile" / "Order History" links point at this same page with
+  // a different ?tab=, which keeps this component mounted — re-apply the tab
+  // whenever the param changes (see AudienceShopPageClient for the pattern).
+  const [syncedTab, setSyncedTab] = useState(initialTab);
+  if (initialTab !== syncedTab) {
+    setSyncedTab(initialTab);
+    setActiveTab(isTabKey(initialTab) ? initialTab : "profile");
+  }
   const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
 
   const displayName = user.name ?? user.email ?? "Blissynest Member";
@@ -99,7 +107,12 @@ function AccountDashboard({
               <button
                 key={tab.key}
                 type="button"
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => {
+                  setActiveTab(tab.key);
+                  // Keep the address bar in step with the visible tab, so the
+                  // menu's tab links still register as a change afterwards.
+                  window.history.replaceState(null, "", `/account?tab=${tab.key}`);
+                }}
                 className={cn(
                   "shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors",
                   activeTab === tab.key

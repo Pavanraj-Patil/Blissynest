@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Menu, X, ChevronDown, User, PackageSearch } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { NavDropdownItem } from "./NavDropdown";
+import { AccountAuthModal } from "./AccountAuthModal";
 import {
   audienceSlugs,
   audienceShopContent,
@@ -28,8 +30,9 @@ const shopItems: NavDropdownItem[] = audienceSlugs.map((slug) => ({
   icon: audiencePillIcons[slug],
 }));
 
+// "Gifts for Her" -> "For Her": the dropdown is already headed "Personalised".
 const personalisedItems: NavDropdownItem[] = audienceSlugs.map((slug) => ({
-  label: audienceShopContent[slug].title,
+  label: audienceShopContent[slug].title.replace(/^Gifts\s+for\s+/i, "For "),
   href: `/shop/${slug}?category=${personalisedCategoryByAudience[slug]}`,
   icon: audiencePillIcons[slug],
 }));
@@ -57,6 +60,16 @@ const sections: MobileNavSection[] = [
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const { status } = useSession();
+  // /account sends signed-out visitors straight back to the homepage, which
+  // looked like the button did nothing — so they get the login popup instead.
+  const [authOpen, setAuthOpen] = useState(false);
+  const signedIn = status === "authenticated";
+
+  function openLogin() {
+    close();
+    setAuthOpen(true);
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -82,7 +95,7 @@ export function MobileNav() {
         type="button"
         aria-label="Open menu"
         onClick={() => setOpen(true)}
-        className="text-charcoal md:hidden"
+        className="-m-2 p-2 text-charcoal md:hidden"
       >
         <Menu size={22} />
       </button>
@@ -115,22 +128,31 @@ export function MobileNav() {
               </div>
 
               <div className="flex shrink-0 border-b border-charcoal/10">
-                <Link
-                  href="/account"
-                  onClick={close}
-                  className="flex flex-1 items-center gap-2 px-4 py-3.5 text-sm font-medium text-charcoal"
-                >
-                  <User size={16} className="text-terracotta" />
-                  Profile
-                </Link>
-                <Link
-                  href="/account?tab=orders"
-                  onClick={close}
-                  className="flex flex-1 items-center gap-2 border-l border-charcoal/10 px-4 py-3.5 text-sm font-medium text-charcoal"
-                >
-                  <PackageSearch size={16} className="text-terracotta" />
-                  Order History
-                </Link>
+                {[
+                  { href: "/account", label: "Profile", icon: User, className: "" },
+                  {
+                    href: "/account?tab=orders",
+                    label: "Order History",
+                    icon: PackageSearch,
+                    className: "border-l border-charcoal/10",
+                  },
+                ].map(({ href, label, icon: Icon, className }) => {
+                  const classes = cn(
+                    "flex flex-1 items-center gap-2 px-4 py-3.5 text-left text-sm font-medium text-charcoal",
+                    className
+                  );
+                  return signedIn ? (
+                    <Link key={label} href={href} onClick={close} className={classes}>
+                      <Icon size={16} className="text-terracotta" />
+                      {label}
+                    </Link>
+                  ) : (
+                    <button key={label} type="button" onClick={openLogin} className={classes}>
+                      <Icon size={16} className="text-terracotta" />
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
 
               <nav className="flex-1 overflow-y-auto py-1">
@@ -149,7 +171,7 @@ export function MobileNav() {
                           <span className="flex items-center gap-2">
                             {section.label}
                             {section.badge && (
-                              <span className="rounded-full bg-terracotta text-cream text-[9px] font-semibold px-1.5 py-0.5 tracking-normal normal-case">
+                              <span className="rounded-full bg-terracotta-dark text-cream text-[9px] font-semibold px-1.5 py-0.5 tracking-normal normal-case">
                                 {section.badge}
                               </span>
                             )}
@@ -188,7 +210,7 @@ export function MobileNav() {
                       >
                         {section.label}
                         {section.badge && (
-                          <span className="rounded-full bg-terracotta text-cream text-[9px] font-semibold px-1.5 py-0.5 tracking-normal normal-case">
+                          <span className="rounded-full bg-terracotta-dark text-cream text-[9px] font-semibold px-1.5 py-0.5 tracking-normal normal-case">
                             {section.badge}
                           </span>
                         )}
@@ -218,6 +240,8 @@ export function MobileNav() {
           </div>,
           document.body
         )}
+
+      <AccountAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 }
