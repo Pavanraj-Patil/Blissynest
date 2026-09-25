@@ -805,6 +805,7 @@ export const contentSchema: Record<string, PageSchema> = {
           default: "https://www.instagram.com/blissynest_bn/",
         },
         facebookUrl: { type: "TEXT", label: "Facebook URL", default: "#" },
+        linkedinUrl: { type: "TEXT", label: "LinkedIn URL", default: "#" },
         pinterestUrl: { type: "TEXT", label: "Pinterest URL", default: "#" },
         youtubeUrl: { type: "TEXT", label: "YouTube URL", default: "#" },
         links: {

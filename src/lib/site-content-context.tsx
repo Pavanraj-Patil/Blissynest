@@ -24,6 +24,7 @@ type SiteContent = {
     newsletterSubcopy: string;
     instagramUrl: string;
     facebookUrl: string;
+    linkedinUrl: string;
     pinterestUrl: string;
     youtubeUrl: string;
   };

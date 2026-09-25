@@ -90,6 +90,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             newsletterSubcopy: layoutContent.footer.newsletterSubcopy as string,
             instagramUrl: layoutContent.footer.instagramUrl as string,
             facebookUrl: layoutContent.footer.facebookUrl as string,
+            linkedinUrl: layoutContent.footer.linkedinUrl as string,
             pinterestUrl: layoutContent.footer.pinterestUrl as string,
             youtubeUrl: layoutContent.footer.youtubeUrl as string,
           }}

@@ -22,6 +22,14 @@ function FacebookIcon() {
   );
 }
 
+function LinkedinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+      <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11.5H3V9.75Zm6.5 0h3.83v1.57h.06c.53-1 1.84-2.07 3.79-2.07 4.05 0 4.82 2.66 4.82 6.12v5.88h-4v-5.2c0-1.24-.02-2.83-1.73-2.83-1.73 0-2 1.35-2 2.74v5.29h-4V9.75Z" />
+    </svg>
+  );
+}
+
 function PinterestIcon() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
@@ -46,6 +54,7 @@ export async function Footer() {
   const socials = [
     { icon: InstagramIcon, label: "Instagram", href: footer.instagramUrl as string },
     { icon: FacebookIcon, label: "Facebook", href: footer.facebookUrl as string },
+    { icon: LinkedinIcon, label: "LinkedIn", href: footer.linkedinUrl as string },
     { icon: PinterestIcon, label: "Pinterest", href: footer.pinterestUrl as string },
     { icon: YoutubeIcon, label: "YouTube", href: footer.youtubeUrl as string },
   ].filter((s) => /^https?:\/\//i.test(s.href));
