@@ -49,7 +49,7 @@ export default async function TermsPage() {
     {
       heading: "Personalised products and photos",
       blocks: [
-        { type: "p", text: "Personalised items are made specially for you and generally cannot be returned or exchanged, unless they arrive damaged or defective. Please check every name, message and photo carefully before you order — we produce exactly what you submit." },
+        { type: "p", text: "Personalised items are made specially for you and generally cannot be returned or exchanged, unless they arrive damaged or defective. Please check every name, message and photo carefully before you order. We produce exactly what you submit." },
         { type: "p", text: "If you upload a photo or text, you confirm you have the right to use it and that it is lawful, not offensive, and does not infringe anyone else's rights. We may decline any personalisation request we consider inappropriate and will refund you if so. You allow us to use what you upload only to make and deliver your order." },
       ],
     },

@@ -1,11 +1,33 @@
 "use client";
 
+import { Suspense } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSiteContent } from "@/lib/site-content-context";
 
+// Shown at the bottom of shop-style pages. Someone who just used the gift
+// finder ("Not sure what to gift?") to get here is already being helped, so a
+// second identical prompt would be repetitive — the finder tags the URL with
+// ?from=finder and the banner steps aside for that visit. Suspense is required
+// for reading the URL; the fallback is the banner itself so a normal visit
+// never sees it blink in.
 export function ShopGiftBanner() {
+  return (
+    <Suspense fallback={<GiftBanner />}>
+      <FinderAwareBanner />
+    </Suspense>
+  );
+}
+
+function FinderAwareBanner() {
+  const cameFromFinder = useSearchParams().get("from") === "finder";
+  if (cameFromFinder) return null;
+  return <GiftBanner />;
+}
+
+function GiftBanner() {
   const { shopGiftBannerImage, shopGiftBannerVisible } = useSiteContent();
   if (!shopGiftBannerVisible) return null;
   const desktopImage = shopGiftBannerImage.desktop;

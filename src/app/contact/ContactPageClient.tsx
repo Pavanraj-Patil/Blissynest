@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { Header } from "@/components/layout/Header";
-import { Breadcrumb } from "@/components/shop/Breadcrumb";
+import { PageHero } from "@/components/pages/PageHero";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { getContentIcon } from "@/lib/content-icons";
 
@@ -48,120 +49,112 @@ export function ContactPageClient({ content }: { content: Record<string, unknown
     setSubmitted(true);
   }
 
+  const field =
+    "mt-2 w-full rounded-xl border border-charcoal/12 bg-cream px-4 py-3 text-sm text-charcoal placeholder:text-ink-muted transition-colors focus:border-olive focus:bg-white focus:outline-none";
+
   return (
     <>
       <Header />
       <main>
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Contact Us" }]} />
-        </div>
+        <PageHero
+          crumbs={[{ label: "Home", href: "/" }, { label: "Contact Us" }]}
+          eyebrow={eyebrow}
+          title={heading}
+          intro={subcopy}
+        />
 
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 pb-10 text-center">
-          <p className="eyebrow text-terracotta-dark mb-2">{eyebrow}</p>
-          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">{heading}</h1>
-          <p className="mt-3 text-sm text-ink-muted max-w-xl mx-auto">
-            {subcopy}
-          </p>
-        </div>
-
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-10 max-w-4xl mx-auto">
-            <div className="space-y-4">
-              {contactPoints.map((c) => {
-                const Icon = getContentIcon(c.icon);
-                return (
-                  <div
-                    key={c.label}
-                    className="flex items-center gap-3.5 rounded-2xl border border-charcoal/10 bg-white p-5"
-                  >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cream-dark">
-                      {Icon && <Icon size={18} className="text-terracotta" strokeWidth={1.5} />}
-                    </div>
-                    <div>
-                      <p className="text-xs text-ink-muted">{c.label}</p>
-                      <p className="text-sm font-medium text-charcoal">{c.value}</p>
-                    </div>
-                  </div>
-                );
-              })}
-              <p className="text-xs text-ink-muted leading-relaxed px-1">
-                We usually reply within 24 hours on business days.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-charcoal/10 bg-white p-6 sm:p-8">
+        <div className="mx-auto max-w-[1200px] px-4 md:px-8 py-12 md:py-16">
+          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8">
+            {/* Form */}
+            <div className="rounded-[2rem] border border-charcoal/10 bg-white p-6 shadow-[0_18px_50px_-30px_rgba(42,38,33,0.35)] sm:p-10">
               {submitted ? (
-                <div className="flex flex-col items-center text-center py-8">
-                  <CheckCircle2 size={40} className="text-olive" strokeWidth={1.5} />
-                  <h2 className="mt-4 font-serif text-xl text-charcoal">Message sent</h2>
-                  <p className="mt-2 text-sm text-ink-muted max-w-xs">
-                    Thanks for reaching out — we&rsquo;ll get back to you soon.
+                <div className="flex flex-col items-center py-12 text-center">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-olive/10">
+                    <CheckCircle2 size={32} className="text-olive" strokeWidth={1.5} />
+                  </span>
+                  <h2 className="mt-5 font-serif text-2xl text-charcoal">Message sent</h2>
+                  <p className="mt-2 max-w-xs text-sm leading-relaxed text-ink-muted">
+                    Thanks for reaching out. We&rsquo;ll get back to you soon.
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div>
+                    <h2 className="font-serif text-2xl text-charcoal md:text-3xl">Write to us</h2>
+                    <p className="mt-1.5 text-sm text-ink-muted">Tell us a little and we&rsquo;ll take it from there.</p>
+                  </div>
+
                   {error && (
                     <div className="flex items-start gap-2 rounded-xl bg-terracotta/10 px-4 py-3 text-xs text-terracotta-dark">
-                      <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                      <AlertCircle size={15} className="mt-0.5 shrink-0" />
                       <p>{error}</p>
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <label className="block">
-                      <span className="text-xs font-medium text-charcoal">Name</span>
-                      <input
-                        required
-                        name="name"
-                        type="text"
-                        placeholder="Your name"
-                        className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
-                      />
+                      <span className="text-xs font-semibold uppercase tracking-[0.1em] text-charcoal-light">Name</span>
+                      <input required name="name" type="text" placeholder="Your name" className={field} />
                     </label>
                     <label className="block">
-                      <span className="text-xs font-medium text-charcoal">Email</span>
-                      <input
-                        required
-                        name="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
-                      />
+                      <span className="text-xs font-semibold uppercase tracking-[0.1em] text-charcoal-light">Email</span>
+                      <input required name="email" type="email" placeholder="you@example.com" className={field} />
                     </label>
                   </div>
 
                   <label className="block">
-                    <span className="text-xs font-medium text-charcoal">Subject</span>
-                    <input
-                      required
-                      name="subject"
-                      type="text"
-                      placeholder="What's this about?"
-                      className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive"
-                    />
+                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-charcoal-light">Subject</span>
+                    <input required name="subject" type="text" placeholder="What's this about?" className={field} />
                   </label>
 
                   <label className="block">
-                    <span className="text-xs font-medium text-charcoal">Message</span>
-                    <textarea
-                      required
-                      name="message"
-                      rows={5}
-                      placeholder="Tell us a bit more..."
-                      className="mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal placeholder:text-ink-muted focus:outline-none focus:border-olive resize-none"
-                    />
+                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-charcoal-light">Message</span>
+                    <textarea required name="message" rows={5} placeholder="Tell us a bit more..." className={`${field} resize-none`} />
                   </label>
 
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full sm:w-auto rounded-xl bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
+                    className="w-full rounded-full bg-olive px-8 py-3.5 text-xs font-semibold uppercase tracking-[0.1em] text-cream transition-colors hover:bg-olive-dark disabled:opacity-60 sm:w-auto"
                   >
                     {submitting ? "Sending…" : "Send Message"}
                   </button>
                 </form>
               )}
             </div>
+
+            {/* Details */}
+            <aside className="relative flex flex-col overflow-hidden rounded-[2rem] bg-olive-dark p-8 text-cream sm:p-10">
+              <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full border border-cream/10" />
+              <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-10 h-60 w-60 rounded-full border border-cream/10" />
+              <p className="eyebrow relative flex items-center gap-3 text-gold-light">
+                <span aria-hidden className="h-px w-8 bg-gold-light" />
+                Find us
+              </p>
+              <h2 className="relative mt-4 font-serif text-2xl md:text-3xl">Prefer a direct line?</h2>
+              <ul className="relative mt-8 space-y-6">
+                {contactPoints.map((c) => {
+                  const Icon = getContentIcon(c.icon);
+                  return (
+                    <li key={c.label} className="flex items-start gap-4">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-cream/25">
+                        {Icon && <Icon size={18} className="text-gold-light" strokeWidth={1.5} />}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cream/60">{c.label}</p>
+                        <p className="mt-1 break-words text-[15px] text-cream">{c.value}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="relative mt-8 border-t border-cream/25 pt-5 text-sm leading-relaxed text-cream/75">
+                We usually reply within 24 hours on business days.
+              </p>
+              <div aria-hidden className="relative mt-8 hidden min-h-[160px] flex-1 overflow-hidden rounded-t-[999px] rounded-b-2xl lg:block">
+                <Image src="/moment-thankyou.png" alt="" fill sizes="400px" className="object-cover object-bottom" />
+              </div>
+            </aside>
           </div>
         </div>
       </main>

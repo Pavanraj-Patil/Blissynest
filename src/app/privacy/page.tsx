@@ -19,8 +19,8 @@ export default async function PrivacyPage() {
         {
           type: "ul",
           items: [
-            "Account details — your name, email address, phone number and a password (stored only as a one-way hash, never in readable form). If you sign in with Google we receive your name and email from Google.",
-            "Order details — delivery addresses, items ordered, order value, payment method chosen, and any gift note or personalisation you enter.",
+            "Account details: your name, email address, phone number and a password (stored only as a one-way hash, never in readable form). If you sign in with Google we receive your name and email from Google.",
+            "Order details: delivery addresses, items ordered, order value, payment method chosen, and any gift note or personalisation you enter.",
             "Photos you upload for personalised products, which we use only to make that order.",
             "Messages you send us through the contact, corporate quote or newsletter forms.",
             "Basic technical data such as your browser type and IP address, used to keep the site secure and to limit abuse.",
@@ -38,7 +38,7 @@ export default async function PrivacyPage() {
             "To process, pack, ship and deliver your orders, and to tell you about their progress.",
             "To create and secure your account, and to help you if you forget your password.",
             "To answer your questions and handle returns, refunds and complaints.",
-            "To send you our newsletter, only if you subscribed to it — you can unsubscribe at any time.",
+            "To send you our newsletter, only if you subscribed to it. You can unsubscribe at any time.",
             "To prevent fraud and misuse, and to meet our legal and tax obligations.",
           ],
         },
@@ -51,10 +51,10 @@ export default async function PrivacyPage() {
         {
           type: "ul",
           items: [
-            "Payment provider (Razorpay) — to take online payments.",
-            "Delivery partners (such as Shiprocket and the couriers it works with) — your name, address and phone number so your parcel can reach you.",
-            "Email service — to send order and account emails.",
-            "Hosting and image services (including Cloudflare) — to run the website and serve product images.",
+            "Payment provider (Razorpay): to take online payments.",
+            "Delivery partners (such as Shiprocket and the couriers it works with): your name, address and phone number so your parcel can reach you.",
+            "Email service: to send order and account emails.",
+            "Hosting and image services (including Cloudflare): to run the website and serve product images.",
             "Authorities, where the law requires it.",
           ],
         },

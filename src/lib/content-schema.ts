@@ -333,13 +333,13 @@ export const contentSchema: Record<string, PageSchema> = {
           type: "TEXT",
           label: "Paragraph 1",
           default:
-            "Blissynest started with a simple frustration: most gifting felt transactional — a rushed scroll, a generic hamper, a card nobody reads. We wanted something that felt more like the moment it was marking. So we built a place where every gift is chosen the way you'd choose one for someone you actually love — with a little thought, a little care, and packaging that feels like part of the gift, not an afterthought.",
+            "Blissynest started with a simple frustration: most gifting felt transactional: a rushed scroll, a generic hamper, a card nobody reads. We wanted something that felt more like the moment it was marking. So we built a place where every gift is chosen the way you'd choose one for someone you actually love, with a little thought, a little care, and packaging that feels like part of the gift, not an afterthought.",
         },
         paragraph2: {
           type: "TEXT",
           label: "Paragraph 2",
           default:
-            "Today that means a catalogue built around real moments — birthdays, anniversaries, festivals, thank-yous, and the days that don't need a reason at all — curated by people who still get excited about a well-wrapped box.",
+            "Today that means a catalogue built around real moments (birthdays, anniversaries, festivals, thank-yous, and the days that don't need a reason at all), curated by people who still get excited about a well-wrapped box.",
         },
       },
     },
@@ -362,7 +362,7 @@ export const contentSchema: Record<string, PageSchema> = {
           emptyItem: { icon: contentIconOptions[0], title: "", body: "" },
           default: [
             { icon: "Clock", title: "Delivery timelines", body: "Most orders are dispatched within 24–48 hours and delivered within 5–7 business days, depending on your location. Personalised and hamper orders may take an extra 1–2 days to prepare with care." },
-            { icon: "Truck", title: "Shipping charges", body: "Free shipping on all orders above ₹999. Orders below that ship for a flat ₹99. Charges are calculated automatically at checkout — no surprises at the end." },
+            { icon: "Truck", title: "Shipping charges", body: "Free shipping on all orders above ₹999. Orders below that ship for a flat ₹99. Charges are calculated automatically at checkout, so there are no surprises at the end." },
             { icon: "MapPin", title: "Where we deliver", body: "We currently deliver across India, including most Tier 1 and Tier 2 cities. Delivery availability and timelines are confirmed automatically once you enter your address at checkout." },
             { icon: "PackageCheck", title: "Tracking your order", body: "Once your order ships, you'll get a tracking link by email. You can also check the status any time from the Track Order page." },
           ],
@@ -388,9 +388,9 @@ export const contentSchema: Record<string, PageSchema> = {
           emptyItem: { icon: contentIconOptions[0], title: "", body: "" },
           default: [
             { icon: "RotateCcw", title: "Return window", body: "Most items can be returned within 7 days of delivery, as long as they're unused and in their original packaging. To start a return, email us at enquiry@blissynest.com with your order number and we'll guide you through it." },
-            { icon: "Ban", title: "What can't be returned", body: "Personalised items (engraved, monogrammed, or made to order), perishables like sweets and gourmet hampers, and gift cards can't be returned once made — these are called out on the product page before you order." },
+            { icon: "Ban", title: "What can't be returned", body: "Personalised items (engraved, monogrammed, or made to order), perishables like sweets and gourmet hampers, and gift cards can't be returned once made. These are called out on the product page before you order." },
             { icon: "Wallet", title: "Refunds", body: "Once a returned item reaches us and passes a quick quality check, refunds are processed to your original payment method within 5–7 business days." },
-            { icon: "MessageCircle", title: "Something arrived damaged?", body: "That's on us — reach out within 48 hours of delivery with a photo and your order number, and we'll sort a replacement or refund, no return needed." },
+            { icon: "MessageCircle", title: "Something arrived damaged?", body: "That's on us. Reach out within 48 hours of delivery with a photo and your order number, and we'll sort a replacement or refund, no return needed." },
           ],
         },
       },
@@ -433,7 +433,7 @@ export const contentSchema: Record<string, PageSchema> = {
         subcopy: {
           type: "TEXT",
           label: "Subcopy",
-          default: "Questions about an order, a bulk request, or just want to say hi — we read every message.",
+          default: "Questions about an order, a bulk request, or just want to say hi, we read every message.",
         },
         contactPoints: {
           type: "LIST",
@@ -475,7 +475,7 @@ export const contentSchema: Record<string, PageSchema> = {
             {
               category: "Orders & Payments",
               items: [
-                { question: "How do I track my order?", answer: "Head to the Track Order page and enter your order number and email — you'll see the latest status right away." },
+                { question: "How do I track my order?", answer: "Head to the Track Order page and enter your order number and email and you'll see the latest status right away." },
                 { question: "Can I change or cancel my order after placing it?", answer: "If your order hasn't shipped yet, contact us as soon as possible and we'll do our best to update or cancel it. Once it's dispatched, it'll need to go through the returns process instead." },
                 { question: "What payment methods do you accept?", answer: "Cards, UPI, net banking, and cash on delivery, all selectable at checkout." },
               ],
@@ -497,7 +497,7 @@ export const contentSchema: Record<string, PageSchema> = {
             {
               category: "Personalisation & Gifting",
               items: [
-                { question: "Can I add a gift note?", answer: "Yes — every order can include a free handwritten-style gift note, added during checkout." },
+                { question: "Can I add a gift note?", answer: "Yes, every order can include a free handwritten-style gift note, added during checkout." },
                 { question: "Can prices be hidden if I'm sending this as a gift?", answer: "Yes, there's a 'hide prices on packing slip' option in the gift step at checkout." },
               ],
             },

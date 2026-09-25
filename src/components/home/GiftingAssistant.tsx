@@ -25,6 +25,9 @@ export function GiftingAssistant() {
 
   function handleFindGift() {
     const params = new URLSearchParams();
+    // Marks the visit as coming from the gift finder, so the results page
+    // doesn't show a second "Not sure what to gift?" banner further down.
+    params.set("from", "finder");
     if (selections.occasion) params.set("occasion", selections.occasion);
     if (selections.budget) params.set("budget", selections.budget);
     const query = params.toString();
