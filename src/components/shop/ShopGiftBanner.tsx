@@ -27,7 +27,7 @@ function FinderAwareBanner() {
 }
 
 function GiftBanner() {
-  const { shopGiftBannerVisible } = useSiteContent();
+  const { shopGiftBannerVisible, shopGiftBannerText } = useSiteContent();
   if (!shopGiftBannerVisible) return null;
 
   return (
@@ -37,15 +37,15 @@ function GiftBanner() {
           <Gift size={18} strokeWidth={1.5} />
         </span>
         <div>
-          <h2 className="font-serif text-xl md:text-2xl">Not sure what to gift?</h2>
-          <p className="mt-1 text-sm text-cream/75">Tell us who it&rsquo;s for and we&rsquo;ll help you find the perfect match.</p>
+          <h2 className="font-serif text-xl md:text-2xl">{shopGiftBannerText.heading}</h2>
+          <p className="mt-1 text-sm text-cream/75">{shopGiftBannerText.body}</p>
         </div>
       </div>
       <Link
         href="/gifting-assistant"
         className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-cream px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] text-olive-dark transition-colors hover:bg-white"
       >
-        Find My Gift
+        {shopGiftBannerText.buttonLabel}
         <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
       </Link>
     </div>

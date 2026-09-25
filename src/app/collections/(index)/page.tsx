@@ -20,6 +20,7 @@ export default async function CollectionsPage() {
   // tiles everywhere, instead of a second hardcoded copy that drifts.
   const content = await getPageContent("home");
   const tiles = content["blissynest-edit"].tiles as CollectionTile[];
+  const header = (await getPageContent("collections")).header as { eyebrow: string; heading: string; intro: string };
 
   return (
     <>
@@ -28,9 +29,9 @@ export default async function CollectionsPage() {
       <main>
         <PageHero
           crumbs={[{ label: "Home", href: "/" }, { label: "The Blissynest Edit" }]}
-          eyebrow="Curated Collections"
-          title="The Blissynest Edit"
-          intro="Each edit has its own story. Pick the one that matches the moment."
+          eyebrow={header.eyebrow}
+          title={header.heading}
+          intro={header.intro}
         />
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-12 md:py-16">

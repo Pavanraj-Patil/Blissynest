@@ -16,7 +16,7 @@ const trackingSteps = [
   { icon: Home, label: "Delivered", note: "Delivered. Enjoy!" },
 ];
 
-type TrackOrderContent = { eyebrow: string; heading: string; subcopy: string };
+type TrackOrderContent = { eyebrow: string; heading: string; subcopy: string; hint: string };
 
 export function TrackOrderClient({ content: rawContent }: { content: Record<string, unknown> }) {
   const content = rawContent as TrackOrderContent;
@@ -136,10 +136,7 @@ export function TrackOrderClient({ content: rawContent }: { content: Record<stri
 
         <div className="mx-auto max-w-[900px] px-4 md:px-8 py-12 md:py-16">
           {!result && !loading && !error && (
-            <p className="text-center text-sm leading-relaxed text-ink-muted">
-              Your order number is in the confirmation email we sent. It starts with{" "}
-              <span className="font-medium text-charcoal">BN-</span>.
-            </p>
+            <p className="text-center text-sm leading-relaxed text-ink-muted">{content.hint}</p>
           )}
 
           {result && result.stepIndex === -1 && (

@@ -35,7 +35,9 @@ const fields = [
   },
 ];
 
-function GiftingAssistantContent({ initialProducts }: { initialProducts: ListProduct[] }) {
+type AssistantHeader = { eyebrow: string; heading: string; intro: string };
+
+function GiftingAssistantContent({ initialProducts, header }: { initialProducts: ListProduct[]; header: AssistantHeader }) {
   const searchParams = useSearchParams();
 
   const [who, setWho] = useState(searchParams.get("who") ?? "");
@@ -101,9 +103,9 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
       <main>
         <PageHero
           crumbs={[{ label: "Home", href: "/" }, { label: "Gifting Assistant" }]}
-          eyebrow="Gifting Assistant"
-          title="Let’s find the perfect gift"
-          intro="Tell us a little about who you’re gifting and we’ll narrow it down for you."
+          eyebrow={header.eyebrow}
+          title={header.heading}
+          intro={header.intro}
         />
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-10 pb-4">
@@ -203,12 +205,14 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
 
 export function GiftingAssistantPageClient({
   initialProducts,
+  header,
 }: {
   initialProducts: ListProduct[];
+  header: AssistantHeader;
 }) {
   return (
     <Suspense fallback={null}>
-      <GiftingAssistantContent initialProducts={initialProducts} />
+      <GiftingAssistantContent initialProducts={initialProducts} header={header} />
     </Suspense>
   );
 }

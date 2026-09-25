@@ -30,7 +30,9 @@ const reassuranceSteps = [
   { icon: Truck, text: "We handle packaging and pan-India delivery, tracked end to end." },
 ];
 
-function QuoteForm({ email, phone }: { email: string; phone: string }) {
+type QuoteHeader = { eyebrow: string; quoteIntro: string; consultationIntro: string };
+
+function QuoteForm({ email, phone, header }: { email: string; phone: string; header: QuoteHeader }) {
   const searchParams = useSearchParams();
   const isConsultation = searchParams.get("intent") === "consultation";
   const interestParam = searchParams.get("interest");
@@ -95,12 +97,10 @@ function QuoteForm({ email, phone }: { email: string; phone: string }) {
             { label: "Corporate Gifting", href: "/corporate" },
             { label: pageTitle },
           ]}
-          eyebrow="Corporate Gifting"
+          eyebrow={header.eyebrow}
           title={pageTitle}
           intro={
-            isConsultation
-              ? "Tell us a bit about your team and we'll set up a call with a gifting expert."
-              : "Share your requirements and we'll put together a curated proposal for your business."
+            isConsultation ? header.consultationIntro : header.quoteIntro
           }
           image="/corporate-need-client.png"
           imageAlt="A corporate gift set with a card and ribbon"
@@ -299,10 +299,10 @@ function QuoteForm({ email, phone }: { email: string; phone: string }) {
   );
 }
 
-export function CorporateQuotePageClient({ email, phone }: { email: string; phone: string }) {
+export function CorporateQuotePageClient({ email, phone, header }: { email: string; phone: string; header: QuoteHeader }) {
   return (
     <Suspense fallback={null}>
-      <QuoteForm email={email} phone={phone} />
+      <QuoteForm email={email} phone={phone} header={header} />
     </Suspense>
   );
 }

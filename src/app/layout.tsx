@@ -85,6 +85,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           shopGiftBannerImage={shopGiftBannerImage}
           categoryPillImages={categoryPillImages}
           shopGiftBannerVisible={layoutVisibility["shop-gift-banner"]}
+          shopGiftBannerText={{
+            heading: layoutContent["shop-gift-banner"].heading as string,
+            body: layoutContent["shop-gift-banner"].body as string,
+            buttonLabel: layoutContent["shop-gift-banner"].buttonLabel as string,
+          }}
           footer={{
             newsletterHeading: layoutContent.footer.newsletterHeading as string,
             newsletterSubcopy: layoutContent.footer.newsletterSubcopy as string,

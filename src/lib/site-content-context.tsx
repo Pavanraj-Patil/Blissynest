@@ -13,6 +13,7 @@ type SiteContent = {
   shopGiftBannerImage: ResponsiveImageValue;
   // Admin can switch the banner off site-wide (Site Content → Shop Gift Banner).
   shopGiftBannerVisible: boolean;
+  shopGiftBannerText: { heading: string; body: string; buttonLabel: string };
   // Optional admin-uploaded photo per category pill slug (see
   // CategoryPillRow.tsx) — falls back to a Lucide icon wherever a slug has
   // no value here.

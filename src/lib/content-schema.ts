@@ -825,6 +825,193 @@ export const contentSchema: Record<string, PageSchema> = {
   },
 };
 
+// Page intros, closing banners and page-level headings. Added on top of the
+// core definitions above so every page that shows them reads the text from
+// here (and therefore from Admin > Site Content) instead of hardcoding it.
+function textField(label: string, value: string): FieldDescriptor {
+  return { type: "TEXT", label, default: value };
+}
+
+type Cta = { title: string; body: string; primary: LinkValue; secondary?: LinkValue };
+
+function closingBanner(cta: Cta): SectionSchema {
+  return {
+    title: "Closing Banner",
+    hideable: true,
+    fields: {
+      title: textField("Title", cta.title),
+      body: textField("Text", cta.body),
+      primaryLabel: textField("Main Button Label", cta.primary.label),
+      primaryHref: textField("Main Button Link", cta.primary.href),
+      secondaryLabel: textField("Second Button Label (optional)", cta.secondary?.label ?? ""),
+      secondaryHref: textField("Second Button Link (optional)", cta.secondary?.href ?? ""),
+    },
+  };
+}
+
+const pageExtras: Record<string, { intro?: string; cta?: Cta }> = {
+  about: {
+    intro: "A gifting studio for the people who make life beautiful.",
+    cta: {
+      title: "Let's find the right gift.",
+      body: "Tell us who it's for and what you're celebrating and we'll point you to something they'll keep.",
+      primary: { label: "Start gifting", href: "/shop" },
+      secondary: { label: "Gifting for a team", href: "/corporate" },
+    },
+  },
+  shipping: {
+    intro: "From our studio to their doorstep, wrapped with care and tracked all the way.",
+    cta: {
+      title: "Wondering where your gift is?",
+      body: "Pop in your order number and we'll show you exactly where it is on its way.",
+      primary: { label: "Track my order", href: "/track-order" },
+      secondary: { label: "Talk to us", href: "/contact" },
+    },
+  },
+  returns: {
+    intro: "If a gift isn't quite right, we'll make it right. Here's how that works, in plain words.",
+    cta: {
+      title: "Need to start a return?",
+      body: "Write to us with your order number and we'll guide you through it, step by step.",
+      primary: { label: "Contact us", href: "/contact" },
+      secondary: { label: "Read the FAQs", href: "/faqs" },
+    },
+  },
+  faqs: {
+    intro: "The things people ask us most, answered plainly.",
+    cta: {
+      title: "Didn't find your answer?",
+      body: "Send us a note. A real person reads every message, usually within a day.",
+      primary: { label: "Contact us", href: "/contact" },
+      secondary: { label: "Track an order", href: "/track-order" },
+    },
+  },
+  help: {
+    intro: "Pick where you'd like to start, most answers are a click away.",
+    cta: {
+      title: "Still need a hand?",
+      body: "Write to us and a real person will get back to you, usually within a day.",
+      primary: { label: "Contact us", href: "/contact" },
+    },
+  },
+};
+
+for (const [page, extra] of Object.entries(pageExtras)) {
+  if (extra.intro) contentSchema[page].hero.fields.intro = textField("Intro Line", extra.intro);
+  if (extra.cta) contentSchema[page].cta = closingBanner(extra.cta);
+}
+
+contentSchema.about.story = {
+  title: "Story Section",
+  fields: {
+    label: textField("Small Label", "How it began"),
+    quote: textField("Pull Quote", "Gifting should feel like the moment it's marking."),
+  },
+};
+contentSchema.about.promises = {
+  title: "Promises Section",
+  hideable: true,
+  fields: {
+    eyebrow: textField("Small Label", "What we hold on to"),
+    heading: textField("Heading", "Four small promises behind every box."),
+    items: {
+      type: "LIST",
+      label: "Promises",
+      itemLabel: "promise",
+      listFields: [
+        { key: "title", label: "Title", kind: "text" },
+        { key: "body", label: "Text", kind: "text" },
+      ],
+      emptyItem: { title: "", body: "" },
+      default: [
+        { title: "Chosen, not just collected", body: "Every product has to earn its place on the shelf. If we wouldn't give it to someone we love, it doesn't make the cut." },
+        { title: "The box is part of the gift", body: "Ribbon, paper, a handwritten-feeling note. The unwrapping is half of the moment, so we design it that way." },
+        { title: "Delivered like it matters", body: "Your gift travels a long way to make someone smile. We pack it to arrive looking exactly as it left us." },
+        { title: "Made right, always", body: "If something isn't perfect, tell us. We'd much rather fix it quickly than have you wonder." },
+      ],
+    },
+  },
+};
+contentSchema.contact.details = {
+  title: "Details Panel",
+  fields: {
+    eyebrow: textField("Small Label", "Find us"),
+    heading: textField("Heading", "Prefer a direct line?"),
+    replyNote: textField("Reply Note", "We usually reply within 24 hours on business days."),
+  },
+};
+contentSchema.contact.form = {
+  title: "Message Form",
+  fields: {
+    heading: textField("Heading", "Write to us"),
+    subcopy: textField("Text", "Tell us a little and we'll take it from there."),
+  },
+};
+contentSchema["track-order"].hero.fields.hint = textField(
+  "Hint Under The Form",
+  "Your order number is in the confirmation email we sent. It starts with BN-."
+);
+
+Object.assign(contentSchema, {
+  journal: {
+    hero: {
+      title: "Journal Page",
+      fields: {
+        eyebrow: textField("Eyebrow", "The Bliss Journal"),
+        heading: textField("Heading", "Gifting guides & a little inspiration"),
+        intro: textField("Intro Line", "Stories, guides, and ideas for whatever you're celebrating next."),
+      },
+    },
+  },
+  collections: {
+    header: {
+      title: "Collections Page Header",
+      fields: {
+        eyebrow: textField("Eyebrow", "Curated Collections"),
+        heading: textField("Heading", "The Blissynest Edit"),
+        intro: textField("Intro Line", "Each edit has its own story. Pick the one that matches the moment."),
+      },
+    },
+  },
+  occasions: {
+    header: {
+      title: "Occasions Page Header",
+      fields: {
+        eyebrow: textField("Eyebrow", "Made For The Moment"),
+        heading: textField("Heading", "Occasions"),
+        intro: textField("Intro Line", "From birthdays to just because, find gifts curated for every moment worth celebrating."),
+      },
+    },
+  },
+  "gifting-assistant": {
+    header: {
+      title: "Gifting Assistant Page Header",
+      fields: {
+        eyebrow: textField("Eyebrow", "Gifting Assistant"),
+        heading: textField("Heading", "Let's find the perfect gift"),
+        intro: textField("Intro Line", "Tell us a little about who you're gifting and we'll narrow it down for you."),
+      },
+    },
+  },
+  "corporate-quote": {
+    header: {
+      title: "Request a Quote Page Header",
+      fields: {
+        eyebrow: textField("Eyebrow", "Corporate Gifting"),
+        quoteIntro: textField("Quote Intro", "Share your requirements and we'll put together a curated proposal for your business."),
+        consultationIntro: textField("Consultation Intro", "Tell us a bit about your team and we'll set up a call with a gifting expert."),
+      },
+    },
+  },
+});
+
+// The gift banner shown at the bottom of shop-style pages.
+Object.assign(contentSchema.layout["shop-gift-banner"].fields, {
+  heading: textField("Heading", "Not sure what to gift?"),
+  body: textField("Text", "Tell us who it's for and we'll help you find the perfect match."),
+  buttonLabel: textField("Button Label", "Find My Gift"),
+});
+
 export function getSectionSchema(page: string, section: string): SectionSchema | undefined {
   return contentSchema[page]?.[section];
 }

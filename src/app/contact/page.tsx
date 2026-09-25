@@ -14,7 +14,7 @@ export default async function ContactPage() {
   return (
     <>
       <TopBar />
-      <ContactPageClient content={content.hero} />
+      <ContactPageClient content={{ hero: content.hero, details: content.details, form: content.form }} />
     </>
   );
 }

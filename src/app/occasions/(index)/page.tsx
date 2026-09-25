@@ -20,6 +20,7 @@ export default async function OccasionsPage() {
   // same tiles everywhere, instead of a second hardcoded copy that drifts.
   const content = await getPageContent("home");
   const tiles = content["made-for-the-moment"].tiles as OccasionTile[];
+  const header = (await getPageContent("occasions")).header as { eyebrow: string; heading: string; intro: string };
 
   return (
     <>
@@ -28,9 +29,9 @@ export default async function OccasionsPage() {
       <main>
         <PageHero
           crumbs={[{ label: "Home", href: "/" }, { label: "Occasions" }]}
-          eyebrow="Made For The Moment"
-          title="Occasions"
-          intro="From birthdays to just because, find gifts curated for every moment worth celebrating."
+          eyebrow={header.eyebrow}
+          title={header.heading}
+          intro={header.intro}
         />
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-12 md:py-16">

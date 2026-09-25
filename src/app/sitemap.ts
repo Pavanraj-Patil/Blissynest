@@ -5,6 +5,7 @@ import { audienceSlugs } from "@/lib/shop-mock-data";
 import { collectionSlugs } from "@/lib/collection-mock-data";
 import { occasionSlugs } from "@/lib/occasion-data";
 import { corporateNeedSlugs } from "@/lib/corporate-data";
+import { getPublishedPosts } from "@/lib/journal-service";
 
 // Generated on request so new products show up without a rebuild.
 export const dynamic = "force-dynamic";
@@ -39,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...corporateNeedSlugs.map((s) => `/corporate/${s}`),
   ];
 
+  const journal = await getPublishedPosts();
   const products = await db.product.findMany({
     where: { status: "PUBLISHED", corporateOnly: false },
     select: { slug: true, updatedAt: true },
@@ -50,6 +52,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: p.priority,
+    })),
+    ...journal.map((p) => ({
+      url: `${site}/journal/${p.slug}`,
+      lastModified: new Date(p.published),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
     })),
     ...groupPaths.map((path) => ({
       url: `${site}${path}`,

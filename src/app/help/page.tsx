@@ -5,8 +5,8 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { PageHero } from "@/components/pages/PageHero";
-import { PageCta } from "@/components/pages/PageCta";
-import { getPageContent } from "@/lib/content-service";
+import { ContentCta } from "@/components/pages/ContentCta";
+import { getPageContent, getSectionVisibility } from "@/lib/content-service";
 import { getContentIcon } from "@/lib/content-icons";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 type HelpLink = { icon: string; title: string; body: string; href: string };
 
 export default async function HelpPage() {
-  const content = await getPageContent("help");
+  const [content, show] = await Promise.all([getPageContent("help"), getSectionVisibility("help")]);
   const hero = content.hero;
   const helpLinks = hero.links as HelpLink[];
 
@@ -30,7 +30,7 @@ export default async function HelpPage() {
           crumbs={[{ label: "Home", href: "/" }, { label: "Help" }]}
           eyebrow={hero.eyebrow as string}
           title={hero.heading as string}
-          intro="Pick where you'd like to start, most answers are a click away."
+          intro={hero.intro as string}
         />
 
         <div className="mx-auto max-w-[1000px] px-4 md:px-8 py-12 md:py-16">
@@ -60,11 +60,7 @@ export default async function HelpPage() {
           </ul>
         </div>
 
-        <PageCta
-          title="Still need a hand?"
-          body="Write to us and a real person will get back to you, usually within a day."
-          primary={{ label: "Contact us", href: "/contact" }}
-        />
+        <ContentCta content={content.cta} visible={show.cta} />
       </main>
       <ShopFooter />
     </>

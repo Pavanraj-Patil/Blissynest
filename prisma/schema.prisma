@@ -526,3 +526,26 @@ model PendingCheckout {
 
   @@index([status])
 }
+
+// A Bliss Journal article. The body is stored as light text markup (see
+// src/lib/journal-markup.ts) so it can be edited in a plain text box.
+model JournalPost {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  tag         String
+  excerpt     String    @db.Text
+  image       String    @db.Text
+  imageAlt    String    @default("")
+  body        String    @db.LongText
+  ctaTitle    String    @default("")
+  ctaBody     String    @default("") @db.VarChar(500)
+  ctaLabel    String    @default("")
+  ctaHref     String    @default("")
+  published   Boolean   @default(false)
+  publishedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([published, publishedAt])
+}

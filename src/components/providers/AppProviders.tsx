@@ -16,6 +16,7 @@ export function AppProviders({
   shopGiftBannerImage,
   categoryPillImages,
   shopGiftBannerVisible,
+  shopGiftBannerText,
   footer,
 }: {
   children: ReactNode;
@@ -23,11 +24,12 @@ export function AppProviders({
   shopGiftBannerImage: ResponsiveImageValue;
   categoryPillImages: Record<string, string>;
   shopGiftBannerVisible: boolean;
+  shopGiftBannerText: { heading: string; body: string; buttonLabel: string };
   footer: SiteContentValue["footer"];
 }) {
   return (
     <SessionProvider session={session}>
-      <SiteContentProvider value={{ shopGiftBannerImage, categoryPillImages, shopGiftBannerVisible, footer }}>
+      <SiteContentProvider value={{ shopGiftBannerImage, categoryPillImages, shopGiftBannerVisible, shopGiftBannerText, footer }}>
         <CartProvider>
           <WishlistProvider>{children}</WishlistProvider>
         </CartProvider>

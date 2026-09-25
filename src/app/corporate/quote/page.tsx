@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { TopBar } from "@/components/layout/TopBar";
-import { getBusinessDetails } from "@/lib/content-service";
+import { getBusinessDetails, getPageContent } from "@/lib/content-service";
 import { CorporateQuotePageClient } from "./CorporateQuotePageClient";
 
 export const metadata: Metadata = {
@@ -9,11 +9,12 @@ export const metadata: Metadata = {
 };
 
 export default async function CorporateQuotePage() {
-  const business = await getBusinessDetails();
+  const [business, content] = await Promise.all([getBusinessDetails(), getPageContent("corporate-quote")]);
+  const header = content.header as { eyebrow: string; quoteIntro: string; consultationIntro: string };
   return (
     <>
       <TopBar />
-      <CorporateQuotePageClient email={business.contactEmail} phone={business.contactPhone} />
+      <CorporateQuotePageClient email={business.contactEmail} phone={business.contactPhone} header={header} />
     </>
   );
 }

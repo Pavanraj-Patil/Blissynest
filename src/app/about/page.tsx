@@ -4,8 +4,8 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { PageHero } from "@/components/pages/PageHero";
-import { PageCta } from "@/components/pages/PageCta";
-import { getPageContent } from "@/lib/content-service";
+import { ContentCta } from "@/components/pages/ContentCta";
+import { getPageContent, getSectionVisibility } from "@/lib/content-service";
 
 export const metadata: Metadata = {
   title: "About Us | Blissynest",
@@ -13,29 +13,14 @@ export const metadata: Metadata = {
     "Blissynest is a gifting studio for the people who make life beautiful, with thoughtfully curated gifts for every feeling worth celebrating.",
 };
 
-const beliefs = [
-  {
-    title: "Chosen, not just collected",
-    body: "Every product has to earn its place on the shelf. If we wouldn't give it to someone we love, it doesn't make the cut.",
-  },
-  {
-    title: "The box is part of the gift",
-    body: "Ribbon, paper, a handwritten-feeling note. The unwrapping is half of the moment, so we design it that way.",
-  },
-  {
-    title: "Delivered like it matters",
-    body: "Your gift travels a long way to make someone smile. We pack it to arrive looking exactly as it left us.",
-  },
-  {
-    title: "Made right, always",
-    body: "If something isn't perfect, tell us. We'd much rather fix it quickly than have you wonder.",
-  },
-];
+type Promise_ = { title: string; body: string };
 
 export default async function AboutPage() {
-  const content = await getPageContent("about");
+  const [content, show] = await Promise.all([getPageContent("about"), getSectionVisibility("about")]);
   const hero = content.hero;
-  const paragraph1 = hero.paragraph1 as string;
+  const story = content.story;
+  const promises = content.promises;
+  const items = promises.items as Promise_[];
 
   return (
     <>
@@ -47,7 +32,7 @@ export default async function AboutPage() {
           crumbs={[{ label: "Home", href: "/" }, { label: "About Us" }]}
           eyebrow={hero.eyebrow as string}
           title={hero.heading as string}
-          intro="A gifting studio for the people who make life beautiful."
+          intro={hero.intro as string}
           image="/moment-thankyou.png"
           imageAlt="A thank-you card, a kraft-wrapped gift and a small succulent on an olive backdrop"
         />
@@ -57,15 +42,15 @@ export default async function AboutPage() {
           <div>
             <p className="eyebrow flex items-center gap-3 text-terracotta-dark">
               <span aria-hidden className="h-px w-8 bg-terracotta-dark/60" />
-              How it began
+              {story.label as string}
             </p>
             <p className="mt-6 font-serif text-2xl italic leading-snug text-olive-dark md:sticky md:top-28 md:text-[1.75rem]">
-              &ldquo;Gifting should feel like the moment it&rsquo;s marking.&rdquo;
+              &ldquo;{story.quote as string}&rdquo;
             </p>
           </div>
           <div className="space-y-6 text-[15px] leading-[1.9] text-charcoal-light md:text-[17px]">
             <p className="first-letter:float-left first-letter:mr-3 first-letter:font-serif first-letter:text-6xl first-letter:leading-[0.85] first-letter:text-terracotta">
-              {paragraph1}
+              {hero.paragraph1 as string}
             </p>
             <p>{hero.paragraph2 as string}</p>
           </div>
@@ -85,32 +70,29 @@ export default async function AboutPage() {
         </section>
 
         {/* What we hold on to */}
-        <section className="mx-auto max-w-[1200px] px-4 md:px-8 py-16 md:py-24">
-          <div className="max-w-xl">
-            <p className="eyebrow flex items-center gap-3 text-terracotta-dark">
-              <span aria-hidden className="h-px w-8 bg-terracotta-dark/60" />
-              What we hold on to
-            </p>
-            <h2 className="mt-4 font-serif text-3xl text-balance text-charcoal md:text-4xl">
-              Four small promises behind every box.
-            </h2>
-          </div>
-          <dl className="mt-10 grid gap-x-12 gap-y-10 sm:grid-cols-2">
-            {beliefs.map((b) => (
-              <div key={b.title} className="border-t border-charcoal/25 pt-5">
-                <dt className="font-serif text-xl text-charcoal">{b.title}</dt>
-                <dd className="mt-2 max-w-md text-sm leading-relaxed text-charcoal-light md:text-[15px]">{b.body}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+        {show.promises && items.length > 0 && (
+          <section className="mx-auto max-w-[1200px] px-4 md:px-8 py-16 md:py-24">
+            <div className="max-w-xl">
+              <p className="eyebrow flex items-center gap-3 text-terracotta-dark">
+                <span aria-hidden className="h-px w-8 bg-terracotta-dark/60" />
+                {promises.eyebrow as string}
+              </p>
+              <h2 className="mt-4 font-serif text-3xl text-balance text-charcoal md:text-4xl">
+                {promises.heading as string}
+              </h2>
+            </div>
+            <dl className="mt-10 grid gap-x-12 gap-y-10 sm:grid-cols-2">
+              {items.map((b) => (
+                <div key={b.title} className="border-t border-charcoal/25 pt-5">
+                  <dt className="font-serif text-xl text-charcoal">{b.title}</dt>
+                  <dd className="mt-2 max-w-md text-sm leading-relaxed text-charcoal-light md:text-[15px]">{b.body}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
-        <PageCta
-          title="Let's find the right gift."
-          body="Tell us who it's for and what you're celebrating and we'll point you to something they'll keep."
-          primary={{ label: "Start gifting", href: "/shop" }}
-          secondary={{ label: "Gifting for a team", href: "/corporate" }}
-        />
+        <ContentCta content={content.cta} visible={show.cta} />
       </main>
       <ShopFooter />
     </>

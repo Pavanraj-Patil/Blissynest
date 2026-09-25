@@ -16,8 +16,16 @@ type ContactContent = {
   contactPoints: ContactPoint[];
 };
 
-export function ContactPageClient({ content }: { content: Record<string, unknown> }) {
-  const { eyebrow, heading, subcopy, contactPoints } = content as ContactContent;
+type ContactPageContent = {
+  hero: Record<string, unknown>;
+  details: Record<string, unknown>;
+  form: Record<string, unknown>;
+};
+
+export function ContactPageClient({ content }: { content: ContactPageContent }) {
+  const { eyebrow, heading, subcopy, contactPoints } = content.hero as ContactContent;
+  const details = content.details as { eyebrow: string; heading: string; replyNote: string };
+  const form = content.form as { heading: string; subcopy: string };
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,8 +88,8 @@ export function ContactPageClient({ content }: { content: Record<string, unknown
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
-                    <h2 className="font-serif text-2xl text-charcoal md:text-3xl">Write to us</h2>
-                    <p className="mt-1.5 text-sm text-ink-muted">Tell us a little and we&rsquo;ll take it from there.</p>
+                    <h2 className="font-serif text-2xl text-charcoal md:text-3xl">{form.heading}</h2>
+                    <p className="mt-1.5 text-sm text-ink-muted">{form.subcopy}</p>
                   </div>
 
                   {error && (
@@ -129,9 +137,9 @@ export function ContactPageClient({ content }: { content: Record<string, unknown
               <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-10 h-60 w-60 rounded-full border border-cream/10" />
               <p className="eyebrow relative flex items-center gap-3 text-gold-light">
                 <span aria-hidden className="h-px w-8 bg-gold-light" />
-                Find us
+                {details.eyebrow}
               </p>
-              <h2 className="relative mt-4 font-serif text-2xl md:text-3xl">Prefer a direct line?</h2>
+              <h2 className="relative mt-4 font-serif text-2xl md:text-3xl">{details.heading}</h2>
               <ul className="relative mt-8 space-y-6">
                 {contactPoints.map((c) => {
                   const Icon = getContentIcon(c.icon);
@@ -149,7 +157,7 @@ export function ContactPageClient({ content }: { content: Record<string, unknown
                 })}
               </ul>
               <p className="relative mt-8 border-t border-cream/25 pt-5 text-sm leading-relaxed text-cream/75">
-                We usually reply within 24 hours on business days.
+                {details.replyNote}
               </p>
               <div aria-hidden className="relative mt-8 hidden min-h-[160px] flex-1 overflow-hidden rounded-t-[999px] rounded-b-2xl lg:block">
                 <Image src="/moment-thankyou.png" alt="" fill sizes="400px" className="object-cover object-bottom" />
