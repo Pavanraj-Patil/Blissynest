@@ -28,7 +28,7 @@ export default function GlobalError({
               We hit a small snag.
             </h1>
             <p className="mb-8 text-sm text-ink-muted sm:text-base">
-              The site didn&apos;t load the way it should. It isn&apos;t anything you did — please
+              The site didn&apos;t load the way it should. It isn&apos;t anything you did. Please
               try again in a moment.
             </p>
             <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">

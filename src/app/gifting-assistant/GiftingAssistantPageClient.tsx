@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { User, CalendarHeart, Gift, Tag } from "lucide-react";
 import { Header } from "@/components/layout/Header";
-import { Breadcrumb } from "@/components/shop/Breadcrumb";
+import { PageHero } from "@/components/pages/PageHero";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { type SortOption, sortLabels } from "@/components/shop/ShopToolbar";
 import { LoadMoreButton } from "@/components/shop/LoadMoreButton";
@@ -99,23 +99,14 @@ function GiftingAssistantContent({ initialProducts }: { initialProducts: ListPro
     <>
       <Header />
       <main>
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-          <Breadcrumb
-            items={[{ label: "Home", href: "/" }, { label: "Gifting Assistant" }]}
-          />
-        </div>
+        <PageHero
+          crumbs={[{ label: "Home", href: "/" }, { label: "Gifting Assistant" }]}
+          eyebrow="Gifting Assistant"
+          title="Let’s find the perfect gift"
+          intro="Tell us a little about who you’re gifting and we’ll narrow it down for you."
+        />
 
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 text-center">
-          <p className="eyebrow text-terracotta-dark mb-2">Gifting Assistant</p>
-          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">
-            Let&rsquo;s find the perfect gift
-          </h1>
-          <p className="mt-3 text-sm text-ink-muted max-w-xl mx-auto">
-            Tell us a little about who you&rsquo;re gifting and we&rsquo;ll narrow it down for you.
-          </p>
-        </div>
-
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-8 pb-4">
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-10 pb-4">
           <div className="mx-auto max-w-4xl rounded-3xl border border-charcoal/10 bg-white px-6 py-7 md:px-10 md:py-8">
             <div className="flex flex-col md:flex-row md:items-end gap-5 md:gap-4">
               {fields.map((field) => (

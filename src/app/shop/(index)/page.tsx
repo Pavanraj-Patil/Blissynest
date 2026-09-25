@@ -6,7 +6,7 @@ import { ShopPageClient } from "./ShopPageClient";
 
 export const metadata: Metadata = {
   title: "Shop All Gifts | Blissynest",
-  description: "Every gift, every occasion — beautifully curated just for you.",
+  description: "Every gift, every occasion, beautifully curated just for you.",
 };
 
 export default async function ShopPage() {

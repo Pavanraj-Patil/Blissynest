@@ -38,7 +38,7 @@ export function TestimonialCarousel({ testimonials }: { testimonials: Testimonia
         </p>
         <div className="mt-5">
           <p className="text-sm font-semibold text-charcoal">
-            — {active.name}
+            {active.name}
           </p>
           <p className="text-xs text-ink-muted mt-0.5">{active.title}</p>
           <p className="mt-2 eyebrow text-terracotta-dark">{active.company}</p>

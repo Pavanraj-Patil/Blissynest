@@ -249,7 +249,7 @@ export function OrderSummarySidebar({
               </>
             ) : (
               <p className="text-xs text-ink-muted">
-                Coupons are an account perk —{" "}
+                Coupons are an account perk.{" "}
                 <button
                   type="button"
                   onClick={onSignInClick}

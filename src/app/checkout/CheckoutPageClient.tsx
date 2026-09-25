@@ -569,7 +569,7 @@ export function CheckoutPageClient() {
                 title="Delivery Address"
                 subtitle={
                   step > 1 && selectedAddress
-                    ? `${selectedAddress.label} — ${selectedAddress.city}, ${selectedAddress.state}`
+                    ? `${selectedAddress.label}, ${selectedAddress.city}, ${selectedAddress.state}`
                     : "Where should we deliver your gifts?"
                 }
               >
@@ -645,7 +645,7 @@ export function CheckoutPageClient() {
                   {codEnabled && !codAvailableForCart && (
                     <p className="rounded-lg bg-cream-dark px-3.5 py-2.5 text-xs text-ink-muted">
                       Cash on Delivery isn&rsquo;t available for one or more items in your
-                      cart — choose another payment method, or remove that item to pay on
+                      cart. Choose another payment method, or remove that item to pay on
                       delivery.
                     </p>
                   )}
@@ -676,8 +676,8 @@ export function CheckoutPageClient() {
 
                   <p className="flex items-start gap-1.5 pt-1 text-xs text-ink-muted">
                     <Lock size={12} className="shrink-0 mt-0.5" />
-                    Card, UPI and Net Banking are processed securely by Razorpay
-                    — we never see or store your card or bank details.
+                    Card, UPI and Net Banking are processed securely by Razorpay.
+                    We never see or store your card or bank details.
                     {codAvailableForCart && " Cash on Delivery needs nothing upfront."}
                   </p>
 

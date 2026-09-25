@@ -27,7 +27,7 @@ function EmptyCart() {
         Your cart is waiting to be filled
       </h1>
       <p className="mt-2 text-sm text-ink-muted max-w-sm">
-        No gifts here yet. Go find something thoughtful — we&rsquo;ll keep it
+        No gifts here yet. Go find something thoughtful and we&rsquo;ll keep it
         safe here until you&rsquo;re ready.
       </p>
       <Link

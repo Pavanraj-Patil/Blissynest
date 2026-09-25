@@ -384,7 +384,7 @@ function fallbackFromShopProduct(product: ShopProduct): StandaloneProduct {
       { icon: "ShieldCheck", label: "Happiness Guaranteed" },
     ],
     productDetails: {
-      description: `${product.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
+      description: `${product.name}: a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
       care: genericCare.join(" · "),
     },
@@ -413,7 +413,7 @@ function fallbackFromCollectionProduct(product: CollectionProduct): StandalonePr
       { icon: "ShieldCheck", label: "Happiness Guaranteed" },
     ],
     productDetails: {
-      description: `${product.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
+      description: `${product.name}: a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
       care: genericCare.join(" · "),
     },
@@ -441,7 +441,7 @@ function fallbackFromBestseller(name: string): StandaloneProduct | null {
       { icon: "ShieldCheck", label: "Happiness Guaranteed" },
     ],
     productDetails: {
-      description: `${match.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
+      description: `${match.name}: a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
       care: genericCare.join(" · "),
     },

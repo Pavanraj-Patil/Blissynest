@@ -530,7 +530,7 @@ export const contentSchema: Record<string, PageSchema> = {
         subcopy: {
           type: "TEXT",
           label: "Subcopy",
-          default: "Thoughtfully curated gifts for your employees, clients and partners — perfect for every milestone.",
+          default: "Thoughtfully curated gifts for your employees, clients and partners, perfect for every milestone.",
         },
         primaryCta: { type: "LINK", label: "Primary Button", default: { label: "Request a Quote", href: "/corporate/quote" } },
         secondaryCta: {
@@ -622,7 +622,7 @@ export const contentSchema: Record<string, PageSchema> = {
         // index (cardBg[i] in HowItWorks.tsx has exactly 4 entries), so the
         // step count and order are structural, not freely editable.
         step1Title: { type: "TEXT", label: "Step 1 — Title", default: "Share Your Requirements" },
-        step1Description: { type: "TEXT", label: "Step 1 — Description", default: "Tell us your headcount, budget and occasion — takes two minutes." },
+        step1Description: { type: "TEXT", label: "Step 1 — Description", default: "Tell us your headcount, budget and occasion. It takes two minutes." },
         step2Title: { type: "TEXT", label: "Step 2 — Title", default: "Consultation Call" },
         step2Description: { type: "TEXT", label: "Step 2 — Description", default: "Our gifting expert walks you through curated options for your brand." },
         step3Title: { type: "TEXT", label: "Step 3 — Title", default: "Customise & Approve" },
@@ -651,12 +651,15 @@ export const contentSchema: Record<string, PageSchema> = {
             { text: "Dedicated account manager & end-to-end support" },
           ],
         },
-        image: { type: "IMAGE", label: "Image", default: "https://placehold.co/700x560/3a4529/cfb587.png?text=Your+Brand&font=playfair-display" },
+        image: { type: "IMAGE", label: "Image", default: "/corporate-need-welcome.png" },
       },
     },
     testimonials: {
       title: "Testimonials",
       hideable: true,
+      // The sample quotes below are placeholders, not real customers, so the
+      // section stays hidden until real ones are entered and it's switched on.
+      defaultVisible: false,
       fields: {
         items: {
           type: "LIST",
@@ -681,6 +684,8 @@ export const contentSchema: Record<string, PageSchema> = {
     "trusted-by": {
       title: "Trusted By Strip",
       hideable: true,
+      // Sample company names, not real clients: hidden until replaced.
+      defaultVisible: false,
       fields: {
         eyebrow: { type: "TEXT", label: "Eyebrow", default: "Trusted by teams at" },
         companies: {
@@ -792,7 +797,7 @@ export const contentSchema: Record<string, PageSchema> = {
         newsletterSubcopy: {
           type: "TEXT",
           label: "Newsletter Subcopy",
-          default: "Gift ideas, new launches and feel-good stories — straight to your inbox.",
+          default: "Gift ideas, new launches and feel-good stories, straight to your inbox.",
         },
         instagramUrl: {
           type: "TEXT",

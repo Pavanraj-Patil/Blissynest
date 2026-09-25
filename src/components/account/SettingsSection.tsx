@@ -148,7 +148,7 @@ export function SettingsSection({
             <Info size={15} className="text-terracotta shrink-0 mt-0.5" />
             <p>
               You signed in with Google, so there&rsquo;s no Blissynest
-              password to change here — manage your sign-in from your Google
+              password to change here. Manage your sign-in from your Google
               account instead.
             </p>
           </div>

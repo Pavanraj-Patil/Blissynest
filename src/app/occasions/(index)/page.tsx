@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { TopBar } from "@/components/layout/TopBar";
 import { Header } from "@/components/layout/Header";
-import { Breadcrumb } from "@/components/shop/Breadcrumb";
+import { PageHero } from "@/components/pages/PageHero";
 import { ShopGiftBanner } from "@/components/shop/ShopGiftBanner";
 import { StandardFeatureStrip } from "@/components/shop/StandardFeatureStrip";
 import { ShopFooter } from "@/components/shop/ShopFooter";
@@ -12,7 +12,7 @@ type OccasionTile = { label: string; slug: string; image: string; dark: boolean 
 
 export const metadata: Metadata = {
   title: "Occasions | Blissynest",
-  description: "From birthdays to just because — find gifts curated for every moment worth celebrating.",
+  description: "From birthdays to just because, find gifts curated for every moment worth celebrating.",
 };
 
 export default async function OccasionsPage() {
@@ -26,23 +26,18 @@ export default async function OccasionsPage() {
       <TopBar />
       <Header />
       <main>
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-          <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Occasions" }]} />
-        </div>
+        <PageHero
+          crumbs={[{ label: "Home", href: "/" }, { label: "Occasions" }]}
+          eyebrow="Made For The Moment"
+          title="Occasions"
+          intro="From birthdays to just because, find gifts curated for every moment worth celebrating."
+        />
 
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-6 pb-10 text-center">
-          <p className="eyebrow text-terracotta-dark mb-2">Made For The Moment</p>
-          <h1 className="font-serif text-3xl md:text-4xl text-charcoal">
-            Occasions
-          </h1>
-          <p className="mt-3 text-sm text-ink-muted max-w-xl mx-auto">
-            From birthdays to just because — find gifts curated for every
-            moment worth celebrating.
-          </p>
-        </div>
-
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16">
-          <div className="flex sm:grid sm:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-12 md:py-16">
+          <div
+            style={{ "--cols": Math.min(tiles.length, 7) } as React.CSSProperties}
+            className="flex sm:grid sm:grid-cols-4 lg:[grid-template-columns:repeat(var(--cols),minmax(0,1fr))] gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
+          >
             {tiles.map((occ) => (
               <OccasionCard
                 key={occ.label}

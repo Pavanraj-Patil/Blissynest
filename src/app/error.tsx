@@ -47,7 +47,7 @@ export default function Error({
           We hit a small snag.
         </h1>
         <p className="mb-8 text-sm text-ink-muted sm:text-base">
-          This page didn&apos;t load the way it should. It isn&apos;t anything you did — please try
+          This page didn&apos;t load the way it should. It isn&apos;t anything you did. Please try
           again in a moment.
         </p>
 

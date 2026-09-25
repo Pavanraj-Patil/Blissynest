@@ -35,7 +35,9 @@ export function WhyChooseUs({
 function WhyChooseUsPanel({ content }: { content: Record<string, unknown> }) {
   const heading = content.heading as string;
   const checklist = content.checklist as ChecklistItem[];
-  const image = content.image as string;
+  const uploaded = content.image as string;
+  // A stock placeholder saved earlier is treated as "no photo yet".
+  const image = !uploaded || uploaded.includes("placehold.co") ? "/corporate-need-welcome.png" : uploaded;
 
   return (
     <div className="rounded-3xl bg-olive-dark text-cream px-6 py-10 md:px-10 md:py-12">
@@ -57,7 +59,7 @@ function WhyChooseUsPanel({ content }: { content: Record<string, unknown> }) {
         <div className="relative aspect-square w-full max-w-xs mx-auto overflow-hidden rounded-2xl">
           <Image
             src={image}
-            alt="A gift box branded with a company logo"
+            alt="A corporate welcome kit with a notebook, bag and bottle"
             fill
             className="object-cover"
             sizes="320px"

@@ -31,7 +31,7 @@ export const viewport: Viewport = {
   themeColor: "#f8f3ec",
 };
 
-const siteTitle = "Blissynest — Gifts That Feel Like Home";
+const siteTitle = "Blissynest | Gifts That Feel Like Home";
 const siteDescription = "Thoughtfully curated gifts for the people who make life beautiful.";
 
 export const metadata: Metadata = {

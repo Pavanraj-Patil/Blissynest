@@ -7,7 +7,7 @@ import { PersonalisedPageClient } from "./PersonalisedPageClient";
 export const metadata: Metadata = {
   title: "Personalised Gifts | Blissynest",
   description:
-    "Thoughtful gifts made uniquely theirs — engraved, monogrammed, and made to remember.",
+    "Thoughtful gifts made uniquely theirs: engraved, monogrammed, and made to remember.",
 };
 
 export default async function PersonalisedPage() {

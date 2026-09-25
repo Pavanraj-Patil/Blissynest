@@ -34,7 +34,7 @@ export function NewsletterForm({ className }: { className?: string }) {
     return (
       <p className={`flex items-center gap-2 text-sm text-olive-dark ${className ?? ""}`}>
         <Check size={16} />
-        You&rsquo;re subscribed — thanks for joining!
+        You&rsquo;re subscribed, thanks for joining!
       </p>
     );
   }

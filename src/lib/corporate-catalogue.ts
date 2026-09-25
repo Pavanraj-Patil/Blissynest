@@ -22,13 +22,13 @@ export function generateCatalogueHtml(needSlug: string): string {
   const collectionsHtml =
     collections.length > 0
       ? collections.map((c) => `<li>${c.title}</li>`).join("\n")
-      : `<li>Every collection can be tailored for ${title.toLowerCase()} — let us know your brief and we'll curate a set for you.</li>`;
+      : `<li>Every collection can be tailored for ${title.toLowerCase()}. Let us know your brief and we'll curate a set for you.</li>`;
 
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Blissynest Corporate Catalogue — ${title}</title>
+<title>Blissynest Corporate Catalogue | ${title}</title>
 <style>
   body {
     font-family: Georgia, "Times New Roman", serif;

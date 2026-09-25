@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const existing = await db.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json(
-      { error: "An account with this email already exists — try signing in instead.", field: "email" },
+      { error: "An account with this email already exists. Try signing in instead.", field: "email" },
       { status: 409 }
     );
   }

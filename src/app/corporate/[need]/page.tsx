@@ -79,7 +79,7 @@ export default async function CorporateNeedPage({ params }: Props) {
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 pb-16 pt-8">
           {products.length === 0 ? (
             <p className="py-16 text-center text-sm text-ink-muted">
-              More {meta.title.toLowerCase()} options are on the way — reach out for a bulk
+              More {meta.title.toLowerCase()} options are on the way. Reach out for a bulk
               quote and we&apos;ll help you find the right fit today.
             </p>
           ) : (

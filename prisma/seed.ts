@@ -81,7 +81,7 @@ function fromShopProduct(p: ShopProductWithAudience) {
     stockQuantity: stockFor(p.id),
     benefits: genericBenefits,
     productDetails: {
-      description: `${p.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
+      description: `${p.name}: a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
       care: genericCare.join(" · "),
     },
@@ -110,7 +110,7 @@ function fromCollectionProduct(slug: CollectionSlug, p: CollectionProduct) {
     stockQuantity: stockFor(p.id),
     benefits: genericBenefits,
     productDetails: {
-      description: `${p.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
+      description: `${p.name}: a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
       care: genericCare.join(" · "),
     },
@@ -136,7 +136,7 @@ function fromBestseller(b: (typeof bestsellers)[number]) {
     stockQuantity: stockFor(slugify(b.name)),
     benefits: genericBenefits,
     productDetails: {
-      description: `${b.name} — a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
+      description: `${b.name}: a thoughtfully chosen gift, beautifully packaged and ready to make someone's day.`,
       delivery: "Ships within 24-48 hours, delivered in gift-ready packaging across India.",
       care: genericCare.join(" · "),
     },

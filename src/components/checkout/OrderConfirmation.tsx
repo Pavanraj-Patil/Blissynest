@@ -24,7 +24,7 @@ export function OrderConfirmation({ orderNumber, total, addressSummary }: OrderC
         Order placed successfully!
       </h1>
       <p className="mt-2 text-sm text-ink-muted">
-        Thank you for gifting with Blissynest — we&rsquo;re already getting
+        Thank you for gifting with Blissynest. We&rsquo;re already getting
         things ready.
       </p>
 

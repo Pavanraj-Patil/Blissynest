@@ -78,12 +78,12 @@ export function orderConfirmationEmail(order: OrderEmailData) {
   const site = getSiteUrl();
   const payLine =
     order.paymentMethod === "COD"
-      ? "Payment: Cash on Delivery — please keep the amount ready."
+      ? "Payment: Cash on Delivery. Please keep the amount ready."
       : order.paymentStatus === "PAID"
-        ? "Payment: received — thank you."
+        ? "Payment: received. Thank you."
         : "Payment: pending.";
   const html = wrapEmail({
-    heading: "Thank you — your order is placed",
+    heading: "Thank you, your order is placed",
     preheader: `Order ${order.orderNumber} is confirmed.`,
     bodyHtml:
       p(`Hi ${escapeHtml(order.buyerName)}, we&rsquo;re already getting your gifts ready.`) +
@@ -94,7 +94,7 @@ export function orderConfirmationEmail(order: OrderEmailData) {
       `<div style="margin:20px 0 4px;text-align:center;">${button("Track your order", `${site}/track-order`)}</div>` +
       p(`<span style="color:${COLORS.muted};font-size:12px;">You can track it any time with your order number and this email address.</span>`),
   });
-  const text = `Thank you — your order is placed\n\nHi ${order.buyerName}, order ${order.orderNumber} is confirmed.\n\n${itemsText(order)}\n\nSubtotal ${formatRupees(order.subtotal)}${order.discount > 0 ? `\nDiscount -${formatRupees(order.discount)}` : ""}\nShipping ${order.shippingCost === 0 ? "Free" : formatRupees(order.shippingCost)}\nTotal ${formatRupees(order.total)}\n\nDelivering to: ${order.address}\n${payLine}\n\nTrack your order: ${site}/track-order`;
+  const text = `Thank you, your order is placed\n\nHi ${order.buyerName}, order ${order.orderNumber} is confirmed.\n\n${itemsText(order)}\n\nSubtotal ${formatRupees(order.subtotal)}${order.discount > 0 ? `\nDiscount -${formatRupees(order.discount)}` : ""}\nShipping ${order.shippingCost === 0 ? "Free" : formatRupees(order.shippingCost)}\nTotal ${formatRupees(order.total)}\n\nDelivering to: ${order.address}\n${payLine}\n\nTrack your order: ${site}/track-order`;
   return { subject: `Your Blissynest order ${order.orderNumber} is confirmed`, html, text };
 }
 
@@ -104,7 +104,7 @@ export function orderStatusEmail(order: OrderEmailData, status: "SHIPPED" | "DEL
     SHIPPED: {
       subject: `Your Blissynest order ${order.orderNumber} has shipped`,
       heading: "Your order is on its way",
-      line: "Good news — your order has been handed to the courier.",
+      line: "Good news: your order has been handed to the courier.",
     },
     DELIVERED: {
       subject: `Your Blissynest order ${order.orderNumber} was delivered`,
@@ -119,7 +119,7 @@ export function orderStatusEmail(order: OrderEmailData, status: "SHIPPED" | "DEL
   }[status];
   const tracking =
     status === "SHIPPED" && (order.trackingNumber || order.carrierName)
-      ? p(`<strong>Tracking:</strong> ${escapeHtml([order.carrierName, order.trackingNumber].filter(Boolean).join(" — "))}`)
+      ? p(`<strong>Tracking:</strong> ${escapeHtml([order.carrierName, order.trackingNumber].filter(Boolean).join(", "))}`)
       : "";
   const html = wrapEmail({
     heading: copy.heading,
@@ -133,7 +133,7 @@ export function orderStatusEmail(order: OrderEmailData, status: "SHIPPED" | "DEL
   });
   const text = `${copy.heading}\n\nHi ${order.buyerName},\n${copy.line}\nOrder number: ${order.orderNumber}${
     status === "SHIPPED" && (order.trackingNumber || order.carrierName)
-      ? `\nTracking: ${[order.carrierName, order.trackingNumber].filter(Boolean).join(" — ")}`
+      ? `\nTracking: ${[order.carrierName, order.trackingNumber].filter(Boolean).join(", ")}`
       : ""
   }\n\nOrder status: ${site}/track-order`;
   return { subject: copy.subject, html, text };
@@ -148,9 +148,9 @@ export function passwordResetEmail(name: string | null, resetUrl: string) {
       p("We received a request to reset the password for your Blissynest account. This link works for 1 hour.") +
       `<div style="margin:20px 0;text-align:center;">${button("Choose a new password", resetUrl)}</div>` +
       p(`<span style="color:${COLORS.muted};font-size:12px;">If the button doesn&rsquo;t work, copy this address into your browser:<br>${escapeHtml(resetUrl)}</span>`) +
-      p("If you didn&rsquo;t ask for this, you can safely ignore this email — your password won&rsquo;t change."),
+      p("If you didn&rsquo;t ask for this, you can safely ignore this email. Your password won&rsquo;t change."),
   });
-  const text = `Reset your password\n\nHi ${name || "there"},\n\nWe received a request to reset your Blissynest password. Use this link within 1 hour:\n${resetUrl}\n\nIf you didn't ask for this, ignore this email — your password won't change.`;
+  const text = `Reset your password\n\nHi ${name || "there"},\n\nWe received a request to reset your Blissynest password. Use this link within 1 hour:\n${resetUrl}\n\nIf you didn't ask for this, ignore this email. Your password won't change.`;
   return { subject: "Reset your Blissynest password", html, text };
 }
 

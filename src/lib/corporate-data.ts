@@ -83,7 +83,7 @@ export const processSteps: ProcessStep[] = [
     number: "01",
     icon: MessageSquare,
     title: "Share Your Requirements",
-    description: "Tell us your headcount, budget and occasion — takes two minutes.",
+    description: "Tell us your headcount, budget and occasion. It takes two minutes.",
   },
   {
     number: "02",

@@ -13,7 +13,10 @@ export async function WhoAreYouGifting() {
   return (
     <section className="mx-auto max-w-[1440px] px-4 md:px-8 pt-2 md:pt-3 pb-4 md:pb-6">
       <SectionHeader title={sectionTitle} linkHref="/shop" />
-      <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div
+        style={{ "--cols": Math.min(tiles.length, 6) } as React.CSSProperties}
+        className="flex sm:grid sm:grid-cols-3 lg:[grid-template-columns:repeat(var(--cols),minmax(0,1fr))] gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
+      >
         {tiles.map((tile) => (
           <CategoryCard
             key={tile.label}

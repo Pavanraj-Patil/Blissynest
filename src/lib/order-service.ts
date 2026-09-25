@@ -496,7 +496,7 @@ export async function createOrder(source: CartSource, input: CreateOrderInput): 
     const settings = await getSiteSettings();
     if (!settings.codEnabled) {
       return {
-        error: "Cash on Delivery isn't available right now — please choose another payment method.",
+        error: "Cash on Delivery isn't available right now. Please choose another payment method.",
         status: 400,
       };
     }
@@ -509,7 +509,7 @@ export async function createOrder(source: CartSource, input: CreateOrderInput): 
     const ineligible = pricing.items.find((item) => !item.codAvailable);
     if (ineligible) {
       return {
-        error: `"${ineligible.name}" isn't eligible for Cash on Delivery — please choose another payment method or remove it from your cart.`,
+        error: `"${ineligible.name}" isn't eligible for Cash on Delivery. Please choose another payment method or remove it from your cart.`,
         status: 400,
       };
     }
@@ -533,7 +533,7 @@ export async function createRazorpayCheckoutSession(
 ): Promise<RazorpaySessionResult> {
   if (!isRazorpayConfigured()) {
     return {
-      error: "Online payments aren't set up yet — please choose Cash on Delivery.",
+      error: "Online payments aren't set up yet. Please choose Cash on Delivery.",
       status: 503,
     };
   }
@@ -599,7 +599,7 @@ export async function verifyAndCreateOrder(
   const rzpOrder = await getRazorpayOrder(razorpay.orderId);
   if (rzpOrder.amount !== pricing.total) {
     return {
-      error: "Your order changed since payment was started — please contact support before retrying.",
+      error: "Your order changed since payment was started. Please contact support before retrying.",
       status: 409,
     };
   }

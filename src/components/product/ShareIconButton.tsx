@@ -67,7 +67,7 @@ export function ShareIconButton({ productName }: { productName: string }) {
   // instagram.com to paste it themselves.
   async function handleInstagramShare() {
     if (await copyLinkToClipboard()) {
-      showCopyMessage("Link copied — paste it into your Story or DM");
+      showCopyMessage("Link copied. Paste it into your Story or DM");
     }
     window.open("https://www.instagram.com/", "_blank");
   }

@@ -49,7 +49,7 @@ function productDescription(product: { name: string; tagline: string | null; pro
   const details = product.productDetails as { description?: string } | null;
   const text = details?.description?.replace(/\s+/g, " ").trim();
   if (text) return text.length > 155 ? `${text.slice(0, 152).trimEnd()}…` : text;
-  return `${product.name} — thoughtfully curated gifts from Blissynest.`;
+  return `${product.name}: thoughtfully curated gifts from Blissynest.`;
 }
 
 function firstImage(images: unknown): string | null {

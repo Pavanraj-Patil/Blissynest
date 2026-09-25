@@ -16,7 +16,7 @@ export async function Hero() {
       {/* The hero is deliberately image + CTAs only, no visible headline —
           but the page still needs one real h1 for screen readers and SEO,
           so it's here without changing the visual design. */}
-      <h1 className="sr-only">Blissynest — Gifts That Feel Like Home</h1>
+      <h1 className="sr-only">Blissynest | Gifts That Feel Like Home</h1>
       <Image
         src={heroImageMobile}
         alt="An open Blissynest gift box with a candle, mug, card, and blanket, surrounded by dried flowers"

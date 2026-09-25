@@ -72,7 +72,7 @@ export function getClientIp(request: Request): string {
 
 export function tooManyRequestsResponse(retryAfterSeconds: number) {
   return NextResponse.json(
-    { error: "Too many requests — please try again shortly." },
+    { error: "Too many requests. Please try again shortly." },
     { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
   );
 }

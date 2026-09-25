@@ -14,7 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
-import { Breadcrumb } from "@/components/shop/Breadcrumb";
+import { PageHero } from "@/components/pages/PageHero";
 import { ShopFooter } from "@/components/shop/ShopFooter";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { corporateNeeds } from "@/lib/corporate-data";
@@ -89,27 +89,24 @@ function QuoteForm({ email, phone }: { email: string; phone: string }) {
     <>
       <Header />
       <main>
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 pt-5">
-          <Breadcrumb
-            items={[
-              { label: "Home", href: "/" },
-              { label: "Corporate Gifting", href: "/corporate" },
-              { label: pageTitle },
-            ]}
-          />
-        </div>
+        <PageHero
+          crumbs={[
+            { label: "Home", href: "/" },
+            { label: "Corporate Gifting", href: "/corporate" },
+            { label: pageTitle },
+          ]}
+          eyebrow="Corporate Gifting"
+          title={pageTitle}
+          intro={
+            isConsultation
+              ? "Tell us a bit about your team and we'll set up a call with a gifting expert."
+              : "Share your requirements and we'll put together a curated proposal for your business."
+          }
+          image="/corporate-need-client.png"
+          imageAlt="A corporate gift set with a card and ribbon"
+        />
 
-        <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-8 md:py-12">
-          <div className="text-center max-w-xl mx-auto mb-10">
-            <h1 className="font-serif text-3xl md:text-4xl text-charcoal">
-              {pageTitle}
-            </h1>
-            <p className="mt-3 text-sm text-ink-muted leading-relaxed">
-              {isConsultation
-                ? "Tell us a bit about your team and we'll set up a call with a gifting expert."
-                : "Share your requirements and we'll put together a curated proposal for your business."}
-            </p>
-          </div>
+        <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-10 md:py-14">
 
           <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-10 max-w-4xl mx-auto">
             <div className="rounded-3xl border border-charcoal/10 bg-white p-6 md:p-8">
@@ -117,7 +114,7 @@ function QuoteForm({ email, phone }: { email: string; phone: string }) {
                 <div className="flex flex-col items-center text-center py-10">
                   <CheckCircle2 size={40} className="text-olive" strokeWidth={1.5} />
                   <h2 className="mt-4 font-serif text-xl text-charcoal">
-                    Thank you — we&rsquo;ve got it!
+                    Thank you, we&rsquo;ve got it!
                   </h2>
                   <p className="mt-2 text-sm text-ink-muted max-w-xs">
                     {downloaded

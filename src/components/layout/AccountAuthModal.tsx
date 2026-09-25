@@ -131,7 +131,7 @@ export function AccountAuthModal({
     const result = await signIn("password", { email, password, redirect: false });
     setSubmitting(false);
     if (result?.error) {
-      setError("Account created — please sign in.");
+      setError("Account created. Please sign in.");
       setMode("login");
       return;
     }

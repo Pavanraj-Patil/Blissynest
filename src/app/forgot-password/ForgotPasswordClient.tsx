@@ -77,7 +77,7 @@ export function ForgotPasswordClient() {
                 </button>
               </form>
               <p className="mt-5 text-center text-xs text-ink-muted">
-                Signed up with Google? There&rsquo;s no password to reset — just use &ldquo;Continue with Google&rdquo;.
+                Signed up with Google? There&rsquo;s no password to reset. Just use &ldquo;Continue with Google&rdquo;.
               </p>
             </>
           )}
