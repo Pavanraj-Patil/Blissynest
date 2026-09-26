@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOutToHome } from "@/lib/sign-out";
 import { LogOut } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Breadcrumb } from "@/components/shop/Breadcrumb";
@@ -144,7 +144,7 @@ function AccountDashboard({
         title="Sign out?"
         description="You'll need to sign in again to access your account."
         confirmLabel="Sign Out"
-        onConfirm={() => signOut({ callbackUrl: "/" })}
+        onConfirm={signOutToHome}
         onCancel={() => setSignOutConfirmOpen(false)}
       />
     </>

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { signOutToHome } from "@/lib/sign-out";
 import { User, LogOut, LayoutDashboard } from "lucide-react";
 import { AccountAuthModal } from "./AccountAuthModal";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
@@ -69,7 +70,7 @@ export function AccountMenu() {
           title="Sign out?"
           description="You'll need to sign in again to access your account."
           confirmLabel="Sign Out"
-          onConfirm={() => signOut({ callbackUrl: "/" })}
+          onConfirm={signOutToHome}
           onCancel={() => setSignOutConfirmOpen(false)}
         />
       </div>

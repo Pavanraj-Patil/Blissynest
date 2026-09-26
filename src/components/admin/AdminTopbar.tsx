@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOutToHome } from "@/lib/sign-out";
 import { Menu, Search, ChevronDown, LogOut, User as UserIcon } from "lucide-react";
 import { ConfirmDialog } from "./ConfirmDialog";
 
@@ -121,7 +121,7 @@ export function AdminTopbar({
         title="Sign out?"
         description="You'll need to sign in again to access the admin dashboard."
         confirmLabel="Sign Out"
-        onConfirm={() => signOut({ callbackUrl: "/" })}
+        onConfirm={signOutToHome}
         onCancel={() => setSignOutConfirmOpen(false)}
       />
     </header>
