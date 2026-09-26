@@ -1005,6 +1005,78 @@ Object.assign(contentSchema, {
   },
 });
 
+// Wording of the emails the site sends. {name} and {orderNumber} are filled
+// in per email. The layout itself lives in src/lib/email-templates.ts.
+function emailSection(title: string, fields: Record<string, [string, string]>): SectionSchema {
+  return {
+    title,
+    fields: Object.fromEntries(
+      Object.entries(fields).map(([key, [label, value]]) => [key, textField(label, value)])
+    ),
+  };
+}
+
+contentSchema.emails = {
+  general: emailSection("All Emails (shared)", {
+    signOff: ["Sign off", "With love,"],
+    signOffName: ["Sign off name", "The Blissynest team"],
+    helpTitle: ["Help box title", "Need a hand?"],
+    helpText: ["Help box text", "Just reply to this email and a real person will help you, usually within a day."],
+    footerNote: ["Small print", "You are receiving this email because of activity on your Blissynest account or order."],
+  }),
+  "order-confirmation": emailSection("Order Confirmation", {
+    subject: ["Subject line", "Your Blissynest order {orderNumber} is confirmed"],
+    eyebrow: ["Small label", "Order confirmed"],
+    heading: ["Heading", "Thank you, {name}"],
+    intro: ["Intro", "We're already getting your gifts ready. Here is a summary of your order."],
+    stepsTitle: ["Next steps title", "What happens next"],
+    step1: ["Step 1", "We pack your gifts with care."],
+    step2: ["Step 2", "We ship them and email you the tracking details."],
+    step3: ["Step 3", "They arrive in 5 to 7 business days."],
+    codNote: ["Cash on delivery note", "Payment: Cash on Delivery. Please keep the amount ready."],
+    paidNote: ["Paid online note", "Payment: received. Thank you."],
+    pendingNote: ["Payment pending note", "Payment: pending."],
+    button: ["Button label", "Track your order"],
+  }),
+  "order-shipped": emailSection("Order Shipped", {
+    subject: ["Subject line", "Your Blissynest order {orderNumber} has shipped"],
+    eyebrow: ["Small label", "On its way"],
+    heading: ["Heading", "Your order is on its way"],
+    intro: ["Intro", "Good news: your order has been handed to the courier."],
+    button: ["Button label", "Track your order"],
+  }),
+  "order-delivered": emailSection("Order Delivered", {
+    subject: ["Subject line", "Your Blissynest order {orderNumber} was delivered"],
+    eyebrow: ["Small label", "Delivered"],
+    heading: ["Heading", "Your order has been delivered"],
+    intro: ["Intro", "We hope it makes someone smile. If anything isn't right, just reply to this email and we'll sort it out."],
+    button: ["Button label", "View your order"],
+  }),
+  "order-cancelled": emailSection("Order Cancelled", {
+    subject: ["Subject line", "Your Blissynest order {orderNumber} was cancelled"],
+    eyebrow: ["Small label", "Order cancelled"],
+    heading: ["Heading", "Your order was cancelled"],
+    intro: ["Intro", "Your order has been cancelled. If you paid online, the refund goes back to your original payment method within 5 to 7 business days. Questions? Just reply to this email."],
+    button: ["Button label", "View order status"],
+  }),
+  "password-reset": emailSection("Password Reset", {
+    subject: ["Subject line", "Reset your Blissynest password"],
+    eyebrow: ["Small label", "Account security"],
+    heading: ["Heading", "Reset your password"],
+    intro: ["Intro", "We received a request to reset the password for your Blissynest account. This link works for 1 hour."],
+    button: ["Button label", "Choose a new password"],
+    ignoreNote: ["If it wasn't them", "If you didn't ask for this, you can safely ignore this email. Your password won't change."],
+  }),
+  "password-changed": emailSection("Password Changed", {
+    subject: ["Subject line", "Your Blissynest password was changed"],
+    eyebrow: ["Small label", "Account security"],
+    heading: ["Heading", "Your password was changed"],
+    intro: ["Intro", "The password on your Blissynest account was just changed."],
+    warnNote: ["If it wasn't them", "If this was you, there is nothing more to do. If it wasn't, please reset your password straight away and contact us."],
+    button: ["Button label", "Reset my password"],
+  }),
+};
+
 // The gift banner shown at the bottom of shop-style pages.
 Object.assign(contentSchema.layout["shop-gift-banner"].fields, {
   heading: textField("Heading", "Not sure what to gift?"),

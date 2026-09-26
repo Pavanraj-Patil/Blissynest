@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { getEmailContext } from "@/lib/email-context";
 import { passwordResetEmail } from "@/lib/email-templates";
 import { getSiteUrl } from "@/lib/site-url";
 import { hashResetToken, RESET_TOKEN_LIFETIME_MS } from "@/lib/password-reset";
@@ -42,7 +43,9 @@ export async function POST(request: Request) {
       data: { userId: user.id, tokenHash: hashResetToken(token), expiresAt: new Date(Date.now() + RESET_TOKEN_LIFETIME_MS) },
     });
     const resetUrl = `${getSiteUrl()}/reset-password?token=${token}`;
-    void sendEmail({ to: email, ...passwordResetEmail(user.name, resetUrl) });
+    void getEmailContext().then((ctx) =>
+      sendEmail({ to: email, ...passwordResetEmail(user.name, resetUrl, ctx) })
+    ).catch((err) => console.error("[email] password reset failed", err));
   }
 
   return NextResponse.json({ success: true });

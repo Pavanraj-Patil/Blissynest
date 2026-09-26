@@ -13,6 +13,7 @@ import {
   Settings,
   FileText,
   BookOpen,
+  MailOpen,
   ShieldCheck,
 } from "lucide-react";
 import type { AdminPermission } from "@/lib/admin/permissions";
@@ -61,6 +62,7 @@ export const adminNavSections: AdminNavSection[] = [
       { label: "Banners", href: "/admin/banners", icon: ImageIcon, permission: "banners" },
       { label: "Site Content", href: "/admin/content", icon: FileText, permission: "content" },
       { label: "Journal", href: "/admin/journal", icon: BookOpen, permission: "content" },
+      { label: "Emails", href: "/admin/emails", icon: MailOpen, permission: "content" },
     ],
   },
   {

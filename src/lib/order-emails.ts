@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { getBusinessDetails } from "@/lib/content-service";
+import { getEmailContext } from "@/lib/email-context";
 import {
   orderConfirmationEmail,
   orderStatusEmail,
@@ -40,6 +41,7 @@ async function loadOrderForEmail(orderId: string): Promise<(OrderEmailData & { b
     paymentMethod: order.paymentMethod,
     paymentStatus: order.paymentStatus,
     address: formatAddress(order.shippingAddress),
+    giftNote: order.isGift ? order.giftNote : null,
     trackingNumber: order.trackingNumber,
     carrierName: order.carrierName,
   };
@@ -60,7 +62,8 @@ export async function emailOrderConfirmation(orderId: string): Promise<void> {
   try {
     const order = await loadOrderForEmail(orderId);
     if (!order) return;
-    await sendEmail({ to: order.buyerEmail, ...orderConfirmationEmail(order) });
+    const ctx = await getEmailContext();
+    await sendEmail({ to: order.buyerEmail, ...orderConfirmationEmail(order, ctx) });
 
     const team = await getTeamEmail();
     if (team) {
@@ -75,7 +78,7 @@ export async function emailOrderConfirmation(orderId: string): Promise<void> {
             ["Payment", `${order.paymentMethod} (${order.paymentStatus})`],
             ["Deliver to", order.address],
           ],
-        }),
+        }, ctx),
       });
     }
   } catch (err) {
@@ -90,7 +93,7 @@ export async function emailOrderStatus(orderId: string, status: "SHIPPED" | "DEL
     // Signed-in customers can switch "Order updates" off in Account → Settings.
     const record = await db.order.findUnique({ where: { id: orderId }, select: { user: { select: { notifyOrders: true } } } });
     if (record?.user && record.user.notifyOrders === false) return;
-    await sendEmail({ to: order.buyerEmail, ...orderStatusEmail(order, status) });
+    await sendEmail({ to: order.buyerEmail, ...orderStatusEmail(order, status, await getEmailContext()) });
   } catch (err) {
     console.error("[email] order status email failed", err);
   }
@@ -100,7 +103,7 @@ export async function emailTeam(title: string, fields: [string, string][], reply
   try {
     const team = await getTeamEmail();
     if (!team) return;
-    await sendEmail({ to: team, replyTo, ...teamNotificationEmail({ title, fields }) });
+    await sendEmail({ to: team, replyTo, ...teamNotificationEmail({ title, fields }, await getEmailContext()) });
   } catch (err) {
     console.error("[email] team notification failed", err);
   }

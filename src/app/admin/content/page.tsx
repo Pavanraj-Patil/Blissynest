@@ -19,6 +19,7 @@ const pageLabels: Record<string, string> = {
   occasions: "Occasions Page",
   "gifting-assistant": "Gifting Assistant Page",
   "corporate-quote": "Request a Quote Page",
+  emails: "Emails",
   corporate: "Corporate Gifting",
   legal: "Legal & Business",
   layout: "Site-Wide",

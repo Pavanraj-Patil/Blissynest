@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
 import { passwordField } from "@/lib/validations/auth";
 import { sendEmail } from "@/lib/email";
+import { getEmailContext } from "@/lib/email-context";
 import { passwordChangedEmail } from "@/lib/email-templates";
 import { checkRateLimit, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 import { hashResetToken } from "@/lib/password-reset";
@@ -50,7 +51,9 @@ export async function POST(request: Request) {
     db.passwordResetToken.deleteMany({ where: { userId: record.user.id } }),
   ]);
 
-  void sendEmail({ to: record.user.email, ...passwordChangedEmail(record.user.name) });
+  void getEmailContext().then((ctx) =>
+    sendEmail({ to: record.user.email, ...passwordChangedEmail(record.user.name, ctx) })
+  ).catch((err) => console.error("[email] password changed failed", err));
 
   return NextResponse.json({ success: true });
 }
