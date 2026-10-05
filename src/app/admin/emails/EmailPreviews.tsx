@@ -23,18 +23,23 @@ export function EmailPreviews({
   async function sendTest() {
     setSending(true);
     setMessage(null);
-    const res = await fetch("/api/admin/emails/test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: active }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setSending(false);
-    setMessage(
-      res.ok
-        ? { ok: true, text: `Test sent to ${data.to}. Check your inbox and spam folder.` }
-        : { ok: false, text: data.error ?? "Could not send the test." }
-    );
+    try {
+      const res = await fetch("/api/admin/emails/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: active }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setMessage(
+        res.ok
+          ? { ok: true, text: `Test sent to ${data.to}. Check your inbox and spam folder.` }
+          : { ok: false, text: data.error ?? "Could not send the test." }
+      );
+    } catch {
+      setMessage({ ok: false, text: "Something went wrong. Please try again." });
+    } finally {
+      setSending(false);
+    }
   }
 
   return (

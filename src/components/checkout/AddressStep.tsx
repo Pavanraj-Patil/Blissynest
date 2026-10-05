@@ -26,23 +26,30 @@ function AddressForm({
   onCancel,
 }: {
   initial: AddressFormValues;
-  onSave: (values: AddressFormValues) => void;
+  onSave: (values: AddressFormValues) => Promise<{ ok: boolean; error?: string }>;
   onCancel: () => void;
 }) {
   const [values, setValues] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function set<K extends keyof AddressFormValues>(key: K, value: AddressFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    const result = await onSave(values);
+    setSaving(false);
+    // On success the parent switches away from this form entirely, so
+    // there's nothing left here to update.
+    if (!result.ok) setError(result.error ?? "Something went wrong. Please try again.");
+  }
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSave(values);
-      }}
-      className="rounded-2xl border border-charcoal/10 p-5 space-y-4"
-    >
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-charcoal/10 p-5 space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label className="block">
           <span className="text-xs font-medium text-charcoal">
@@ -130,17 +137,21 @@ function AddressForm({
         />
       </label>
 
+      {error && <p className="text-sm text-terracotta-dark">{error}</p>}
+
       <div className="flex gap-3 pt-1">
         <button
           type="submit"
-          className="rounded-xl bg-olive text-cream px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
+          disabled={saving}
+          className="rounded-xl bg-olive text-cream px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
         >
-          Save Address
+          {saving ? "Saving…" : "Save Address"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl border border-charcoal/20 px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase text-charcoal hover:bg-cream-dark transition-colors"
+          disabled={saving}
+          className="rounded-xl border border-charcoal/20 px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase text-charcoal hover:bg-cream-dark transition-colors disabled:opacity-60"
         >
           Cancel
         </button>
@@ -153,8 +164,8 @@ type AddressStepProps = {
   addresses: Address[];
   selectedId: string | null;
   onSelect: (id: string) => void;
-  onAdd: (values: AddressFormValues) => void;
-  onEdit: (id: string, values: AddressFormValues) => void;
+  onAdd: (values: AddressFormValues) => Promise<{ ok: boolean; error?: string }>;
+  onEdit: (id: string, values: AddressFormValues) => Promise<{ ok: boolean; error?: string }>;
   onDelete: (id: string) => void;
   isGift: boolean;
   onToggleGift: (v: boolean) => void;
@@ -353,9 +364,10 @@ export function AddressStep({
       {mode === "add" && (
         <AddressForm
           initial={defaultPhone ? { ...emptyForm, phone: defaultPhone } : emptyForm}
-          onSave={(values) => {
-            onAdd(values);
-            setMode("list");
+          onSave={async (values) => {
+            const result = await onAdd(values);
+            if (result.ok) setMode("list");
+            return result;
           }}
           onCancel={() => setMode("list")}
         />
@@ -364,10 +376,13 @@ export function AddressStep({
       {mode === "edit" && editingAddress && (
         <AddressForm
           initial={editingAddress}
-          onSave={(values) => {
-            onEdit(editingAddress.id, values);
-            setMode("list");
-            setEditingId(null);
+          onSave={async (values) => {
+            const result = await onEdit(editingAddress.id, values);
+            if (result.ok) {
+              setMode("list");
+              setEditingId(null);
+            }
+            return result;
           }}
           onCancel={() => {
             setMode("list");

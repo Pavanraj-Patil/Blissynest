@@ -51,26 +51,31 @@ export function AdminAccessDialog(props: AdminAccessDialogProps) {
     setSubmitting(true);
     setError(null);
 
-    const res =
-      mode === "create"
-        ? await fetch("/api/admin/admins", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, role, adminPermissions: permissions }),
-          })
-        : await fetch(`/api/admin/users/${props.userId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ role, adminPermissions: permissions }),
-          });
+    try {
+      const res =
+        mode === "create"
+          ? await fetch("/api/admin/admins", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, role, adminPermissions: permissions }),
+            })
+          : await fetch(`/api/admin/users/${props.userId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ role, adminPermissions: permissions }),
+            });
 
-    const data = await res.json().catch(() => null);
-    setSubmitting(false);
-    if (!res.ok) {
-      setError(data?.error ?? "Something went wrong.");
-      return;
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(data?.error ?? "Something went wrong.");
+        return;
+      }
+      onSaved();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    onSaved();
   }
 
   return createPortal(

@@ -35,6 +35,11 @@ export function SearchOverlay({
   // showed the "No results" empty state for every query in that window —
   // real matches would still be one API round-trip away.
   const [searchedQuery, setSearchedQuery] = useState("");
+  // Set on a genuine failure (not an abort from the next keystroke) so the
+  // empty state can say the search itself didn't work, rather than quietly
+  // claiming "no results" — and so `isSearching` below still resolves to
+  // false instead of showing the spinner forever.
+  const [searchFailed, setSearchFailed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -43,14 +48,23 @@ export function SearchOverlay({
     const controller = new AbortController();
     const id = setTimeout(() => {
       fetch(`/api/search?q=${encodeURIComponent(q)}&limit=6`, { signal: controller.signal })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error("Search request failed");
+          return res.json();
+        })
         .then((data: { items: RelatedProduct[]; total: number }) => {
+          setSearchFailed(false);
           setResults(data.items);
           setTotal(data.total);
           setSearchedQuery(q);
         })
         .catch((err) => {
-          if (err.name !== "AbortError") console.error(err);
+          if (err.name === "AbortError") return;
+          console.error(err);
+          setSearchFailed(true);
+          setResults([]);
+          setTotal(0);
+          setSearchedQuery(q);
         });
     }, 200);
     return () => {
@@ -184,10 +198,12 @@ export function SearchOverlay({
               <div className="flex flex-col items-center text-center px-6 py-14">
                 <SearchX size={32} className="text-charcoal/20" strokeWidth={1.5} />
                 <p className="mt-3 text-sm text-charcoal">
-                  No results for &ldquo;{query}&rdquo;
+                  {searchFailed ? "Search isn't working right now" : `No results for “${query}”`}
                 </p>
                 <p className="mt-1 text-xs text-ink-muted">
-                  Try a different search, or browse our shop instead.
+                  {searchFailed
+                    ? "Please try again in a moment, or browse our shop instead."
+                    : "Try a different search, or browse our shop instead."}
                 </p>
                 <Link
                   href="/shop"

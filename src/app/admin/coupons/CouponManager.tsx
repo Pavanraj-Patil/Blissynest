@@ -203,56 +203,78 @@ export function CouponManager({ initial }: { initial: Coupon[] }) {
   async function handleAdd(values: CouponFormValues) {
     setSubmitting(true);
     setError(null);
-    const res = await fetch("/api/admin/coupons", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, usageLimit: values.usageLimit === "" ? undefined : values.usageLimit }),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't save that coupon.");
-      return;
+    try {
+      const res = await fetch("/api/admin/coupons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, usageLimit: values.usageLimit === "" ? undefined : values.usageLimit }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't save that coupon.");
+        return;
+      }
+      setCoupons((prev) => [data.coupon, ...prev]);
+      setMode("list");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    setCoupons((prev) => [data.coupon, ...prev]);
-    setMode("list");
   }
 
   async function handleEdit(id: string, values: CouponFormValues) {
     setSubmitting(true);
     setError(null);
-    const res = await fetch(`/api/admin/coupons/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...values, usageLimit: values.usageLimit === "" ? undefined : values.usageLimit }),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't update that coupon.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/coupons/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, usageLimit: values.usageLimit === "" ? undefined : values.usageLimit }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't update that coupon.");
+        return;
+      }
+      setCoupons((prev) => prev.map((c) => (c.id === id ? data.coupon : c)));
+      setMode("list");
+      setEditingId(null);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    setCoupons((prev) => prev.map((c) => (c.id === id ? data.coupon : c)));
-    setMode("list");
-    setEditingId(null);
   }
 
   async function handleDelete(id: string) {
     if (deleting) return;
     setDeleting(true);
-    await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
-    setCoupons((prev) => prev.filter((c) => c.id !== id));
-    setDeleting(false);
-    setDeletingId(null);
+    try {
+      const res = await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
+      if (!res.ok) return; // leave the confirm dialog open so they can retry
+      setCoupons((prev) => prev.filter((c) => c.id !== id));
+      setDeletingId(null);
+    } catch {
+      // leave it in the list; nothing else to recover here
+    } finally {
+      setDeleting(false);
+    }
   }
 
   async function handleToggleActive(id: string, active: boolean) {
+    const previous = coupons;
     setCoupons((prev) => prev.map((c) => (c.id === id ? { ...c, active } : c)));
-    await fetch(`/api/admin/coupons/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ active }),
-    });
+    try {
+      const res = await fetch(`/api/admin/coupons/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active }),
+      });
+      if (!res.ok) setCoupons(previous);
+    } catch {
+      setCoupons(previous);
+    }
   }
 
   if (mode === "add") {

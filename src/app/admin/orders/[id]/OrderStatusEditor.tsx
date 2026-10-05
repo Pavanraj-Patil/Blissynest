@@ -38,20 +38,25 @@ export function OrderStatusEditor({
     setSaving(true);
     setError(null);
     setSaved(false);
-    const res = await fetch(`/api/admin/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status, paymentStatus, trackingNumber, carrierName }),
-    });
-    const data = await res.json();
-    setSaving(false);
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't save changes.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status, paymentStatus, trackingNumber, carrierName }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't save changes.");
+        return;
+      }
+      setSaved(true);
+      router.refresh();
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setSaved(true);
-    router.refresh();
-    setTimeout(() => setSaved(false), 2000);
   }
 
   return (

@@ -33,16 +33,21 @@ export function ProductBulkActions({
 
   async function run(action: Action) {
     setSubmitting(true);
-    const res = await fetch("/api/admin/products/bulk", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, ...filters }),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    setPending(null);
-    setMessage(res.ok ? `Done — ${data.updated} product${data.updated === 1 ? "" : "s"} updated.` : (data.error ?? "That didn't work."));
-    if (res.ok) router.refresh();
+    try {
+      const res = await fetch("/api/admin/products/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...filters }),
+      });
+      const data = await res.json();
+      setMessage(res.ok ? `Done, ${data.updated} product${data.updated === 1 ? "" : "s"} updated.` : (data.error ?? "That didn't work."));
+      if (res.ok) router.refresh();
+    } catch {
+      setMessage("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+      setPending(null);
+    }
   }
 
   if (total === 0) return null;

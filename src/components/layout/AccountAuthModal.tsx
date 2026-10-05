@@ -99,15 +99,24 @@ export function AccountAuthModal({
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    const result = await signIn("password", { email, password, redirect: false });
-    setSubmitting(false);
-    if (result?.error) {
-      setError("Incorrect email or password.");
-      return;
+    // A `finally` guarantees setSubmitting(false) runs even if signIn()
+    // itself rejects (a network error, not just "wrong password") — without
+    // it the button is stuck saying "Signing in…" forever with no way to
+    // retry, the same class of bug as the add-to-cart one.
+    try {
+      const result = await signIn("password", { email, password, redirect: false });
+      if (result?.error) {
+        setError("Incorrect email or password.");
+        return;
+      }
+      handleClose();
+      router.push("/account");
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    handleClose();
-    router.push("/account");
-    router.refresh();
   }
 
   async function handleSignup(e: React.FormEvent) {
@@ -115,29 +124,33 @@ export function AccountAuthModal({
     setError(null);
     setSubmitting(true);
 
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password, confirmPassword }),
-    });
-    const data = await res.json().catch(() => ({}));
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, confirmPassword }),
+      });
+      const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setError(data.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+
+      const result = await signIn("password", { email, password, redirect: false });
+      if (result?.error) {
+        setError("Account created. Please sign in.");
+        setMode("login");
+        return;
+      }
+      handleClose();
+      router.push("/account");
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
       setSubmitting(false);
-      setError(data.error ?? "Something went wrong. Please try again.");
-      return;
     }
-
-    const result = await signIn("password", { email, password, redirect: false });
-    setSubmitting(false);
-    if (result?.error) {
-      setError("Account created. Please sign in.");
-      setMode("login");
-      return;
-    }
-    handleClose();
-    router.push("/account");
-    router.refresh();
   }
 
   if (!open) return null;

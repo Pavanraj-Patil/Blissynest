@@ -39,21 +39,26 @@ export function ContentSectionForm({
     setSaving(true);
     setError(null);
 
-    const res = await fetch(`/api/admin/content/${page}/${section}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const data = await res.json();
-    setSaving(false);
+    try {
+      const res = await fetch(`/api/admin/content/${page}/${section}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't save changes.");
-      return;
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't save changes.");
+        return;
+      }
+      setSaved(true);
+      router.refresh();
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setSaved(true);
-    router.refresh();
-    setTimeout(() => setSaved(false), 2000);
   }
 
   return (

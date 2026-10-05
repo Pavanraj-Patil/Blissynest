@@ -60,7 +60,15 @@ async function fetchJson(url: string, init?: RequestInit): Promise<{ items: Cart
     ...init,
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
-  return res.json();
+  const data = await res.json().catch(() => null);
+  // A non-OK response (expired session, product gone, a Cloudflare/tunnel
+  // error page, …) must reject rather than resolve — otherwise a caller like
+  // addItem below sees a "successful" call with no `items`, and reports the
+  // add as done when the server never actually added anything.
+  if (!res.ok) {
+    throw new Error((data && typeof data.error === "string" && data.error) || "Request failed");
+  }
+  return data;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -132,9 +140,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function removeItem(id: string) {
     if (authenticated) {
-      fetchJson(`/api/cart?id=${encodeURIComponent(id)}`, { method: "DELETE" }).then((data) =>
-        setServerItems(data.items)
-      );
+      // Best-effort: a failure here just means the item reappears next
+      // load, same as before this request existed — nothing in the UI
+      // awaits it, so there's no stuck state to recover from.
+      fetchJson(`/api/cart?id=${encodeURIComponent(id)}`, { method: "DELETE" })
+        .then((data) => setServerItems(data.items))
+        .catch(() => {});
       return;
     }
     localStore.setState(localStore.getSnapshot().filter((i) => i.id !== id));
@@ -145,7 +156,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       fetchJson("/api/cart", {
         method: "PATCH",
         body: JSON.stringify({ id, quantity }),
-      }).then((data) => setServerItems(data.items));
+      })
+        .then((data) => setServerItems(data.items))
+        .catch(() => {});
       return;
     }
     const current = localStore.getSnapshot();
@@ -158,7 +171,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function clearCart() {
     if (authenticated) {
-      fetchJson("/api/cart", { method: "DELETE" }).then((data) => setServerItems(data.items));
+      fetchJson("/api/cart", { method: "DELETE" })
+        .then((data) => setServerItems(data.items))
+        .catch(() => {});
       return;
     }
     localStore.setState([]);

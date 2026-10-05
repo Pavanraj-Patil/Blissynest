@@ -39,6 +39,10 @@ export function StandalonePDP({
   const [added, setAdded] = useState(false);
   // Which button's request is in flight (shows a spinner, ignores double taps).
   const [busy, setBusy] = useState<"add" | "buy" | null>(null);
+  // Set when addItem rejects (network hiccup, session expired, etc.) — shown
+  // next to the buttons. A `finally` always clears `busy`, so a failure never
+  // leaves the button stuck showing "Adding…" forever.
+  const [cartError, setCartError] = useState<string | null>(null);
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(
     () =>
@@ -64,37 +68,50 @@ export function StandalonePDP({
   async function handleAddToCart() {
     if (busy) return;
     setBusy("add");
-    await addItem(
-      {
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        image: product.images[0],
-        ...(hasVariants && { customization: { variants: selectedVariants } }),
-      },
-      quantity
-    );
-    setBusy(null);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
-    setCartModalOpen(true);
+    setCartError(null);
+    try {
+      await addItem(
+        {
+          slug: product.slug,
+          name: product.name,
+          price: product.price,
+          image: product.images[0],
+          ...(hasVariants && { customization: { variants: selectedVariants } }),
+        },
+        quantity
+      );
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1800);
+      setCartModalOpen(true);
+    } catch {
+      setCartError("Something went wrong. Please try again.");
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function handleBuyNow() {
     if (busy) return;
     setBusy("buy");
-    await addItem(
-      {
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        image: product.images[0],
-        ...(hasVariants && { customization: { variants: selectedVariants } }),
-      },
-      quantity
-    );
-    startNavigationProgress();
-    router.push("/cart");
+    setCartError(null);
+    try {
+      await addItem(
+        {
+          slug: product.slug,
+          name: product.name,
+          price: product.price,
+          image: product.images[0],
+          ...(hasVariants && { customization: { variants: selectedVariants } }),
+        },
+        quantity
+      );
+      startNavigationProgress();
+      router.push("/cart");
+    } catch {
+      setCartError("Something went wrong. Please try again.");
+    } finally {
+      setBusy(null);
+    }
   }
 
   return (
@@ -202,22 +219,25 @@ export function StandalonePDP({
               </AccordionItem>
             </div>
 
-            <div className="mt-6 hidden md:flex md:mt-auto gap-3 md:sticky md:bottom-0 md:z-10 md:rounded-t-2xl md:border-t md:border-charcoal/10 md:bg-cream/95 md:backdrop-blur md:p-4 md:shadow-lg">
-              <button
-                onClick={handleAddToCart}
-                disabled={!product.inStock}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors disabled:opacity-40 disabled:pointer-events-none"
-              >
-                {busy === "add" ? <Spinner size={15} /> : added ? <Check size={15} /> : <ShoppingBag size={15} />}
-                {busy === "add" ? "Adding…" : added ? "Added" : "Add to Cart"}
-              </button>
-              <BuyNowOrViewCartButton
-                productSlug={product.slug}
-                loading={busy === "buy"}
-                onBuyNow={handleBuyNow}
-                disabled={!product.inStock}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
-              />
+            <div className="mt-6 hidden md:flex md:flex-col md:gap-2 md:mt-auto md:sticky md:bottom-0 md:z-10 md:rounded-t-2xl md:border-t md:border-charcoal/10 md:bg-cream/95 md:backdrop-blur md:p-4 md:shadow-lg">
+              {cartError && <p className="text-center text-xs font-medium text-terracotta-dark">{cartError}</p>}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!product.inStock}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-charcoal/70 px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase text-charcoal hover:bg-charcoal hover:text-cream transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                >
+                  {busy === "add" ? <Spinner size={15} /> : added ? <Check size={15} /> : <ShoppingBag size={15} />}
+                  {busy === "add" ? "Adding…" : added ? "Added" : "Add to Cart"}
+                </button>
+                <BuyNowOrViewCartButton
+                  productSlug={product.slug}
+                  loading={busy === "buy"}
+                  onBuyNow={handleBuyNow}
+                  disabled={!product.inStock}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-olive text-cream px-7 py-3.5 text-xs font-semibold tracking-[0.12em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -232,6 +252,7 @@ export function StandalonePDP({
           adding={busy === "add"}
           buying={busy === "buy"}
           disabled={!product.inStock}
+          error={cartError}
         />
       </div>
 

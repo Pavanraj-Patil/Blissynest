@@ -19,24 +19,26 @@ export function ImageUploader({
     setUploading(true);
     setError(null);
 
-    const uploaded: string[] = [];
-    for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/admin/upload-image-r2", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Upload failed.");
-        setUploading(false);
-        if (inputRef.current) inputRef.current.value = "";
-        return;
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/admin/upload-image-r2", { method: "POST", body: formData });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? "Upload failed.");
+          return;
+        }
+        uploaded.push(data.url);
       }
-      uploaded.push(data.url);
+      onChange([...images, ...uploaded]);
+    } catch {
+      setError("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
-
-    onChange([...images, ...uploaded]);
-    setUploading(false);
-    if (inputRef.current) inputRef.current.value = "";
   }
 
   function removeAt(index: number) {

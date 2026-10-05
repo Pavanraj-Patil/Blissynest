@@ -222,37 +222,51 @@ export function CheckoutPageClient() {
   const canContinueAddress =
     !!selectedAddressId && (authenticated || (isValidEmail(guestEmail) && isValidPhone(guestPhone)));
 
-  async function handleAddAddress(values: Omit<Address, "id">) {
+  // Both return {ok, error?} rather than void, and the caller (AddressStep)
+  // only closes the form on ok:true — so a failed save leaves the form open
+  // with the typed values and a visible reason, instead of quietly vanishing
+  // as if it worked while the address never actually made it to the list.
+  async function handleAddAddress(values: Omit<Address, "id">): Promise<{ ok: boolean; error?: string }> {
     if (!authenticated) {
       const local: Address = { id: "guest-address", ...values };
       setGuestAddress(local);
       setSelectedAddressId(local.id);
-      return;
+      return { ok: true };
     }
-    const res = await fetch("/api/addresses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const data = await res.json();
-    if (!res.ok) return;
-    setAddresses((prev) => [...prev, data.address]);
-    setSelectedAddressId(data.address.id);
+    try {
+      const res = await fetch("/api/addresses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (!res.ok) return { ok: false, error: data.error ?? "Couldn't save this address." };
+      setAddresses((prev) => [...prev, data.address]);
+      setSelectedAddressId(data.address.id);
+      return { ok: true };
+    } catch {
+      return { ok: false, error: "Something went wrong. Please try again." };
+    }
   }
 
-  async function handleEditAddress(id: string, values: Omit<Address, "id">) {
+  async function handleEditAddress(id: string, values: Omit<Address, "id">): Promise<{ ok: boolean; error?: string }> {
     if (!authenticated) {
       setGuestAddress({ id, ...values });
-      return;
+      return { ok: true };
     }
-    const res = await fetch(`/api/addresses/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const data = await res.json();
-    if (!res.ok) return;
-    setAddresses((prev) => prev.map((a) => (a.id === id ? data.address : a)));
+    try {
+      const res = await fetch(`/api/addresses/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (!res.ok) return { ok: false, error: data.error ?? "Couldn't save this address." };
+      setAddresses((prev) => prev.map((a) => (a.id === id ? data.address : a)));
+      return { ok: true };
+    } catch {
+      return { ok: false, error: "Something went wrong. Please try again." };
+    }
   }
 
   async function handleDeleteAddress(id: string) {
@@ -261,11 +275,20 @@ export function CheckoutPageClient() {
       setSelectedAddressId(null);
       return;
     }
-    setAddresses((prev) => prev.filter((a) => a.id !== id));
-    if (selectedAddressId === id) {
-      setSelectedAddressId(addresses.find((a) => a.id !== id)?.id ?? null);
+    // Only removed from the list once the server confirms it — an optimistic
+    // removal that then fails silently (a thrown fetch, not just a non-OK
+    // response) would otherwise leave an address missing from the UI that
+    // still exists server-side.
+    try {
+      const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
+      if (!res.ok) return;
+      setAddresses((prev) => prev.filter((a) => a.id !== id));
+      if (selectedAddressId === id) {
+        setSelectedAddressId(addresses.find((a) => a.id !== id)?.id ?? null);
+      }
+    } catch {
+      // Leave it in the list; nothing else to recover here.
     }
-    await fetch(`/api/addresses/${id}`, { method: "DELETE" });
   }
 
   function buildGuestFields() {
@@ -371,22 +394,34 @@ export function CheckoutPageClient() {
   async function handleRazorpayPayment() {
     if (!selectedAddress || !effectivePaymentMethod) return;
 
-    const createRes = await fetch("/api/checkout/razorpay/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        shippingAddress: buildShippingAddress(),
-        paymentMethod: effectivePaymentMethod,
-        isGift,
-        giftNote: isGift ? giftNote : undefined,
-        hidePricesOnSlip: isGift ? hidePrices : false,
-        couponCode: appliedCoupon?.code,
-        ...buildGuestFields(),
-      }),
-    });
-    const session = await createRes.json();
-    if (!createRes.ok) {
-      setPlaceOrderError(session.error ?? "Couldn't start payment. Please try again.");
+    // Everything up to razorpay.open() must be wrapped: a thrown fetch (the
+    // tunnel/network dropping mid-request, not just a non-OK response) would
+    // otherwise skip every setPlacingOrder(false) below and leave the pay
+    // button stuck saying "Placing order…" with no way to retry.
+    let session: { keyId: string; amount: number; currency: string; razorpayOrderId: string };
+    try {
+      const createRes = await fetch("/api/checkout/razorpay/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shippingAddress: buildShippingAddress(),
+          paymentMethod: effectivePaymentMethod,
+          isGift,
+          giftNote: isGift ? giftNote : undefined,
+          hidePricesOnSlip: isGift ? hidePrices : false,
+          couponCode: appliedCoupon?.code,
+          ...buildGuestFields(),
+        }),
+      });
+      const data = await createRes.json();
+      if (!createRes.ok) {
+        setPlaceOrderError(data.error ?? "Couldn't start payment. Please try again.");
+        setPlacingOrder(false);
+        return;
+      }
+      session = data;
+    } catch {
+      setPlaceOrderError("Couldn't start payment. Please check your connection and try again.");
       setPlacingOrder(false);
       return;
     }

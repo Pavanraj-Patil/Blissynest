@@ -19,18 +19,32 @@ export function ReviewActions({
 
   async function moderate(status: "APPROVED" | "REJECTED") {
     setSubmitting(status);
-    await fetch(`/api/admin/reviews/${reviewId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    router.refresh();
+    try {
+      await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(null);
+    }
   }
 
   async function handleDelete() {
     setDeleting(true);
-    await fetch(`/api/admin/reviews/${reviewId}`, { method: "DELETE" });
-    router.refresh();
+    try {
+      const res = await fetch(`/api/admin/reviews/${reviewId}`, { method: "DELETE" });
+      if (!res.ok) return; // leave the dialog open so they can retry
+      setConfirmingDelete(false);
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (

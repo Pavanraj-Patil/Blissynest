@@ -21,18 +21,22 @@ export function SingleImageUploader({
     setUploading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await fetch("/api/admin/upload-image-r2", { method: "POST", body: formData });
-    const data = await res.json();
-    setUploading(false);
-    if (inputRef.current) inputRef.current.value = "";
-
-    if (!res.ok) {
-      setError(data.error ?? "Upload failed.");
-      return;
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload-image-r2", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Upload failed.");
+        return;
+      }
+      onChange(data.url);
+    } catch {
+      setError("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
-    onChange(data.url);
   }
 
   return (

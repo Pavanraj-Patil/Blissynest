@@ -27,18 +27,23 @@ export function ResetPasswordClient() {
       return;
     }
     setSubmitting(true);
-    const res = await fetch("/api/auth/reset-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password, confirmPassword }),
-    });
-    setSubmitting(false);
-    if (res.ok) {
-      setDone(true);
-      return;
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password, confirmPassword }),
+      });
+      if (res.ok) {
+        setDone(true);
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      setError(data?.error ?? "Something went wrong. Please try again.");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    const data = await res.json().catch(() => null);
-    setError(data?.error ?? "Something went wrong. Please try again.");
   }
 
   return (

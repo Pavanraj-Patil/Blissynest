@@ -23,12 +23,15 @@ function AddressForm({
   initial,
   onSave,
   onCancel,
+  error,
 }: {
   initial: AddressFormValues;
-  onSave: (values: AddressFormValues) => void;
+  onSave: (values: AddressFormValues) => Promise<void>;
   onCancel: () => void;
+  error?: string | null;
 }) {
   const [values, setValues] = useState(initial);
+  const [saving, setSaving] = useState(false);
 
   function set<K extends keyof AddressFormValues>(key: K, value: AddressFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -36,9 +39,14 @@ function AddressForm({
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        onSave(values);
+        setSaving(true);
+        // onSave (addAddress/editAddress) owns success/error state and only
+        // leaves this form mounted when the save failed, so there's nothing
+        // left to reset here on success — just stop showing "Saving…".
+        await onSave(values);
+        setSaving(false);
       }}
       className="rounded-2xl border border-charcoal/10 bg-white p-5 sm:p-6 space-y-4"
     >
@@ -117,17 +125,21 @@ function AddressForm({
         />
       </label>
 
+      {error && <p className="text-sm text-terracotta-dark">{error}</p>}
+
       <div className="flex gap-3 pt-1">
         <button
           type="submit"
-          className="rounded-xl bg-olive text-cream px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors"
+          disabled={saving}
+          className="rounded-xl bg-olive text-cream px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase hover:bg-olive-dark transition-colors disabled:opacity-60"
         >
-          Save Address
+          {saving ? "Saving…" : "Save Address"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl border border-charcoal/20 px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase text-charcoal hover:bg-cream-dark transition-colors"
+          disabled={saving}
+          className="rounded-xl border border-charcoal/20 px-6 py-3 text-xs font-semibold tracking-[0.1em] uppercase text-charcoal hover:bg-cream-dark transition-colors disabled:opacity-60"
         >
           Cancel
         </button>
@@ -146,49 +158,63 @@ export function AddressesSection({ initial }: { initial: Address[] }) {
 
   async function addAddress(values: AddressFormValues) {
     setError(null);
-    const res = await fetch("/api/addresses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't save that address.");
-      return;
+    try {
+      const res = await fetch("/api/addresses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't save that address.");
+        return;
+      }
+      setAddresses((prev) => [...prev, data.address]);
+      setMode("list");
+    } catch {
+      setError("Something went wrong. Please try again.");
     }
-    setAddresses((prev) => [...prev, data.address]);
-    setMode("list");
   }
 
   async function editAddress(id: string, values: AddressFormValues) {
     setError(null);
-    const res = await fetch(`/api/addresses/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't update that address.");
-      return;
+    try {
+      const res = await fetch(`/api/addresses/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't update that address.");
+        return;
+      }
+      setAddresses((prev) => prev.map((a) => (a.id === id ? data.address : a)));
+      setMode("list");
+      setEditingId(null);
+    } catch {
+      setError("Something went wrong. Please try again.");
     }
-    setAddresses((prev) => prev.map((a) => (a.id === id ? data.address : a)));
-    setMode("list");
-    setEditingId(null);
   }
 
   async function deleteAddress(id: string) {
     setError(null);
+    const previous = addresses;
     setAddresses((prev) => prev.filter((a) => a.id !== id));
-    const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      setError("Couldn't delete that address.");
-      setAddresses(addresses);
+    try {
+      const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setError("Couldn't delete that address.");
+        setAddresses(previous);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setAddresses(previous);
     }
   }
 
   if (mode === "add") {
-    return <AddressForm initial={emptyForm} onSave={addAddress} onCancel={() => setMode("list")} />;
+    return <AddressForm initial={emptyForm} onSave={addAddress} onCancel={() => setMode("list")} error={error} />;
   }
 
   if (mode === "edit" && editingAddress) {
@@ -200,6 +226,7 @@ export function AddressesSection({ initial }: { initial: Address[] }) {
           setMode("list");
           setEditingId(null);
         }}
+        error={error}
       />
     );
   }

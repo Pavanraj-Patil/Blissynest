@@ -41,7 +41,14 @@ async function fetchJson(url: string, init?: RequestInit): Promise<{ items: Wish
     ...init,
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
-  return res.json();
+  const data = await res.json().catch(() => null);
+  // A non-OK response must reject, not resolve with no `items` — otherwise
+  // toggleItem below silently no-ops instead of the heart ever reflecting
+  // what actually happened server-side.
+  if (!res.ok) {
+    throw new Error((data && typeof data.error === "string" && data.error) || "Request failed");
+  }
+  return data;
 }
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
@@ -87,15 +94,22 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
   function toggleItem(item: WishlistItem) {
     if (authenticated) {
+      // Fire-and-forget by design (the heart icon has no busy state to get
+      // stuck); on failure the heart just doesn't flip, matching what
+      // actually happened server-side, instead of an unhandled rejection.
       if (isWishlisted(item.slug)) {
         fetchJson(`/api/wishlist?slug=${encodeURIComponent(item.slug)}`, {
           method: "DELETE",
-        }).then((data) => setServerItems(data.items));
+        })
+          .then((data) => setServerItems(data.items))
+          .catch(() => {});
       } else {
         fetchJson("/api/wishlist", {
           method: "POST",
           body: JSON.stringify({ slug: item.slug }),
-        }).then((data) => setServerItems(data.items));
+        })
+          .then((data) => setServerItems(data.items))
+          .catch(() => {});
       }
       return;
     }
@@ -108,9 +122,9 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
   function removeItem(slug: string) {
     if (authenticated) {
-      fetchJson(`/api/wishlist?slug=${encodeURIComponent(slug)}`, { method: "DELETE" }).then(
-        (data) => setServerItems(data.items)
-      );
+      fetchJson(`/api/wishlist?slug=${encodeURIComponent(slug)}`, { method: "DELETE" })
+        .then((data) => setServerItems(data.items))
+        .catch(() => {});
       return;
     }
     localStore.setState(localStore.getSnapshot().filter((i) => i.slug !== slug));

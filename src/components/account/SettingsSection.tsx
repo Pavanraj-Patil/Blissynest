@@ -35,24 +35,29 @@ export function ChangePasswordForm() {
     }
 
     setSaving(true);
-    const res = await fetch("/api/account/password", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
-    const data = await res.json();
-    setSaving(false);
+    try {
+      const res = await fetch("/api/account/password", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't update your password.");
-      return;
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't update your password.");
+        return;
+      }
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
     }
-
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   }
 
   return (
@@ -126,12 +131,17 @@ export function SettingsSection({
     const next = { ...notifications, [key]: !notifications[key] };
     setNotifications(next);
 
-    const res = await fetch("/api/account/notifications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(next),
-    });
-    if (!res.ok) {
+    try {
+      const res = await fetch("/api/account/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(next),
+      });
+      if (!res.ok) {
+        setNotifications(previous);
+        setNotifError("Couldn't save that preference. Please try again.");
+      }
+    } catch {
       setNotifications(previous);
       setNotifError("Couldn't save that preference. Please try again.");
     }

@@ -29,19 +29,24 @@ export function SectionVisibilityToggle({
     const next = !visible;
     setSaving(true);
     setError(null);
-    const res = await fetch(`/api/admin/content/${page}/${section}/visibility`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visible: next }),
-    });
-    setSaving(false);
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Couldn't change visibility.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/content/${page}/${section}/visibility`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visible: next }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Couldn't change visibility.");
+        return;
+      }
+      setVisible(next);
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setVisible(next);
-    router.refresh();
   }
 
   return (

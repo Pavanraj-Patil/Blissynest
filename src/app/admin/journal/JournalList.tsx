@@ -22,26 +22,36 @@ export function JournalList({ posts }: { posts: Row[] }) {
   async function importStarters() {
     setBusy("starter");
     setError(null);
-    const res = await fetch("/api/admin/journal/starter", { method: "POST" });
-    setBusy(null);
-    if (!res.ok) {
-      setError("Could not add the starter articles.");
-      return;
+    try {
+      const res = await fetch("/api/admin/journal/starter", { method: "POST" });
+      if (!res.ok) {
+        setError("Could not add the starter articles.");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setBusy(null);
     }
-    router.refresh();
   }
 
   async function remove(row: Row) {
     if (!window.confirm(`Delete "${row.title}"? This cannot be undone.`)) return;
     setBusy(row.id);
     setError(null);
-    const res = await fetch(`/api/admin/journal/${row.id}`, { method: "DELETE" });
-    setBusy(null);
-    if (!res.ok) {
-      setError("Could not delete the article.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/journal/${row.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setError("Could not delete the article.");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setBusy(null);
     }
-    router.refresh();
   }
 
   return (

@@ -13,21 +13,26 @@ export function NewsletterForm({ className }: { className?: string }) {
     setStatus("submitting");
     setError(null);
 
-    const res = await fetch("/api/newsletter", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Something went wrong. Please try again.");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Something went wrong. Please try again.");
+        setStatus("idle");
+        return;
+      }
+
+      setStatus("done");
+      setEmail("");
+    } catch {
+      setError("Something went wrong. Please try again.");
       setStatus("idle");
-      return;
     }
-
-    setStatus("done");
-    setEmail("");
   }
 
   if (status === "done") {

@@ -54,35 +54,40 @@ function QuoteForm({ email, phone, header }: { email: string; phone: string; hea
     const isDownload = submitter?.value === "download";
     const formData = new FormData(e.currentTarget);
 
-    const res = await fetch("/api/corporate-lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        workEmail: formData.get("workEmail"),
-        phone: formData.get("phone"),
-        companyName: formData.get("companyName"),
-        teamSize: teamSize || undefined,
-        interest: interest || undefined,
-        intent: isConsultation ? "CONSULTATION" : "QUOTE",
-        message: formData.get("message") || undefined,
-        downloadedCatalogue: isDownload,
-      }),
-    });
+    try {
+      const res = await fetch("/api/corporate-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          workEmail: formData.get("workEmail"),
+          phone: formData.get("phone"),
+          companyName: formData.get("companyName"),
+          teamSize: teamSize || undefined,
+          interest: interest || undefined,
+          intent: isConsultation ? "CONSULTATION" : "QUOTE",
+          message: formData.get("message") || undefined,
+          downloadedCatalogue: isDownload,
+        }),
+      });
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Something went wrong. Please try again.");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Something went wrong. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      if (isDownload) {
+        downloadCatalogue(interest);
+        setDownloaded(true);
+      }
+
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
       setSubmitting(false);
-      return;
     }
-
-    if (isDownload) {
-      downloadCatalogue(interest);
-      setDownloaded(true);
-    }
-
-    setSubmitted(true);
   }
 
   const pageTitle = isConsultation ? "Book a Consultation" : "Request a Quote";

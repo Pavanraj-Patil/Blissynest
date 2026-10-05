@@ -62,24 +62,29 @@ export function JournalEditor({ initial }: { initial: EditorPost }) {
       published: publishedOverride ?? post.published,
       publishedAt: post.publishedAt,
     };
-    const res = await fetch(post.id ? `/api/admin/journal/${post.id}` : "/api/admin/journal", {
-      method: post.id ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json().catch(() => ({}));
-    setSaving(false);
-    if (!res.ok) {
-      setError(data.error ?? "Could not save the article.");
-      return;
+    try {
+      const res = await fetch(post.id ? `/api/admin/journal/${post.id}` : "/api/admin/journal", {
+        method: post.id ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "Could not save the article.");
+        return;
+      }
+      if (!post.id) {
+        router.replace(`/admin/journal/${data.post.id}`);
+        return;
+      }
+      setPost((p) => ({ ...p, published: payload.published }));
+      setSaved(true);
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    if (!post.id) {
-      router.replace(`/admin/journal/${data.post.id}`);
-      return;
-    }
-    setPost((p) => ({ ...p, published: payload.published }));
-    setSaved(true);
-    router.refresh();
   }
 
   return (

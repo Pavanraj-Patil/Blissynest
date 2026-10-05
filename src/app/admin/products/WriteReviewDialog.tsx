@@ -29,23 +29,27 @@ export function WriteReviewDialog({
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-    const res = await fetch("/api/admin/reviews", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, authorName: name, rating, comment }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Something went wrong.");
+    try {
+      const res = await fetch("/api/admin/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, authorName: name, rating, comment }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Something went wrong.");
+        return;
+      }
+      setName("");
+      setRating(5);
+      setComment("");
+      router.refresh();
+      onClose();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
       setSubmitting(false);
-      return;
     }
-    setSubmitting(false);
-    setName("");
-    setRating(5);
-    setComment("");
-    router.refresh();
-    onClose();
   }
 
   return createPortal(

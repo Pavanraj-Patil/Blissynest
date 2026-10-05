@@ -20,22 +20,27 @@ export function ProfileSection({ user }: { user: AccountUser }) {
     setSaving(true);
     setError(null);
 
-    const res = await fetch("/api/account/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone }),
-    });
-    const data = await res.json();
-    setSaving(false);
+    try {
+      const res = await fetch("/api/account/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone }),
+      });
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't save your changes.");
-      return;
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't save your changes.");
+        return;
+      }
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
     }
-
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-    router.refresh();
   }
 
   return (

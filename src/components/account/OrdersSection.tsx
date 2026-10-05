@@ -106,21 +106,25 @@ function OrderItemRow({
     if (!item.productId) return;
     setSubmitting(true);
     setError(null);
-    const res = await fetch("/api/reviews", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId, productId: item.productId, rating, comment }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't submit your review.");
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, productId: item.productId, rating, comment }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't submit your review.");
+        return;
+      }
+      setOpen(false);
+      setJustReviewed(true);
+      onReviewed();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
       setSubmitting(false);
-      return;
     }
-    setSubmitting(false);
-    setOpen(false);
-    setJustReviewed(true);
-    onReviewed();
   }
 
   const reviewed = item.reviewed || justReviewed;

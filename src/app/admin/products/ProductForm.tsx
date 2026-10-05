@@ -491,21 +491,26 @@ export function ProductForm({
           : undefined,
     };
 
-    const res = await fetch(isEdit ? `/api/admin/products/${initial!.id}` : "/api/admin/products", {
-      method: isEdit ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch(isEdit ? `/api/admin/products/${initial!.id}` : "/api/admin/products", {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error ?? "Something went wrong saving this product.");
+      if (!res.ok) {
+        setError(data.error ?? "Something went wrong saving this product.");
+        setSubmitting(false);
+        return;
+      }
+
+      router.push("/admin/products");
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
       setSubmitting(false);
-      return;
     }
-
-    router.push("/admin/products");
-    router.refresh();
   }
 
   return (

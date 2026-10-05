@@ -17,15 +17,21 @@ export function ProductRowActions({ id, name }: { id: string; name: string }) {
   async function handleDelete() {
     setDeleting(true);
     setError(null);
-    const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error);
-      setDeleting(false);
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error);
+        setConfirming(false);
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
       setConfirming(false);
-      return;
+    } finally {
+      setDeleting(false);
     }
-    router.refresh();
   }
 
   return (

@@ -16,18 +16,23 @@ export function ForgotPasswordClient() {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-    const res = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    setSubmitting(false);
-    if (res.ok) {
-      setSent(true);
-      return;
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setSent(true);
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      setError(data?.error ?? "Something went wrong. Please try again.");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    const data = await res.json().catch(() => null);
-    setError(data?.error ?? "Something went wrong. Please try again.");
   }
 
   return (

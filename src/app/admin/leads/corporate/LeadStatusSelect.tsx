@@ -19,15 +19,25 @@ export function LeadStatusSelect({ leadId, status }: { leadId: string; status: s
   const [saving, setSaving] = useState(false);
 
   async function handleChange(next: string) {
+    const previous = value;
     setValue(next);
     setSaving(true);
-    await fetch(`/api/admin/leads/corporate/${leadId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next }),
-    });
-    setSaving(false);
-    router.refresh();
+    try {
+      const res = await fetch(`/api/admin/leads/corporate/${leadId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+      if (!res.ok) {
+        setValue(previous);
+        return;
+      }
+      router.refresh();
+    } catch {
+      setValue(previous);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (

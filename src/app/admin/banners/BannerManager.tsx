@@ -269,58 +269,80 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
   async function handleAdd(values: BannerFormValues) {
     setSubmitting(true);
     setError(null);
-    const res = await fetch("/api/admin/banners", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't save that banner.");
-      return;
+    try {
+      const res = await fetch("/api/admin/banners", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't save that banner.");
+        return;
+      }
+      setBanners((prev) => [...prev, data.banner].sort((a, b) => a.sortOrder - b.sortOrder));
+      setMode("list");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    setBanners((prev) => [...prev, data.banner].sort((a, b) => a.sortOrder - b.sortOrder));
-    setMode("list");
   }
 
   async function handleEdit(id: string, values: BannerFormValues) {
     setSubmitting(true);
     setError(null);
-    const res = await fetch(`/api/admin/banners/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    if (!res.ok) {
-      setError(data.error ?? "Couldn't update that banner.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/banners/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Couldn't update that banner.");
+        return;
+      }
+      setBanners((prev) =>
+        prev.map((b) => (b.id === id ? data.banner : b)).sort((a, b) => a.sortOrder - b.sortOrder)
+      );
+      setMode("list");
+      setEditingId(null);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
-    setBanners((prev) =>
-      prev.map((b) => (b.id === id ? data.banner : b)).sort((a, b) => a.sortOrder - b.sortOrder)
-    );
-    setMode("list");
-    setEditingId(null);
   }
 
   async function handleDelete(id: string) {
     if (deleting) return;
     setDeleting(true);
-    await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
-    setBanners((prev) => prev.filter((b) => b.id !== id));
-    setDeleting(false);
-    setDeletingId(null);
+    try {
+      const res = await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
+      if (!res.ok) return; // leave the confirm dialog open so they can retry
+      setBanners((prev) => prev.filter((b) => b.id !== id));
+      setDeletingId(null);
+    } catch {
+      // leave it in the list; nothing else to recover here
+    } finally {
+      setDeleting(false);
+    }
   }
 
   async function handleToggleActive(id: string, active: boolean) {
+    const previous = banners;
     setBanners((prev) => prev.map((b) => (b.id === id ? { ...b, active } : b)));
-    await fetch(`/api/admin/banners/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ active }),
-    });
+    try {
+      const res = await fetch(`/api/admin/banners/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active }),
+      });
+      if (!res.ok) setBanners(previous);
+    } catch {
+      setBanners(previous);
+    }
   }
 
   async function handleReorder(id: string, direction: -1 | 1) {
@@ -334,6 +356,7 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
     const aOrder = b.sortOrder;
     const bOrder = a.sortOrder;
 
+    const previous = banners;
     setBanners((prev) =>
       prev.map((banner) => {
         if (banner.id === a.id) return { ...banner, sortOrder: aOrder };
@@ -342,18 +365,23 @@ export function BannerManager({ initial }: { initial: Banner[] }) {
       })
     );
 
-    await Promise.all([
-      fetch(`/api/admin/banners/${a.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...a, sortOrder: aOrder }),
-      }),
-      fetch(`/api/admin/banners/${b.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...b, sortOrder: bOrder }),
-      }),
-    ]);
+    try {
+      const [resA, resB] = await Promise.all([
+        fetch(`/api/admin/banners/${a.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...a, sortOrder: aOrder }),
+        }),
+        fetch(`/api/admin/banners/${b.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...b, sortOrder: bOrder }),
+        }),
+      ]);
+      if (!resA.ok || !resB.ok) setBanners(previous);
+    } catch {
+      setBanners(previous);
+    }
   }
 
   if (mode === "add") {
