@@ -2,8 +2,9 @@ import type { NextConfig } from "next";
 
 // Next.js's App Router hydration bootstrap relies on inline <script> tags,
 // so 'unsafe-inline' stays in script-src until those scripts move to a
-// per-request nonce (would need middleware.ts, which this app doesn't have
-// yet — see AGENTS.md). Every other directive here is a real restriction:
+// per-request nonce (would need reading the nonce in src/proxy.ts and
+// threading it through, which nothing here does yet). Every other directive
+// here is a real restriction:
 // frame-ancestors blocks clickjacking, object-src/base-uri block the two
 // classic injection pivots, and connect/frame-src are scoped to exactly
 // the one third-party origin (Razorpay's checkout) this app talks to.

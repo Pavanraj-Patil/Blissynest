@@ -12,6 +12,10 @@ export async function updateSiteSettings(input: SiteSettingsInput): Promise<void
       standardShippingFee: Math.round(input.standardShippingFee * 100),
       codEnabled: input.codEnabled,
       topBarEnabled: input.topBarEnabled,
+      maintenanceMode: input.maintenanceMode,
+      maintenanceMessage: input.maintenanceMessage || null,
+      // "" (cleared) and undefined both mean "no return time set".
+      maintenanceReturnAt: input.maintenanceReturnAt ? new Date(input.maintenanceReturnAt) : null,
     },
   });
 }

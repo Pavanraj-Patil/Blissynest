@@ -1,11 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import Link from "next/link";
+import { Check, ExternalLink } from "lucide-react";
 
 const inputClass =
   "mt-1.5 w-full rounded-lg border border-charcoal/15 px-3.5 py-2.5 text-sm text-charcoal focus:outline-none focus:border-olive";
 const labelClass = "text-xs font-medium text-charcoal";
+
+// "2026-10-05T14:30:00.000Z" -> "2026-10-05T14:30", in the browser's own
+// local time, for a <input type="datetime-local">. Saving reinterprets that
+// same string as the server's local time — fine while admin and server are
+// both on this laptop; worth a second look once they're not.
+function toLocalInputValue(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 export function SettingsForm({
   initial,
@@ -16,9 +28,15 @@ export function SettingsForm({
     standardShippingFee: number;
     codEnabled: boolean;
     topBarEnabled: boolean;
+    maintenanceMode: boolean;
+    maintenanceMessage: string;
+    maintenanceReturnAt: string | null;
   };
 }) {
-  const [values, setValues] = useState(initial);
+  const [values, setValues] = useState({
+    ...initial,
+    maintenanceReturnAt: toLocalInputValue(initial.maintenanceReturnAt),
+  });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,6 +139,67 @@ export function SettingsForm({
           </span>
         </span>
       </label>
+
+      <div
+        className={`rounded-xl border p-4 transition-colors ${
+          values.maintenanceMode ? "border-terracotta/40 bg-terracotta/5" : "border-charcoal/15"
+        }`}
+      >
+        <label className="flex items-start gap-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={values.maintenanceMode}
+            onChange={(e) => setValues((v) => ({ ...v, maintenanceMode: e.target.checked }))}
+            className="mt-0.5 h-4 w-4 rounded border-charcoal/25 accent-terracotta"
+          />
+          <span>
+            <span className="block text-sm font-medium text-charcoal">
+              Maintenance mode {values.maintenanceMode && <span className="text-terracotta-dark">— site is down for visitors</span>}
+            </span>
+            <span className="block text-[11px] text-ink-muted">
+              Visitors see a &ldquo;we&rsquo;ll be right back&rdquo; page instead of the site.
+              You and other admins can still sign in and manage everything from here.
+            </span>
+          </span>
+        </label>
+
+        {values.maintenanceMode && (
+          <div className="mt-4 space-y-4 border-t border-terracotta/20 pt-4">
+            <label className="block">
+              <span className={labelClass}>Custom message (optional)</span>
+              <textarea
+                value={values.maintenanceMessage}
+                onChange={(e) => setValues((v) => ({ ...v, maintenanceMessage: e.target.value }))}
+                maxLength={500}
+                rows={3}
+                placeholder="We're making a few changes behind the scenes to make your gifting experience even better. We'll be back shortly."
+                className={`${inputClass} resize-none`}
+              />
+            </label>
+            <label className="block">
+              <span className={labelClass}>Expected back (optional)</span>
+              <input
+                type="datetime-local"
+                value={values.maintenanceReturnAt}
+                onChange={(e) => setValues((v) => ({ ...v, maintenanceReturnAt: e.target.value }))}
+                className={inputClass}
+              />
+              <span className="mt-1 block text-[11px] text-ink-muted">
+                Shows a live countdown on the maintenance page. Leave blank to skip it.
+              </span>
+            </label>
+          </div>
+        )}
+
+        <Link
+          href="/maintenance"
+          target="_blank"
+          className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-medium text-terracotta-dark hover:text-terracotta"
+        >
+          Preview the maintenance page
+          <ExternalLink size={11} />
+        </Link>
+      </div>
 
       <button
         type="submit"

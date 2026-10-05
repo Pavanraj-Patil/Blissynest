@@ -13,7 +13,17 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         // Private or pointless-to-index areas: admin, APIs, and per-visitor
         // pages (cart, checkout, account, wishlist).
-        disallow: ["/admin", "/api/", "/account", "/cart", "/checkout", "/wishlist", "/track-order", "/cdn-cgi/"],
+        disallow: [
+          "/admin",
+          "/api/",
+          "/account",
+          "/cart",
+          "/checkout",
+          "/wishlist",
+          "/track-order",
+          "/cdn-cgi/",
+          "/maintenance",
+        ],
       },
     ],
     sitemap: `${site}/sitemap.xml`,

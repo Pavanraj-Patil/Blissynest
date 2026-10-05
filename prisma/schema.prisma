@@ -347,17 +347,27 @@ model Banner {
 }
 
 model SiteSettings {
-  id                    String   @id @default("singleton")
-  gstRatePercent        Int      @default(0)
-  freeShippingThreshold Int      @default(99900)
-  standardShippingFee   Int      @default(9900)
+  id                    String    @id @default("singleton")
+  gstRatePercent        Int       @default(0)
+  freeShippingThreshold Int       @default(99900)
+  standardShippingFee   Int       @default(9900)
   // Store-wide Cash on Delivery kill switch. A product can also be excluded
   // individually via Product.codAvailable, independent of this flag.
-  codEnabled            Boolean  @default(true)
+  codEnabled            Boolean   @default(true)
   // Shows/hides the top strip (free-shipping banner + Track Order/Help/
   // Corporate Gifting links) across every page.
-  topBarEnabled         Boolean  @default(true)
-  updatedAt             DateTime @updatedAt
+  topBarEnabled         Boolean   @default(true)
+  // When true, proxy.ts shows every visitor the branded "We'll be right
+  // back" page (/maintenance) instead of the site. Signed-in admins are
+  // exempt, so they can keep browsing the real site while it's on.
+  maintenanceMode       Boolean   @default(false)
+  // Optional override for the maintenance page's body copy; falls back to a
+  // default message when blank.
+  maintenanceMessage    String?   @db.Text
+  // Optional "back by" time shown as a live countdown on the maintenance
+  // page. Entered in the admin's own local time (see SettingsForm).
+  maintenanceReturnAt   DateTime?
+  updatedAt             DateTime  @updatedAt
 }
 
 model ContentBlock {
@@ -530,22 +540,22 @@ model PendingCheckout {
 // A Bliss Journal article. The body is stored as light text markup (see
 // src/lib/journal-markup.ts) so it can be edited in a plain text box.
 model JournalPost {
-  id          String    @id @default(cuid())
-  slug        String    @unique
+  id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
   tag         String
-  excerpt     String    @db.Text
-  image       String    @db.Text
-  imageAlt    String    @default("")
-  body        String    @db.LongText
-  ctaTitle    String    @default("")
-  ctaBody     String    @default("") @db.VarChar(500)
-  ctaLabel    String    @default("")
-  ctaHref     String    @default("")
-  published   Boolean   @default(false)
-  publishedAt DateTime  @default(now())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  excerpt     String   @db.Text
+  image       String   @db.Text
+  imageAlt    String   @default("")
+  body        String   @db.LongText
+  ctaTitle    String   @default("")
+  ctaBody     String   @default("") @db.VarChar(500)
+  ctaLabel    String   @default("")
+  ctaHref     String   @default("")
+  published   Boolean  @default(false)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([published, publishedAt])
 }
