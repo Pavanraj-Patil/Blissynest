@@ -35,7 +35,10 @@ export default async function OccasionsPage() {
         />
 
         <div className="mx-auto max-w-[1440px] px-4 md:px-8 py-12 md:py-16">
-          <div className="flex sm:grid sm:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div
+            style={{ "--cols": Math.min(tiles.length, 7) } as React.CSSProperties}
+            className="flex sm:grid sm:grid-cols-4 lg:[grid-template-columns:repeat(var(--cols),minmax(0,200px))] gap-4 md:gap-5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
+          >
             {tiles.map((occ) => (
               <OccasionCard
                 key={occ.label}
