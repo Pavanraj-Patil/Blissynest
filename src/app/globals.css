@@ -216,3 +216,15 @@ label {
     background-position: -200% 0;
   }
 }
+
+/* Toast notices (see toast-context.tsx) sliding/fading in from below. */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

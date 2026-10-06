@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useSession } from "next-auth/react";
 import { createLocalStore } from "@/lib/local-store";
+import { useToast } from "@/lib/toast-context";
 import type { CartItemCustomization } from "@/lib/product-adapters";
 
 export type { CartItemCustomization };
@@ -74,6 +75,7 @@ async function fetchJson(url: string, init?: RequestInit): Promise<{ items: Cart
 export function CartProvider({ children }: { children: ReactNode }) {
   const { status } = useSession();
   const authenticated = status === "authenticated";
+  const { showToast } = useToast();
 
   const localItems = useSyncExternalStore(
     localStore.subscribe,
@@ -140,12 +142,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function removeItem(id: string) {
     if (authenticated) {
-      // Best-effort: a failure here just means the item reappears next
-      // load, same as before this request existed — nothing in the UI
-      // awaits it, so there's no stuck state to recover from.
+      // The row only leaves the UI once `setServerItems` runs below (there's
+      // no optimistic removal here), so a failure already leaves nothing
+      // visually stuck or wrong — it just needs to say so, instead of the
+      // item silently staying put with no explanation.
       fetchJson(`/api/cart?id=${encodeURIComponent(id)}`, { method: "DELETE" })
         .then((data) => setServerItems(data.items))
-        .catch(() => {});
+        .catch(() => showToast("Couldn't remove that item. Please try again."));
       return;
     }
     localStore.setState(localStore.getSnapshot().filter((i) => i.id !== id));
@@ -158,7 +161,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ id, quantity }),
       })
         .then((data) => setServerItems(data.items))
-        .catch(() => {});
+        .catch(() => showToast("Couldn't update the quantity. Please try again."));
       return;
     }
     const current = localStore.getSnapshot();
@@ -173,7 +176,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (authenticated) {
       fetchJson("/api/cart", { method: "DELETE" })
         .then((data) => setServerItems(data.items))
-        .catch(() => {});
+        .catch(() => showToast("Couldn't clear your cart. Please try again."));
       return;
     }
     localStore.setState([]);

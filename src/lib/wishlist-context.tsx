@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useSession } from "next-auth/react";
 import { createLocalStore } from "@/lib/local-store";
+import { useToast } from "@/lib/toast-context";
 
 export type WishlistItem = {
   slug: string;
@@ -54,6 +55,7 @@ async function fetchJson(url: string, init?: RequestInit): Promise<{ items: Wish
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const { status } = useSession();
   const authenticated = status === "authenticated";
+  const { showToast } = useToast();
 
   const localItems = useSyncExternalStore(
     localStore.subscribe,
@@ -95,21 +97,23 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   function toggleItem(item: WishlistItem) {
     if (authenticated) {
       // Fire-and-forget by design (the heart icon has no busy state to get
-      // stuck); on failure the heart just doesn't flip, matching what
-      // actually happened server-side, instead of an unhandled rejection.
+      // stuck). The heart's filled/outline state is read straight from
+      // `items` (derived from `serverItems`, only updated on success below),
+      // so on failure it simply doesn't flip — already correct, just silent
+      // until the toast.
       if (isWishlisted(item.slug)) {
         fetchJson(`/api/wishlist?slug=${encodeURIComponent(item.slug)}`, {
           method: "DELETE",
         })
           .then((data) => setServerItems(data.items))
-          .catch(() => {});
+          .catch(() => showToast("Couldn't remove that from your wishlist. Please try again."));
       } else {
         fetchJson("/api/wishlist", {
           method: "POST",
           body: JSON.stringify({ slug: item.slug }),
         })
           .then((data) => setServerItems(data.items))
-          .catch(() => {});
+          .catch(() => showToast("Couldn't add that to your wishlist. Please try again."));
       }
       return;
     }
@@ -124,7 +128,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     if (authenticated) {
       fetchJson(`/api/wishlist?slug=${encodeURIComponent(slug)}`, { method: "DELETE" })
         .then((data) => setServerItems(data.items))
-        .catch(() => {});
+        .catch(() => showToast("Couldn't remove that from your wishlist. Please try again."));
       return;
     }
     localStore.setState(localStore.getSnapshot().filter((i) => i.slug !== slug));
