@@ -5,7 +5,7 @@ import { z } from "zod";
 // admin-product.ts's prices.
 export const adminCouponSchema = z
   .object({
-    code: z.string().trim().min(1, "Code is required").toUpperCase(),
+    code: z.string().trim().min(1, "Code is required").max(40, "Keep the code under 40 characters").toUpperCase(),
     discountType: z.enum(["PERCENT", "FLAT"]),
     discountValue: z.coerce.number().min(0, "Can't be negative"),
     minOrderValue: z.coerce.number().min(0).default(0),

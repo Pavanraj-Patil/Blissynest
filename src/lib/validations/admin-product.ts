@@ -4,8 +4,8 @@ import { z } from "zod";
 // Product model — see AdminProductForm's comments for what's out of scope
 // in this first pass (changing slug/pdpType after creation) and why.
 export const adminProductSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  tagline: z.string().trim().optional(),
+  name: z.string().trim().min(1, "Name is required").max(191),
+  tagline: z.string().trim().max(191).optional(),
   pdpType: z.enum(["HAMPER", "STANDALONE", "CUSTOMISABLE"]),
   audience: z.array(z.enum(["HER", "HIM", "PARENTS", "COUPLES", "KIDS"])).default([]),
   // Not a fixed z.enum here: valid values depend on whether collectionSlug is
@@ -13,14 +13,14 @@ export const adminProductSchema = z.object({
   // list when set — see CheckboxGroupField usage in ProductForm.tsx) so the
   // UI enforces the right vocabulary rather than this schema.
   category: z.array(z.string().trim().min(1)).min(1, "Pick at least one category"),
-  collectionSlug: z.string().trim().optional(),
-  breadcrumbCategory: z.string().trim().optional(),
+  collectionSlug: z.string().trim().max(191).optional(),
+  breadcrumbCategory: z.string().trim().max(191).optional(),
   occasionTags: z.array(z.string()).default([]),
   recipientTags: z.array(z.string()).default([]),
   // Hand-picked "You may also like" slugs, in display order. Empty means the
   // product page falls back to matching by shared category/audience.
   relatedSlugs: z.array(z.string().trim().min(1)).max(8, "Pick at most 8 related products").default([]),
-  attribute: z.string().trim().optional(),
+  attribute: z.string().trim().max(191).optional(),
   badge: z.enum(["BESTSELLER", "NEW", ""]).optional(),
   basePrice: z.coerce.number().int().min(0, "Price can't be negative"),
   compareAtPrice: z.coerce.number().int().min(0).optional(),
@@ -42,7 +42,7 @@ export const adminProductSchema = z.object({
   whatsInside: z
     .array(z.object({ name: z.string().min(1), subtitle: z.string(), qty: z.string() }))
     .optional(),
-  personalNoteLabel: z.string().trim().optional(),
+  personalNoteLabel: z.string().trim().max(191).optional(),
   personalNotePrice: z.coerce.number().int().min(0).optional(),
   // Standalone-only
   variants: z

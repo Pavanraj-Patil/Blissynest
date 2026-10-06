@@ -3,8 +3,8 @@ import { passwordField } from "./auth";
 import { phoneField } from "./common";
 
 export const updateProfileSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  email: z.string().trim().toLowerCase().email("Enter a valid email address"),
+  name: z.string().trim().min(1, "Name is required").max(100),
+  email: z.string().trim().toLowerCase().max(191).email("Enter a valid email address"),
   phone: phoneField,
 });
 

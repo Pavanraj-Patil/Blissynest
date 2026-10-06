@@ -5,6 +5,6 @@ import { z } from "zod";
 // touching resolveCouponDiscount, matching every other paise boundary in
 // this app.
 export const validateCouponSchema = z.object({
-  code: z.string().trim().min(1),
+  code: z.string().trim().min(1).max(40),
   subtotal: z.coerce.number().min(0),
 });

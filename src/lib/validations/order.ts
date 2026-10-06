@@ -3,11 +3,11 @@ import { customizationSchema } from "./cart";
 import { phoneField, pincodeField, stateField } from "./common";
 
 export const shippingAddressSchema = z.object({
-  label: z.string().trim().min(1),
-  name: z.string().trim().min(1),
-  line1: z.string().trim().min(1),
-  line2: z.string().trim().optional(),
-  city: z.string().trim().min(1),
+  label: z.string().trim().min(1).max(50),
+  name: z.string().trim().min(1).max(100),
+  line1: z.string().trim().min(1).max(150),
+  line2: z.string().trim().max(150).optional(),
+  city: z.string().trim().min(1).max(100),
   state: stateField,
   pincode: pincodeField,
   phone: phoneField,
@@ -27,11 +27,11 @@ export const createOrderSchema = z.object({
   isGift: z.boolean().default(false),
   giftNote: z.string().trim().max(500).optional(),
   hidePricesOnSlip: z.boolean().default(false),
-  couponCode: z.string().trim().optional(),
+  couponCode: z.string().trim().max(40).optional(),
   // Guest-only — optional here since Zod has no auth context; the route
   // handler (via resolveCartSourceForRequest) requires these when there's
   // no session.
-  guestEmail: z.string().trim().email().optional(),
+  guestEmail: z.string().trim().max(191).email().optional(),
   guestPhone: phoneField.optional(),
   guestItems: z.array(guestCartItemSchema).max(50).optional(),
 });

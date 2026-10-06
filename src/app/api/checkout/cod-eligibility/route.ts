@@ -10,10 +10,13 @@ import { getSiteSettings } from "@/lib/site-settings";
 // the server until order placement.
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  // Capped to match the cart's own per-line-item limits (mergeCartSchema
+  // etc.) so a crafted query string can't force an unbounded Prisma `IN`.
   const slugs = (searchParams.get("slugs") ?? "")
     .split(",")
     .map((s) => s.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .slice(0, 100);
 
   const settings = await getSiteSettings();
   if (!settings.codEnabled || slugs.length === 0) {
