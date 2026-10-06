@@ -24,9 +24,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  const payload = JSON.parse(rawBody);
+  let payload: { event?: string; payload?: { payment?: { entity?: Record<string, unknown> } } };
+  try {
+    payload = JSON.parse(rawBody);
+  } catch {
+    // A signature-verified body that isn't valid JSON shouldn't happen from
+    // the real Razorpay, but failing closed with 400 (not a retry-worthy
+    // 500) is still the right response if it ever does.
+    return NextResponse.json({ error: "Malformed payload" }, { status: 400 });
+  }
   const event = payload.event as string;
-  const payment = payload.payload?.payment?.entity;
+  const payment = payload.payload?.payment?.entity as { id: string; order_id: string } | undefined;
 
   if (!payment) {
     return NextResponse.json({ received: true });
@@ -39,24 +47,47 @@ export async function POST(request: Request) {
   if (existing) {
     return NextResponse.json({ received: true });
   }
-  await db.webhookEvent.create({ data: { provider: "razorpay", eventId } });
 
-  if (event === "payment.captured") {
-    const order = await db.order.findFirst({ where: { razorpayOrderId: payment.order_id } });
-    if (order && order.paymentStatus !== "PAID") {
-      await db.order.update({
-        where: { id: order.id },
-        data: { paymentStatus: "PAID", razorpayPaymentId: payment.id },
-      });
-    } else if (!order) {
-      // Paid, but our confirmation call never arrived: build the order from
-      // the snapshot taken when the payment was opened.
-      await recoverPaidOrder(payment.order_id, payment.id);
+  // The dedup row is written only AFTER processing succeeds (see below),
+  // deliberately: Razorpay retries on any non-2xx response, and if this
+  // event were marked "seen" before the work below actually completed, a
+  // transient failure (a DB hiccup, say) would record the event as handled
+  // while silently never updating the order — then the retry that should
+  // have fixed it would just see the dedup row and no-op instead. Keep
+  // retrying this at least once worth failing loudly for, over losing a
+  // payment update silently.
+  try {
+    if (event === "payment.captured") {
+      const order = await db.order.findFirst({ where: { razorpayOrderId: payment.order_id } });
+      if (order && order.paymentStatus !== "PAID") {
+        await db.order.update({
+          where: { id: order.id },
+          data: { paymentStatus: "PAID", razorpayPaymentId: payment.id },
+        });
+      } else if (!order) {
+        // Paid, but our confirmation call never arrived: build the order from
+        // the snapshot taken when the payment was opened.
+        await recoverPaidOrder(payment.order_id, payment.id);
+      }
+    } else if (event === "payment.failed") {
+      const order = await db.order.findFirst({ where: { razorpayOrderId: payment.order_id } });
+      if (order && order.paymentStatus === "PENDING") {
+        await db.order.update({ where: { id: order.id }, data: { paymentStatus: "FAILED" } });
+      }
     }
-  } else if (event === "payment.failed") {
-    const order = await db.order.findFirst({ where: { razorpayOrderId: payment.order_id } });
-    if (order && order.paymentStatus === "PENDING") {
-      await db.order.update({ where: { id: order.id }, data: { paymentStatus: "FAILED" } });
+  } catch (err) {
+    console.error("[razorpay webhook] processing failed", event, payment.id, err);
+    return NextResponse.json({ error: "Processing failed" }, { status: 500 });
+  }
+
+  try {
+    await db.webhookEvent.create({ data: { provider: "razorpay", eventId } });
+  } catch (err) {
+    // A concurrent retry of the same event already recorded it (unique
+    // constraint) — the work above is idempotent either way, so this is a
+    // benign race, not a real failure.
+    if (!(err instanceof Error) || !err.message.includes("Unique constraint")) {
+      console.error("[razorpay webhook] failed to record dedup row", eventId, err);
     }
   }
 
