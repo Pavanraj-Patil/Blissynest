@@ -1,8 +1,15 @@
 # Blissynest — Backend Handoff Document
 
-**Purpose:** This document is a complete technical handoff of the existing Blissynest frontend, written for whoever (developer or AI) builds the backend next. It was produced by inspecting the actual codebase file by file — not by guessing. Anywhere the frontend doesn't answer a question, that is called out explicitly in Section 32 rather than silently assumed.
+**Status: historical.** Written when this project was still frontend-only,
+before the real backend (Prisma/MySQL, NextAuth, Razorpay, etc. — see
+[SETUP_AND_DEPLOYMENT.md](./SETUP_AND_DEPLOYMENT.md) for the current
+architecture) existed. Keep this file: several live code comments still
+cite its section numbers (e.g. "see Section 9", "Section 30") as the
+rationale for a decision, even though the backend described here has since
+been built. Treat it as the original spec/design-rationale record, not as
+a description of the site's current state.
 
-**Companion document:** `BACKEND_TODO.md` (repo root) is a shorter, ongoing log of "what's mocked vs functional" per feature, maintained throughout the build. This document supersedes it in depth and is the one to use for backend design; `BACKEND_TODO.md` is still useful as a chronological changelog.
+**Purpose:** This document is a complete technical handoff of the existing Blissynest frontend, written for whoever (developer or AI) builds the backend next. It was produced by inspecting the actual codebase file by file — not by guessing. Anywhere the frontend doesn't answer a question, that is called out explicitly in Section 32 rather than silently assumed.
 
 ---
 

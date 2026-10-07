@@ -2,14 +2,12 @@ import { db } from "@/lib/db";
 
 type ErrorResult = { error: string; status: number };
 
-// Real reviews require a real order, but there's no fulfillment pipeline
-// yet to move an Order from PLACED to DELIVERED (no admin order-management
-// UI exists — see BACKEND_TODO). Gating this on `status === "DELIVERED"`
-// would make the feature permanently unusable, since every order in the
-// system is stuck at PLACED. So the check here is "this order is really
-// yours and really contains this product" — not "has been delivered" —
-// with this comment as the flag to tighten it later once order status
-// updates exist.
+// The check here is "this order is really yours and really contains this
+// product" — not "has been delivered". Admin can now move an order to
+// DELIVERED (see admin/orders/[id]/OrderStatusEditor.tsx), so gating on
+// `status === "DELIVERED"` is viable if reviews should only be allowed
+// post-delivery; left as-is for now since tightening this is a product
+// decision, not a technical blocker.
 export async function createReview(
   userId: string,
   input: { orderId: string; productId: string; rating: number; comment: string }

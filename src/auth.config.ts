@@ -83,7 +83,7 @@ export default {
         // Customers don't need a 2FA step-up; admins start unverified for
         // this session until they clear the TOTP challenge (once that
         // admin-side flow is built — the schema field exists, the flow
-        // doesn't yet, see BACKEND_TODO/roadmap).
+        // doesn't yet).
         token.twoFactorVerified = dbUser.role === "CUSTOMER";
       }
 

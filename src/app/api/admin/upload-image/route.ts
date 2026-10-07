@@ -12,7 +12,7 @@ import { validateUploadedImage } from "@/lib/image-upload-validation";
 // Cloudinary credentials aren't set yet (see .env) until a real account is
 // configured; until then this responds with a clear "not configured" error
 // instead of a confusing crash, and the admin form's URL/local-path textarea
-// remains a working fallback (see BACKEND_TODO.md).
+// remains a working fallback.
 export async function POST(request: Request) {
   const check = await requireAdminApi("products");
   if ("error" in check) {

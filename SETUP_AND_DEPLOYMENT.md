@@ -11,7 +11,7 @@ bottom once, then used as a reference.
 Next.js 16 (App Router) + TypeScript + Tailwind v4, backed by MySQL via
 Prisma 7 (using the MariaDB driver adapter, not the default Postgres one —
 see the note in `prisma/schema.prisma`). Auth is NextAuth v5 (email/password
-+ Google OAuth). Payments are Razorpay, images are Cloudinary, shipping
++ Google OAuth). Payments are Razorpay, images are Cloudflare R2, shipping
 labels are Shiprocket. It runs as **one persistent Node.js process** (`npm
 run start`), not on serverless functions — that's a deliberate choice
 documented in `src/lib/db.ts`, and it's why Hostinger (not Vercel) is the
@@ -73,18 +73,24 @@ with something like ngrok — not needed for normal local dev).
 telling the customer to use Cash on Delivery instead. COD checkout works
 regardless. See `src/lib/razorpay.ts`.
 
-### Images — Cloudinary
+### Images — Cloudflare R2
 
 | Variable | Where to get it |
 |---|---|
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary Dashboard homepage, top-left, right under your account name. |
-| `CLOUDINARY_API_KEY` | Same dashboard, "API Keys" section. |
-| `CLOUDINARY_API_SECRET` | Same section (click "reveal"). |
+| `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET_NAME` | Cloudflare dashboard → R2 → your bucket → **Manage API Tokens**. |
+| `R2_PUBLIC_URL` | A custom domain on your Cloudflare zone pointed at the bucket (R2 → bucket → Settings → Custom Domains), e.g. `https://images.yourdomain.com`. The `r2.dev` URL works for quick testing but is rate-limited. |
+| `CLOUDFLARE_IMAGE_TRANSFORMS` | Set to `"true"` only once the site's domain is proxied through Cloudflare with Image Transformations enabled for that zone. Leave empty locally/on Hostinger directly — resizing falls back to this app's own `/api/image-proxy`. |
 
+This is the active image backend — see `src/app/api/admin/upload-image-r2/route.ts`.
 **Without these set:** the admin image-upload button returns a clear
-"Image upload isn't configured yet" error (HTTP 501) instead of crashing.
-Admins can still paste an image URL directly as a fallback. See
-`src/app/api/admin/upload-image/route.ts`.
+"Image upload isn't configured yet" error instead of crashing; admins can
+still paste an image URL directly as a fallback.
+
+Cloudinary (`CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` /
+`CLOUDINARY_API_SECRET`) is kept wired up as a working fallback path (see
+`src/app/api/admin/upload-image/route.ts`) but isn't the active one unless
+you deliberately point the `ImageUploader` components back at it — you
+don't need to set these unless you're reverting to it.
 
 ### Shipping — Shiprocket
 
@@ -111,12 +117,19 @@ register both on the same OAuth client).
 **Without these set:** the "Continue with Google" button just won't work;
 email/password signup and login are unaffected.
 
-### Email — Resend
+### Email — ZeptoMail (or Resend)
 
 | Variable | Notes |
 |---|---|
-| `RESEND_API_KEY`, `EMAIL_FROM` | Order confirmations, shipping/delivery updates, password-reset links and internal notifications (new order, contact message, corporate lead) are sent through Resend. In Resend, verify your domain, then use an address on it, e.g. `Blissynest <orders@blissynest.com>`. **If either is empty, nothing is sent** — messages are printed to the server console instead, which is handy locally. |
-| `TEAM_NOTIFY_EMAIL` | Optional. Where internal notifications go; defaults to the support email in Admin → Site Content → Legal & Business. |
+| `ZEPTOMAIL_TOKEN`, `ZEPTOMAIL_REGION` | Recommended path. The "Send Mail Token" from your ZeptoMail agent, plus the region your account is in (`in`/`com`/`eu`/`com.au`/`jp`/`ca`/`sa` — defaults to `in`). |
+| `RESEND_API_KEY` | Alternative path — only used when `ZEPTOMAIL_TOKEN` is empty. |
+| `EMAIL_FROM` | Required either way. Must be an address on a domain you've verified with whichever provider you're using, e.g. `Blissynest <orders@blissynest.com>`. |
+| `TEAM_NOTIFY_EMAIL` | Optional. Where internal notifications (new order, contact message, corporate lead) go; defaults to the support email in Admin → Site Content → Legal & Business. |
+
+Order confirmations, shipping/delivery updates, and password-reset links
+all go through whichever of these is configured. **If neither provider is
+set, nothing is sent** — messages are printed to the server console
+instead, which is handy locally. See `src/lib/email.ts`.
 
 ### Public address & search engines
 
@@ -124,9 +137,6 @@ email/password signup and login are unaffected.
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | The live site's origin, e.g. `https://blissynest.com` (no trailing slash). Used for canonical links, the sitemap, share cards and links inside emails. |
 | `ALLOW_SEARCH_INDEXING` | Set to `true` **only on the live production site**. Unset (the default) makes the site tell Google not to index it, so UAT/preview copies stay hidden. Forgetting to set it on the live site means Google will not list you. |
-
----|---|
-| `RESEND_API_KEY`, `EMAIL_FROM` | Listed in `.env.example` for when order-confirmation and contact-form emails get built. **Nothing in the code reads these yet** — skip this entirely until that feature exists. |
 
 ---
 
@@ -255,7 +265,7 @@ In hPanel's Node.js section:
    by panel version.
 4. Add every environment variable from your `.env` (§3) in hPanel's
    **environment variables** UI for this app — `DATABASE_URL`,
-   `AUTH_SECRET`, and any of the Razorpay/Cloudinary/Shiprocket/Google keys
+   `AUTH_SECRET`, and any of the Razorpay/R2/Shiprocket/Google keys
    you're using in production. **Use production values here, not your
    local test keys** — especially Razorpay (switch from test-mode to
    live-mode keys once you're ready to accept real payments). (NextAuth's
@@ -309,7 +319,7 @@ it's live:
       works end to end.
 - [ ] If Razorpay keys are live, place one small real test payment and
       confirm the webhook fires (check the order's status updates).
-- [ ] Confirm image upload works from `/admin` if Cloudinary keys are set.
+- [ ] Confirm image upload works from `/admin` if R2 keys are set.
 - [ ] Check `npx prisma studio` (or phpMyAdmin) isn't left reachable from
       the public internet — only use it over SSH tunnel or hPanel's own
       access, never expose port 5555 publicly.
